@@ -1,0 +1,51 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.Time" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/md_theme_primaryd</item>
+        <item name="colorOnPrimary">@color/md_theme_onPrimaryd</item>
+        <item name="colorPrimaryContainer">@color/md_theme_primaryContainerd</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_onPrimaryContainerd</item>
+        <item name="colorSecondary">@color/md_theme_secondaryd</item>
+        <item name="colorOnSecondary">@color/md_theme_onSecondaryd</item>
+        <item name="colorSecondaryContainer">@color/md_theme_secondaryContainerd</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_onSecondaryContainerd</item>
+        <item name="colorTertiary">@color/md_theme_tertiaryd</item>
+        <item name="colorOnTertiary">@color/md_theme_onTertiaryd</item>
+        <item name="colorTertiaryContainer">@color/md_theme_tertiaryContainerd</item>
+        <item name="colorOnTertiaryContainer">@color/md_theme_onTertiaryContainerd</item>
+        <item name="colorError">@color/md_theme_errord</item>
+        <item name="colorOnError">@color/md_theme_onErrord</item>
+        <item name="colorErrorContainer">@color/md_theme_errorContainerd</item>
+        <item name="colorOnErrorContainer">@color/md_theme_onErrorContainerd</item>
+        <item name="android:colorBackground">@color/md_theme_backgroundd</item>
+        <item name="colorOnBackground">@color/md_theme_onBackgroundd</item>
+        <item name="colorSurface">@color/md_theme_surfaced</item>
+        <item name="colorOnSurface">@color/md_theme_onSurfaced</item>
+        <item name="colorSurfaceVariant">@color/md_theme_surfaceVariantd</item>
+        <item name="colorOnSurfaceVariant">@color/md_theme_onSurfaceVariantd</item>
+        <item name="colorOutline">@color/md_theme_outlined</item>
+        <item name="colorOutlineVariant">@color/md_theme_outlineVariantd</item>
+        <item name="colorSurfaceInverse">@color/md_theme_inverseSurfaced</item>
+        <item name="colorOnSurfaceInverse">@color/md_theme_inverseOnSurfacd</item>
+        <item name="colorPrimaryInverse">@color/md_theme_inversePrimaryd</item>
+        <item name="colorPrimaryFixed">@color/md_theme_primaryFixedd</item>
+        <item name="colorOnPrimaryFixed">@color/md_theme_onPrimaryFixedd</item>
+        <item name="colorPrimaryFixedDim">@color/md_theme_primaryFixedDimd</item>
+        <item name="colorOnPrimaryFixedVariant">@color/md_theme_onPrimaryFixedVariantd</item>
+        <item name="colorSecondaryFixed">@color/md_theme_secondaryFixedd</item>
+        <item name="colorOnSecondaryFixed">@color/md_theme_onSecondaryFixedd</item>
+        <item name="colorSecondaryFixedDim">@color/md_theme_secondaryFixedDimd</item>
+        <item name="colorOnSecondaryFixedVariant">@color/md_theme_onSecondaryFixedVariantd</item>
+        <item name="colorTertiaryFixed">@color/md_theme_tertiaryFixedd</item>
+        <item name="colorOnTertiaryFixed">@color/md_theme_onTertiaryFixedd</item>
+        <item name="colorTertiaryFixedDim">@color/md_theme_tertiaryFixedDimd</item>
+        <item name="colorOnTertiaryFixedVariant">@color/md_theme_onTertiaryFixedVariantd</item>
+        <item name="colorSurfaceDim">@color/md_theme_surfaceDimd</item>
+        <item name="colorSurfaceBright">@color/md_theme_surfaceBrightd</item>
+        <item name="colorSurfaceContainerLowest">@color/md_theme_surfaceContainerLowestd</item>
+        <item name="colorSurfaceContainerLow">@color/md_theme_surfaceContainerLowd</item>
+        <item name="colorSurfaceContainer">@color/md_theme_surfaceContainerd</item>
+        <item name="colorSurfaceContainerHigh">@color/md_theme_surfaceContainerHighd</item>
+        <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighestd</item>
+    </style>
+</resources>
