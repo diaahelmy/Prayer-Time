@@ -8,7 +8,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
@@ -27,34 +26,26 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.RECEIVER_EXPORTED
-import androidx.core.content.ContextCompat.registerReceiver
 import com.example.time.databinding.FragmentHomeBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.material.timepicker.MaterialTimePicker
-import com.google.android.material.timepicker.TimeFormat
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.JulianFields
 import java.util.Locale
-import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.acos
 import kotlin.math.asin
 import kotlin.math.atan
 import kotlin.math.atan2
 import kotlin.math.cos
-import kotlin.math.roundToLong
 import kotlin.math.sin
 import kotlin.math.tan
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 
 class HomeFragment : Fragment() {
@@ -72,7 +63,11 @@ class HomeFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        ThemeManager.applyTheme(requireContext())
+
         super.onViewCreated(view, savedInstanceState)
+
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         if (ContextCompat.checkSelfPermission(
@@ -91,8 +86,28 @@ class HomeFragment : Fragment() {
 //            scheduleNotifications()
         }
         binding.notificationIsha.setOnClickListener {
+            binding.notificationIsha.visibility = View.GONE
+            binding.notificationIshaoff.visibility = View.VISIBLE
             cancelScheduledNotification(requireContext(), 4)
 
+        }
+        binding.notificationIshaoff.setOnClickListener {
+            binding.notificationIsha.visibility = View.VISIBLE
+            binding.notificationIshaoff.visibility = View.GONE
+            val timeZone = TimeZone.getDefault()
+            val timeZoneId = timeZone.displayName // Change this to the desired time zone
+            val notificationTime =
+                binding.tvtimefajr.text.toString()
+            val title = "صلاه الفجر الان"
+            val message = "حان موعد اذان الفجر بتوقيت القاهره"
+            scheduleNotification(
+                requireContext(),
+                notificationTime,
+                4,
+                title,
+                message,
+                timeZoneId
+            )
         }
 
 
@@ -124,7 +139,32 @@ class HomeFragment : Fragment() {
 
 
         }
+        binding.shapeableImageView1.setOnClickListener {
+            val context = requireContext()
+            val activity = requireActivity()
 
+            // Toggle the theme
+            try {
+                // Toggle the theme
+                ThemeManager.toggleTheme(context)
+
+                // Provide feedback to the user
+                val sharedPreferences =
+                    context.getSharedPreferences("ThemePrefs", Context.MODE_PRIVATE)
+                val isDarkMode = sharedPreferences.getBoolean("isDarkMode", false)
+                val modeText = if (isDarkMode) "Switched to Light mode" else "Switched to Dark mode"
+                Toast.makeText(context, modeText, Toast.LENGTH_SHORT).show()
+
+                // Recreate the activity to apply the new theme
+                activity.recreate()
+
+            } catch (e: NullPointerException) {
+                e.printStackTrace()
+                // Handle or log the exception appropriately
+                Toast.makeText(context, "Error toggling theme", Toast.LENGTH_SHORT).show()
+            }
+
+        }
 
     }
 
@@ -186,7 +226,7 @@ class HomeFragment : Fragment() {
         val EqT = (q / 15 - RA).absoluteValue  // equation of time, absolute value
 
         val Dhuhr = 12.0.hours + timeZone.hours - (longitude.hours / 15) - EqT.hours
-        Log.d("isha",Dhuhr.toString())
+        Log.d("isha", Dhuhr.toString())
         fun T(alpha: Double): Duration {
             val term1 = sin(Math.toRadians(alpha))
             val term2 = sin(Math.toRadians(latitude)) * sin(Math.toRadians(D))
@@ -214,6 +254,7 @@ class HomeFragment : Fragment() {
 
             return arccosValue.hours / 15.0.hours // Convert to hours
         }
+
         val dstAdjustment = if (isInDaylightSavingTime()) 1.0 else 0.0
 
         val t0833 = T(0.833)
@@ -226,7 +267,13 @@ class HomeFragment : Fragment() {
         val isha = (Dhuhr + tisha)
 
 
-        return Quintuple(Dhuhr+dstAdjustment.hours, asrTime+dstAdjustment.hours, sunset+dstAdjustment.hours, isha+dstAdjustment.hours, fajr+dstAdjustment.hours)
+        return Quintuple(
+            Dhuhr + dstAdjustment.hours,
+            asrTime + dstAdjustment.hours,
+            sunset + dstAdjustment.hours,
+            isha + dstAdjustment.hours,
+            fajr + dstAdjustment.hours
+        )
     }
 
     fun showTimeZoneInfo(context: Context) {
@@ -267,16 +314,15 @@ class HomeFragment : Fragment() {
     private fun scheduleNotifications() {
         val timeZoneId = "Africa/Cairo" // Change this to the desired time zone
         val notificationtvfajrTime =
-            binding.tvtimefajr.text.toString() + " AM" // Adjusted time format
+            binding.tvtimefajr.text.toString()
 
 //        val notificationDhuhrTime =
 //            binding.tvTimeDhuhr.text.toString()  // Adjusted time format
         val notificationAsrTime =
-            binding.tvtimeAsr.text.toString() + " PM" // Adjusted time format
+            binding.tvtimeAsr.text.toString()
         val notificationMaghribTime =
-            binding.tvTimeMaghrib.text.toString() + " PM" // Adjusted time format
-        val notificationTime = binding.tvTime.text.toString() + " PM" // Adjusted time format
-
+            binding.tvTimeMaghrib.text.toString()
+        val notificationTime = binding.tvTime.text.toString()
 
         val titlefajr = "صلاه الفجر الان"
         val messagefajr = "حان موعد اذان الفجر بتوقيت القاهره"
@@ -525,7 +571,7 @@ class HomeFragment : Fragment() {
                     binding.tvTimeDhuhr.text = notificationDhuhrTime.toString()
                     binding.tvTime.text = notificationTime.toString()
 
-                    val timeZoneId = "Africa/Cairo" // Change this to the desired time zone
+                    val timeZoneId = timeZone.displayName// Change this to the desired time zone
                     val titleDhuhr = "صلاه الظهر الان"
                     val messageDhuhr = "حان موعد اذان الظهر بتوقيت القاهره"
                     val titlefajr = "صلاه الفجر الان"
@@ -538,7 +584,6 @@ class HomeFragment : Fragment() {
                     val title = "صلاه لعشاء الان"
                     val message = "حان موعد اذان العشاء بتوقيت القاهره"
 
-
                     scheduleNotification(
                         requireContext(),
                         notificationtvfajrTime,
@@ -549,6 +594,7 @@ class HomeFragment : Fragment() {
                     )
 
 
+
                     scheduleNotification(
                         requireContext(),
                         notificationAsrTime,
@@ -557,6 +603,9 @@ class HomeFragment : Fragment() {
                         messageAsr,
                         timeZoneId
                     )
+
+
+
                     scheduleNotification(
                         requireContext(),
                         notificationMaghribTime,
@@ -566,6 +615,8 @@ class HomeFragment : Fragment() {
                         timeZoneId
                     )
 
+
+
                     scheduleNotification(
                         requireContext(),
                         notificationTime,
@@ -574,6 +625,9 @@ class HomeFragment : Fragment() {
                         message,
                         timeZoneId
                     )
+
+
+
                     scheduleNotification(
                         requireContext(),
                         notificationDhuhrTime,
@@ -582,6 +636,7 @@ class HomeFragment : Fragment() {
                         messageDhuhr,
                         "Africa/Cairo".toString()
                     )
+
                 } ?: run {
                     Toast.makeText(
                         requireContext(),
@@ -592,4 +647,8 @@ class HomeFragment : Fragment() {
             }
     }
 
+    override fun onResume() {
+        super.onResume()
+        ThemeManager.applyTheme(requireContext()) // Apply theme when activity resumes
+    }
 }
