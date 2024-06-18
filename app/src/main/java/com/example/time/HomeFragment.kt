@@ -63,11 +63,7 @@ class HomeFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ThemeManager.applyTheme(requireContext())
-
         super.onViewCreated(view, savedInstanceState)
-
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         if (ContextCompat.checkSelfPermission(
@@ -86,28 +82,8 @@ class HomeFragment : Fragment() {
 //            scheduleNotifications()
         }
         binding.notificationIsha.setOnClickListener {
-            binding.notificationIsha.visibility = View.GONE
-            binding.notificationIshaoff.visibility = View.VISIBLE
             cancelScheduledNotification(requireContext(), 4)
 
-        }
-        binding.notificationIshaoff.setOnClickListener {
-            binding.notificationIsha.visibility = View.VISIBLE
-            binding.notificationIshaoff.visibility = View.GONE
-            val timeZone = TimeZone.getDefault()
-            val timeZoneId = timeZone.displayName // Change this to the desired time zone
-            val notificationTime =
-                binding.tvtimefajr.text.toString()
-            val title = "صلاه الفجر الان"
-            val message = "حان موعد اذان الفجر بتوقيت القاهره"
-            scheduleNotification(
-                requireContext(),
-                notificationTime,
-                4,
-                title,
-                message,
-                timeZoneId
-            )
         }
 
 
@@ -139,32 +115,7 @@ class HomeFragment : Fragment() {
 
 
         }
-        binding.shapeableImageView1.setOnClickListener {
-            val context = requireContext()
-            val activity = requireActivity()
 
-            // Toggle the theme
-            try {
-                // Toggle the theme
-                ThemeManager.toggleTheme(context)
-
-                // Provide feedback to the user
-                val sharedPreferences =
-                    context.getSharedPreferences("ThemePrefs", Context.MODE_PRIVATE)
-                val isDarkMode = sharedPreferences.getBoolean("isDarkMode", false)
-                val modeText = if (isDarkMode) "Switched to Light mode" else "Switched to Dark mode"
-                Toast.makeText(context, modeText, Toast.LENGTH_SHORT).show()
-
-                // Recreate the activity to apply the new theme
-                activity.recreate()
-
-            } catch (e: NullPointerException) {
-                e.printStackTrace()
-                // Handle or log the exception appropriately
-                Toast.makeText(context, "Error toggling theme", Toast.LENGTH_SHORT).show()
-            }
-
-        }
 
     }
 
@@ -223,7 +174,8 @@ class HomeFragment : Fragment() {
 
         val D =
             Math.toDegrees(asin(sin(Math.toRadians(e)) * sin(Math.toRadians(L))))  // declination of the Sun
-        val EqT = (q / 15 - RA).absoluteValue  // equation of time, absolute value
+        var EqT = (q / 15 - RA)
+        if (EqT.absoluteValue * 60 > 20) EqT -= 24// equation of time, absolute value
 
         val Dhuhr = 12.0.hours + timeZone.hours - (longitude.hours / 15) - EqT.hours
         Log.d("isha", Dhuhr.toString())
@@ -314,15 +266,16 @@ class HomeFragment : Fragment() {
     private fun scheduleNotifications() {
         val timeZoneId = "Africa/Cairo" // Change this to the desired time zone
         val notificationtvfajrTime =
-            binding.tvtimefajr.text.toString()
+            binding.tvtimefajr.text.toString() + " AM" // Adjusted time format
 
 //        val notificationDhuhrTime =
 //            binding.tvTimeDhuhr.text.toString()  // Adjusted time format
         val notificationAsrTime =
-            binding.tvtimeAsr.text.toString()
+            binding.tvtimeAsr.text.toString() + " PM" // Adjusted time format
         val notificationMaghribTime =
-            binding.tvTimeMaghrib.text.toString()
-        val notificationTime = binding.tvTime.text.toString()
+            binding.tvTimeMaghrib.text.toString() + " PM" // Adjusted time format
+        val notificationTime = binding.tvTime.text.toString() + " PM" // Adjusted time format
+
 
         val titlefajr = "صلاه الفجر الان"
         val messagefajr = "حان موعد اذان الفجر بتوقيت القاهره"
@@ -566,23 +519,23 @@ class HomeFragment : Fragment() {
                     val notificationTime = convertDurationToTimeString(isha)
                     val notificationAsrTime = convertDurationToTimeString(asr)
                     binding.tvtimeAsr.text = notificationAsrTime
-                    binding.tvTimeMaghrib.text = notificationMaghribTime.toString()
-                    binding.tvtimefajr.text = notificationtvfajrTime.toString()
-                    binding.tvTimeDhuhr.text = notificationDhuhrTime.toString()
-                    binding.tvTime.text = notificationTime.toString()
-
-                    val timeZoneId = timeZone.displayName// Change this to the desired time zone
+                    binding.tvTimeMaghrib.text = notificationMaghribTime
+                    binding.tvtimefajr.text = notificationtvfajrTime
+                    binding.tvTimeDhuhr.text = notificationDhuhrTime
+                    binding.tvTime.text = notificationTime
+                    Toast.makeText(requireContext(), "Done${timeZone.id}", Toast.LENGTH_SHORT).show()
+                    val timeZoneId = timeZone.id // Change this to the desired time zone
                     val titleDhuhr = "صلاه الظهر الان"
                     val messageDhuhr = "حان موعد اذان الظهر بتوقيت القاهره"
                     val titlefajr = "صلاه الفجر الان"
                     val messagefajr = "حان موعد اذان الفجر بتوقيت القاهره"
-
                     val titleAsr = "صلاه العصر الان"
                     val messageAsr = "حان موعد اذان العصر بتوقيت القاهره"
                     val titleMaghrib = "صلاه المغرب الان"
                     val messageMaghrib = "حان موعد اذان المغرب بتوقيت القاهره"
                     val title = "صلاه لعشاء الان"
                     val message = "حان موعد اذان العشاء بتوقيت القاهره"
+
 
                     scheduleNotification(
                         requireContext(),
@@ -592,8 +545,14 @@ class HomeFragment : Fragment() {
                         messagefajr,
                         timeZoneId
                     )
-
-
+                    scheduleNotification(
+                        requireContext(),
+                        notificationDhuhrTime,
+                        1,
+                        titleDhuhr,
+                        messageDhuhr,
+                        timeZoneId
+                    )
 
                     scheduleNotification(
                         requireContext(),
@@ -603,9 +562,6 @@ class HomeFragment : Fragment() {
                         messageAsr,
                         timeZoneId
                     )
-
-
-
                     scheduleNotification(
                         requireContext(),
                         notificationMaghribTime,
@@ -615,8 +571,6 @@ class HomeFragment : Fragment() {
                         timeZoneId
                     )
 
-
-
                     scheduleNotification(
                         requireContext(),
                         notificationTime,
@@ -624,17 +578,6 @@ class HomeFragment : Fragment() {
                         title,
                         message,
                         timeZoneId
-                    )
-
-
-
-                    scheduleNotification(
-                        requireContext(),
-                        notificationDhuhrTime,
-                        1,
-                        titleDhuhr,
-                        messageDhuhr,
-                        "Africa/Cairo".toString()
                     )
 
                 } ?: run {
@@ -647,8 +590,9 @@ class HomeFragment : Fragment() {
             }
     }
 
-    override fun onResume() {
-        super.onResume()
-        ThemeManager.applyTheme(requireContext()) // Apply theme when activity resumes
-    }
 }
+
+//    override fun onResume() {
+//        super.onResume()
+//        ThemeManager.applyTheme(requireContext()) // Apply theme when activity resumes
+//    }

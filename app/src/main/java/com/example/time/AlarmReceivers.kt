@@ -73,7 +73,7 @@ class AlarmReceivers: BroadcastReceiver() {
     }
     private fun playAlarmSound(context: Context) {
         // Play the alarm sound using RingtoneManager
-        val ringtoneUri: Uri = Uri.parse("android.resource://com.example.prayertime/raw/alzm")
+        val ringtoneUri: Uri = Uri.parse("android.resource://com.example.time/raw/alzm")
 
         // Get the ringtone
         val ringtone: Ringtone = RingtoneManager.getRingtone(context, ringtoneUri)
@@ -81,14 +81,13 @@ class AlarmReceivers: BroadcastReceiver() {
         // Play the ringtone
         ringtone.play()
 
-
         // Vibrate the device if possible
         val vibrator = ContextCompat.getSystemService(context, Vibrator::class.java)
         if (vibrator != null && vibrator.hasVibrator()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE))
+                vibrator.vibrate(VibrationEffect.createOneShot(5000, VibrationEffect.DEFAULT_AMPLITUDE))
             } else {
-                vibrator.vibrate(1000)
+                vibrator.vibrate(5000)
             }
         }
     }
