@@ -51,6 +51,9 @@ import kotlin.time.Duration.Companion.minutes
 class HomeFragment : Fragment() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var _binding: FragmentHomeBinding? = null
+    private  val PREFS_NAME = "LocationPrefs"
+    private  val KEY_LATITUDE = "latitude"
+    private  val KEY_LONGITUDE = "longitude"
     private val binding get() = _binding!!
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,11 +66,7 @@ class HomeFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ThemeManager.applyTheme(requireContext())
-
         super.onViewCreated(view, savedInstanceState)
-
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         if (ContextCompat.checkSelfPermission(
@@ -80,34 +79,15 @@ class HomeFragment : Fragment() {
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 1
             )
+
         } else {
 
             fetchLocation()
 //            scheduleNotifications()
         }
         binding.notificationIsha.setOnClickListener {
-            binding.notificationIsha.visibility = View.GONE
-            binding.notificationIshaoff.visibility = View.VISIBLE
             cancelScheduledNotification(requireContext(), 4)
 
-        }
-        binding.notificationIshaoff.setOnClickListener {
-            binding.notificationIsha.visibility = View.VISIBLE
-            binding.notificationIshaoff.visibility = View.GONE
-            val timeZone = TimeZone.getDefault()
-            val timeZoneId = timeZone.displayName // Change this to the desired time zone
-            val notificationTime =
-                binding.tvtimefajr.text.toString()
-            val title = "صلاه الفجر الان"
-            val message = "حان موعد اذان الفجر بتوقيت القاهره"
-            scheduleNotification(
-                requireContext(),
-                notificationTime,
-                4,
-                title,
-                message,
-                timeZoneId
-            )
         }
 
 
@@ -139,32 +119,7 @@ class HomeFragment : Fragment() {
 
 
         }
-        binding.shapeableImageView1.setOnClickListener {
-            val context = requireContext()
-            val activity = requireActivity()
 
-            // Toggle the theme
-            try {
-                // Toggle the theme
-                ThemeManager.toggleTheme(context)
-
-                // Provide feedback to the user
-                val sharedPreferences =
-                    context.getSharedPreferences("ThemePrefs", Context.MODE_PRIVATE)
-                val isDarkMode = sharedPreferences.getBoolean("isDarkMode", false)
-                val modeText = if (isDarkMode) "Switched to Light mode" else "Switched to Dark mode"
-                Toast.makeText(context, modeText, Toast.LENGTH_SHORT).show()
-
-                // Recreate the activity to apply the new theme
-                activity.recreate()
-
-            } catch (e: NullPointerException) {
-                e.printStackTrace()
-                // Handle or log the exception appropriately
-                Toast.makeText(context, "Error toggling theme", Toast.LENGTH_SHORT).show()
-            }
-
-        }
 
     }
 
@@ -223,7 +178,8 @@ class HomeFragment : Fragment() {
 
         val D =
             Math.toDegrees(asin(sin(Math.toRadians(e)) * sin(Math.toRadians(L))))  // declination of the Sun
-        val EqT = (q / 15 - RA).absoluteValue  // equation of time, absolute value
+        var EqT = (q / 15 - RA)
+        if (EqT.absoluteValue * 60 > 20) EqT -= 24// equation of time, absolute value
 
         val Dhuhr = 12.0.hours + timeZone.hours - (longitude.hours / 15) - EqT.hours
         Log.d("isha", Dhuhr.toString())
@@ -314,15 +270,16 @@ class HomeFragment : Fragment() {
     private fun scheduleNotifications() {
         val timeZoneId = "Africa/Cairo" // Change this to the desired time zone
         val notificationtvfajrTime =
-            binding.tvtimefajr.text.toString()
+            binding.tvtimefajr.text.toString() + " AM" // Adjusted time format
 
 //        val notificationDhuhrTime =
 //            binding.tvTimeDhuhr.text.toString()  // Adjusted time format
         val notificationAsrTime =
-            binding.tvtimeAsr.text.toString()
+            binding.tvtimeAsr.text.toString() + " PM" // Adjusted time format
         val notificationMaghribTime =
-            binding.tvTimeMaghrib.text.toString()
-        val notificationTime = binding.tvTime.text.toString()
+            binding.tvTimeMaghrib.text.toString() + " PM" // Adjusted time format
+        val notificationTime = binding.tvTime.text.toString() + " PM" // Adjusted time format
+
 
         val titlefajr = "صلاه الفجر الان"
         val messagefajr = "حان موعد اذان الفجر بتوقيت القاهره"
@@ -539,116 +496,134 @@ class HomeFragment : Fragment() {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
+            requestLocationPermissions()
             return
         }
 
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location ->
-                location?.let {
-                    val timeZone = TimeZone.getDefault()
+                if (location != null) {
+                    // Successfully fetched location
                     val longitude = location.longitude
                     val latitude = location.latitude
-                    val jd = getJulianDateForToday()
 
-                    val timeZoneOffset = timeZone.rawOffset / (1000 * 60 * 60).toDouble()
-                    val dhuhrTime =
-                        calculateSunParameters(jd, timeZoneOffset, longitude, latitude).first
-                    val isha =
-                        calculateSunParameters(jd, timeZoneOffset, longitude, latitude).fourth
-                    val fajr = calculateSunParameters(jd, timeZoneOffset, longitude, latitude).fifth
-                    val maghrib =
-                        calculateSunParameters(jd, timeZoneOffset, longitude, latitude).third
-                    val asr = calculateSunParameters(jd, timeZoneOffset, longitude, latitude).second
+                    // Save location to SharedPreferences
+                    saveLocationToPrefs(latitude, longitude)
 
-                    val notificationDhuhrTime = convertDurationToTimeString(dhuhrTime)
-                    val notificationtvfajrTime = convertDurationToTimeString(fajr)
-                    val notificationMaghribTime = convertDurationToTimeString(maghrib)
-                    val notificationTime = convertDurationToTimeString(isha)
-                    val notificationAsrTime = convertDurationToTimeString(asr)
-                    binding.tvtimeAsr.text = notificationAsrTime
-                    binding.tvTimeMaghrib.text = notificationMaghribTime.toString()
-                    binding.tvtimefajr.text = notificationtvfajrTime.toString()
-                    binding.tvTimeDhuhr.text = notificationDhuhrTime.toString()
-                    binding.tvTime.text = notificationTime.toString()
+                    // Use the fetched location data
+                    useLocationData(latitude, longitude)
+                } else {
+                    // Failed to retrieve location, use the last saved location
+                    val savedLocation = getLocationFromPrefs()
+                    if (savedLocation != null) {
+                        val (latitude, longitude) = savedLocation
+                        Toast.makeText(
+                            requireContext(),
+                            "Using last known location$latitude,$longitude",
+                            Toast.LENGTH_SHORT
+                        ).show()
 
-                    val timeZoneId = timeZone.displayName// Change this to the desired time zone
-                    val titleDhuhr = "صلاه الظهر الان"
-                    val messageDhuhr = "حان موعد اذان الظهر بتوقيت القاهره"
-                    val titlefajr = "صلاه الفجر الان"
-                    val messagefajr = "حان موعد اذان الفجر بتوقيت القاهره"
-
-                    val titleAsr = "صلاه العصر الان"
-                    val messageAsr = "حان موعد اذان العصر بتوقيت القاهره"
-                    val titleMaghrib = "صلاه المغرب الان"
-                    val messageMaghrib = "حان موعد اذان المغرب بتوقيت القاهره"
-                    val title = "صلاه لعشاء الان"
-                    val message = "حان موعد اذان العشاء بتوقيت القاهره"
-
-                    scheduleNotification(
-                        requireContext(),
-                        notificationtvfajrTime,
-                        0,
-                        titlefajr,
-                        messagefajr,
-                        timeZoneId
-                    )
-
-
-
-                    scheduleNotification(
-                        requireContext(),
-                        notificationAsrTime,
-                        2,
-                        titleAsr,
-                        messageAsr,
-                        timeZoneId
-                    )
-
-
-
-                    scheduleNotification(
-                        requireContext(),
-                        notificationMaghribTime,
-                        3,
-                        titleMaghrib,
-                        messageMaghrib,
-                        timeZoneId
-                    )
-
-
-
-                    scheduleNotification(
-                        requireContext(),
-                        notificationTime,
-                        4,
-                        title,
-                        message,
-                        timeZoneId
-                    )
-
-
-
-                    scheduleNotification(
-                        requireContext(),
-                        notificationDhuhrTime,
-                        1,
-                        titleDhuhr,
-                        messageDhuhr,
-                        "Africa/Cairo".toString()
-                    )
-
-                } ?: run {
-                    Toast.makeText(
-                        requireContext(),
-                        "Failed to retrieve location",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        // Use the saved location data
+                        useLocationData(latitude, longitude)
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Failed to retrieve location and no saved location available",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
     }
 
-    override fun onResume() {
-        super.onResume()
-        ThemeManager.applyTheme(requireContext()) // Apply theme when activity resumes
+    private fun requestLocationPermissions() {
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+            LOCATION_PERMISSION_REQUEST_CODE
+        )
     }
+
+    // Constants for request codes and preference keys
+    private  val LOCATION_PERMISSION_REQUEST_CODE = 1000
+
+    // Function to save location to SharedPreferences
+    private fun saveLocationToPrefs(latitude: Double, longitude: Double) {
+        val sharedPreferences = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        with(sharedPreferences.edit()) {
+            putString(KEY_LATITUDE, latitude.toString())
+            putString(KEY_LONGITUDE, longitude.toString())
+            apply() // Save changes
+        }
+    }
+
+    // Function to retrieve location from SharedPreferences
+    private fun getLocationFromPrefs(): Pair<Double, Double>? {
+        val sharedPreferences = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val latitude = sharedPreferences.getString(KEY_LATITUDE, null)
+        val longitude = sharedPreferences.getString(KEY_LONGITUDE, null)
+        return if (latitude != null && longitude != null) {
+            Pair(latitude.toDouble(), longitude.toDouble())
+        } else {
+            null
+        }
+    }
+
+    // Function to use location data (e.g., updating the UI or scheduling notifications)
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun useLocationData(latitude: Double, longitude: Double) {
+
+
+        // Example: Calculate prayer times
+        val timeZone = TimeZone.getDefault()
+        val jd = getJulianDateForToday()
+        val timeZoneOffset = timeZone.rawOffset / (1000 * 60 * 60).toDouble()
+        val sunParams = calculateSunParameters(jd, timeZoneOffset, longitude, latitude)
+
+        val dhuhrTime = sunParams.first
+        val asrTime = sunParams.second
+        val maghribTime = sunParams.third
+        val ishaTime = sunParams.fourth
+        val fajrTime = sunParams.fifth
+
+        binding.tvtimeAsr.text = convertDurationToTimeString(asrTime)
+        binding.tvTimeMaghrib.text = convertDurationToTimeString(maghribTime)
+        binding.tvtimefajr.text = convertDurationToTimeString(fajrTime)
+        binding.tvTimeDhuhr.text = convertDurationToTimeString(dhuhrTime)
+        binding.tvTime.text = convertDurationToTimeString(ishaTime)
+
+        // Example: Schedule notifications
+        val titles = listOf("صلاه الفجر الان", "صلاه الظهر الان", "صلاه العصر الان", "صلاه المغرب الان", "صلاه العشاء الان")
+        val messages = listOf(
+            "حان موعد اذان الفجر بتوقيت القاهره",
+            "حان موعد اذان الظهر بتوقيت القاهره",
+            "حان موعد اذان العصر بتوقيت القاهره",
+            "حان موعد اذان المغرب بتوقيت القاهره",
+            "حان موعد اذان العشاء بتوقيت القاهره"
+        )
+        val notificationTimes = listOf(
+            convertDurationToTimeString(fajrTime),
+            convertDurationToTimeString(dhuhrTime),
+            convertDurationToTimeString(asrTime),
+            convertDurationToTimeString(maghribTime),
+            convertDurationToTimeString(ishaTime)
+        )
+
+        for (i in notificationTimes.indices) {
+            scheduleNotification(
+                requireContext(),
+                notificationTimes[i],
+                i,
+                titles[i],
+                messages[i],
+                timeZone.id
+            )
+        }
+    }
+
 }
+
+//    override fun onResume() {
+//        super.onResume()
+//        ThemeManager.applyTheme(requireContext()) // Apply theme when activity resumes
+//    }
