@@ -15,7 +15,6 @@ import android.icu.util.TimeZone
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
-import android.preference.PreferenceManager
 import android.provider.Settings
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -85,17 +84,11 @@ class HomeFragment : Fragment() {
             fetchLocation()
 //            scheduleNotifications()
         }
-        binding.notificationIsha.setOnClickListener {
-            cancelScheduledNotification(requireContext(), 4)
-
-        }
 
 
 
         checkNotificationPermission(requireActivity(), 100)
-        binding.notificationfajr.setOnClickListener {
-            cancelScheduledNotification(requireContext(), 4)
-        }
+
         binding.logo.setOnClickListener {
             showTimeZoneInfo(requireContext())
 
@@ -122,29 +115,6 @@ class HomeFragment : Fragment() {
 
 
     }
-
-    fun clock(): Int {
-        // Get the current system time in milliseconds
-        val currentTimeMillis = System.currentTimeMillis()
-
-        // Retrieve stored time from SharedPreferences
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val storedTimeMillis = sharedPreferences.getLong("stored_time_millis", currentTimeMillis)
-
-        // Calculate the difference in hours
-        val differenceInMillis = currentTimeMillis - storedTimeMillis
-        val differenceInHours = differenceInMillis / (1000 * 60 * 60).toDouble()
-
-        // Use absolute value to ignore the direction of change and convert to an integer
-        val absoluteDifferenceInHours = Math.abs(differenceInHours).toInt()
-
-        // Toast message for debugging purposes
-        Toast.makeText(requireContext(), "T $absoluteDifferenceInHours ", Toast.LENGTH_LONG).show()
-
-        // Return the integer part of the absolute difference in hours
-        return absoluteDifferenceInHours
-    }
-
 
     fun normalizeAngle(angle: Double): Double {
         var normalizedAngle = angle % 360.0
@@ -267,67 +237,6 @@ class HomeFragment : Fragment() {
     internal fun ZonedDateTime.atDuration(duration: Duration) =
         atStartOfDay().plusNanos(duration.inWholeNanoseconds)!!
 
-    private fun scheduleNotifications() {
-        val timeZoneId = "Africa/Cairo" // Change this to the desired time zone
-        val notificationtvfajrTime =
-            binding.tvtimefajr.text.toString() + " AM" // Adjusted time format
-
-//        val notificationDhuhrTime =
-//            binding.tvTimeDhuhr.text.toString()  // Adjusted time format
-        val notificationAsrTime =
-            binding.tvtimeAsr.text.toString() + " PM" // Adjusted time format
-        val notificationMaghribTime =
-            binding.tvTimeMaghrib.text.toString() + " PM" // Adjusted time format
-        val notificationTime = binding.tvTime.text.toString() + " PM" // Adjusted time format
-
-
-        val titlefajr = "صلاه الفجر الان"
-        val messagefajr = "حان موعد اذان الفجر بتوقيت القاهره"
-
-        val titleAsr = "صلاه العصر الان"
-        val messageAsr = "حان موعد اذان العصر بتوقيت القاهره"
-        val titleMaghrib = "صلاه المغرب الان"
-        val messageMaghrib = "حان موعد اذان المغرب بتوقيت القاهره"
-        val title = "صلاه لعشاء الان"
-        val message = "حان موعد اذان العشاء بتوقيت القاهره"
-
-
-        scheduleNotification(
-            requireContext(),
-            notificationtvfajrTime,
-            0,
-            titlefajr,
-            messagefajr,
-            timeZoneId
-        )
-
-
-        scheduleNotification(
-            requireContext(),
-            notificationAsrTime,
-            2,
-            titleAsr,
-            messageAsr,
-            timeZoneId
-        )
-        scheduleNotification(
-            requireContext(),
-            notificationMaghribTime,
-            3,
-            titleMaghrib,
-            messageMaghrib,
-            timeZoneId
-        )
-
-        scheduleNotification(
-            requireContext(),
-            notificationTime,
-            4,
-            title,
-            message,
-            timeZoneId
-        )
-    }
 
     fun getElapsedTimeUntilTargetTime(time: String, targetTimeZoneId: String): Long {
         val dateFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
@@ -585,11 +494,12 @@ class HomeFragment : Fragment() {
         val maghribTime = sunParams.third
         val ishaTime = sunParams.fourth
         val fajrTime = sunParams.fifth
+       val dhuhr = calculateTime(timeZoneOffset, longitude)
 
         binding.tvtimeAsr.text = convertDurationToTimeString(asrTime)
         binding.tvTimeMaghrib.text = convertDurationToTimeString(maghribTime)
         binding.tvtimefajr.text = convertDurationToTimeString(fajrTime)
-        binding.tvTimeDhuhr.text = convertDurationToTimeString(dhuhrTime)
+        binding.tvTimeDhuhr.text = convertDurationToTimeString(dhuhr)
         binding.tvTime.text = convertDurationToTimeString(ishaTime)
 
         // Example: Schedule notifications
@@ -603,7 +513,7 @@ class HomeFragment : Fragment() {
         )
         val notificationTimes = listOf(
             convertDurationToTimeString(fajrTime),
-            convertDurationToTimeString(dhuhrTime),
+            convertDurationToTimeString(dhuhr),
             convertDurationToTimeString(asrTime),
             convertDurationToTimeString(maghribTime),
             convertDurationToTimeString(ishaTime)
