@@ -40,11 +40,10 @@ class AlarmReceivers: BroadcastReceiver() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "AlarmChannel"
-            val descriptionText = "Channel for Alarm"
+
             val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
-                description = descriptionText
+            val channel = NotificationChannel(CHANNEL_ID, title, importance).apply {
+                description = message
             }
             // Register the channel with the system
             val notificationManager: NotificationManager =
@@ -85,9 +84,9 @@ class AlarmReceivers: BroadcastReceiver() {
         val vibrator = ContextCompat.getSystemService(context, Vibrator::class.java)
         if (vibrator != null && vibrator.hasVibrator()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createOneShot(5000, VibrationEffect.DEFAULT_AMPLITUDE))
+                vibrator.vibrate(VibrationEffect.createOneShot(10000, VibrationEffect.DEFAULT_AMPLITUDE))
             } else {
-                vibrator.vibrate(5000)
+                vibrator.vibrate(10000)
             }
         }
     }

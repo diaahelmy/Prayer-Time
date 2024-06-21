@@ -50,9 +50,9 @@ import kotlin.time.Duration.Companion.minutes
 class HomeFragment : Fragment() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var _binding: FragmentHomeBinding? = null
-    private  val PREFS_NAME = "LocationPrefs"
-    private  val KEY_LATITUDE = "latitude"
-    private  val KEY_LONGITUDE = "longitude"
+    private val PREFS_NAME = "LocationPrefs"
+    private val KEY_LATITUDE = "latitude"
+    private val KEY_LONGITUDE = "longitude"
     private val binding get() = _binding!!
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -85,7 +85,7 @@ class HomeFragment : Fragment() {
 //            scheduleNotifications()
         }
 
-
+        notificationoff()
 
         checkNotificationPermission(requireActivity(), 100)
 
@@ -101,7 +101,7 @@ class HomeFragment : Fragment() {
 
         binding.settings.setOnClickListener {
             Toast.makeText(requireContext(), "Coming Soon", Toast.LENGTH_SHORT).show()
-
+fetchLocation()
 
 //            val intent = Intent(requireContext(), SettingsActivity::class.java)
 //            startActivity(intent)
@@ -358,15 +358,22 @@ class HomeFragment : Fragment() {
     fun convertDurationToTimeString(hours: Duration): String {
         // Create a LocalTime instance from hours and minutes
 //        if (hours.inWholeSeconds >= 30) {
-        val hour = hours.inWholeHours
+        var hour = hours.inWholeHours
         var minutes = hours.minus(hour.hours).inWholeMinutes
         val seconds = hours.minus(hour.hours).minus(minutes.minutes).inWholeSeconds
-        minutes = if (seconds >= 30) {
-            minutes + 1
-        } else {
-            minutes
+        Log.v("diaa", "mintes this number is low $minutes")
+        if (seconds >= 30) {
+            minutes += 1
+        }
+        if (minutes >= 60) {
+            hour += 1
+            minutes = (minutes - 60)
+
         }
 
+
+
+        Log.v("diaa", "mintes this number is $minutes")
 
         val time = LocalTime.of(hour.toInt(), minutes.toInt())
         val formatter = DateTimeFormatter.ofPattern("h:mm a")
@@ -448,17 +455,21 @@ class HomeFragment : Fragment() {
     private fun requestLocationPermissions() {
         ActivityCompat.requestPermissions(
             requireActivity(),
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ),
             LOCATION_PERMISSION_REQUEST_CODE
         )
     }
 
     // Constants for request codes and preference keys
-    private  val LOCATION_PERMISSION_REQUEST_CODE = 1000
+    private val LOCATION_PERMISSION_REQUEST_CODE = 1000
 
     // Function to save location to SharedPreferences
     private fun saveLocationToPrefs(latitude: Double, longitude: Double) {
-        val sharedPreferences = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val sharedPreferences =
+            requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
             putString(KEY_LATITUDE, latitude.toString())
             putString(KEY_LONGITUDE, longitude.toString())
@@ -468,7 +479,8 @@ class HomeFragment : Fragment() {
 
     // Function to retrieve location from SharedPreferences
     private fun getLocationFromPrefs(): Pair<Double, Double>? {
-        val sharedPreferences = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val sharedPreferences =
+            requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val latitude = sharedPreferences.getString(KEY_LATITUDE, null)
         val longitude = sharedPreferences.getString(KEY_LONGITUDE, null)
         return if (latitude != null && longitude != null) {
@@ -489,35 +501,69 @@ class HomeFragment : Fragment() {
         val timeZoneOffset = timeZone.rawOffset / (1000 * 60 * 60).toDouble()
         val sunParams = calculateSunParameters(jd, timeZoneOffset, longitude, latitude)
 
-        val dhuhrTime = sunParams.first
-        val asrTime = sunParams.second
+        val asrTime = calculateTime(timeZoneOffset, longitude, latitude).second
         val maghribTime = sunParams.third
         val ishaTime = sunParams.fourth
         val fajrTime = sunParams.fifth
-       val dhuhr = calculateTime(timeZoneOffset, longitude)
+        val dhuhrTime = calculateTime(timeZoneOffset, longitude, latitude).first
 
-        binding.tvtimeAsr.text = convertDurationToTimeString(asrTime)
-        binding.tvTimeMaghrib.text = convertDurationToTimeString(maghribTime)
-        binding.tvtimefajr.text = convertDurationToTimeString(fajrTime)
-        binding.tvTimeDhuhr.text = convertDurationToTimeString(dhuhr)
-        binding.tvTime.text = convertDurationToTimeString(ishaTime)
+        val fajr = convertDurationToTimeString(fajrTime)
+        val dhuhr = convertDurationToTimeString(dhuhrTime)
+        val asr = convertDurationToTimeString(asrTime)
+        val maghrib = convertDurationToTimeString(maghribTime)
+        val isha = convertDurationToTimeString(ishaTime)
+
+
+        binding.tvtimeAsr.text = asr
+        binding.tvTimeMaghrib.text = maghrib
+        binding.tvtimefajr.text = fajr
+        binding.tvTimeDhuhr.text = dhuhr
+        binding.tvTime.text = isha
+
+        binding.constraintFajr.setOnClickListener {
+            timeComing(fajr)
+        }
+        binding.constraintDhur.setOnClickListener {
+            timeComing(dhuhr)
+        }
+        binding.constraintAsr.setOnClickListener {
+            timeComing(asr)
+        }
+        binding.constraintMaghrib.setOnClickListener {
+            timeComing(maghrib)
+
+        }
+        binding.constraintIsha.setOnClickListener {
+            timeComing(isha)
+
+        }
 
         // Example: Schedule notifications
-        val titles = listOf("صلاه الفجر الان", "صلاه الظهر الان", "صلاه العصر الان", "صلاه المغرب الان", "صلاه العشاء الان")
+        val titles = listOf(
+            "صلاه الفجر الان",
+            "صلاه الظهر الان",
+            "صلاه العصر الان",
+            "صلاه المغرب الان",
+            "صلاه العشاء الان",
+        )
         val messages = listOf(
             "حان موعد اذان الفجر بتوقيت القاهره",
             "حان موعد اذان الظهر بتوقيت القاهره",
             "حان موعد اذان العصر بتوقيت القاهره",
             "حان موعد اذان المغرب بتوقيت القاهره",
-            "حان موعد اذان العشاء بتوقيت القاهره"
+            "حان موعد اذان العشاء بتوقيت القاهره",
+
+
         )
         val notificationTimes = listOf(
-            convertDurationToTimeString(fajrTime),
-            convertDurationToTimeString(dhuhr),
-            convertDurationToTimeString(asrTime),
-            convertDurationToTimeString(maghribTime),
-            convertDurationToTimeString(ishaTime)
+            fajr,
+            dhuhr,
+            asr,
+            maghrib,
+            isha,
         )
+        Log.v("diaa", "$notificationTimes")
+
 
         for (i in notificationTimes.indices) {
             scheduleNotification(
@@ -528,7 +574,113 @@ class HomeFragment : Fragment() {
                 messages[i],
                 timeZone.id
             )
+            Log.v("diaa", "$i")
         }
+
+    }
+
+    // Function to parse time from a string
+    private fun parseTime(timeStr: String): Calendar? {
+        return try {
+            val sdf = SimpleDateFormat("h:mm a", Locale.getDefault())
+            val date = sdf.parse(timeStr)
+
+            // Create a Calendar instance and set the time
+            Calendar.getInstance().apply {
+                time = date
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun timeComing(targetTimeStr: String) {
+        val targetTime = parseTime(targetTimeStr)
+
+        if (targetTime != null) {
+            val currentTime = Calendar.getInstance()
+
+            // Calculate the time difference in minutes
+            val timeDifferenceMinutes =
+                calculateTimeDifferenceInMinutes(currentTime, targetTime)
+
+            // Format the difference
+            val differenceText =
+                formatTimeDifference(timeDifferenceMinutes.first, timeDifferenceMinutes.second)
+            Toast.makeText(
+                requireContext(),
+                "Coming in : $differenceText",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            Toast.makeText(requireContext(), "Invalid time format", Toast.LENGTH_SHORT).show()
+        }
+
+    }
+
+    // Function to calculate the time difference in minutes
+    private fun calculateTimeDifferenceInMinutes(
+        currentTime: Calendar,
+        targetTime: Calendar,
+    ): Pair<Long, Long> {
+        // Set the same date for targetTime as currentTime to compare time only
+        targetTime.set(Calendar.YEAR, currentTime.get(Calendar.YEAR))
+        targetTime.set(Calendar.MONTH, currentTime.get(Calendar.MONTH))
+        targetTime.set(Calendar.DAY_OF_MONTH, currentTime.get(Calendar.DAY_OF_MONTH))
+
+        var timeDifference = targetTime.timeInMillis - currentTime.timeInMillis
+
+        // If the target time is in the past, add 24 hours to make it the next day
+        if (timeDifference < 0) {
+            timeDifference += 24 * 60 * 60 * 1000 // Add one day in milliseconds
+        }
+        var timeMinutes = timeDifference / (1000 * 60)
+        val timeHour = timeMinutes / 60
+        if (timeMinutes >= 60) {
+            for (n in 1..23) if (timeMinutes >= 60)
+                timeMinutes -= 60
+            Log.d("diaa", "$timeMinutes")
+        }
+        return Pair(
+            timeHour,
+            timeMinutes + 1
+        ) // Convert milliseconds to minutes
+    }
+
+    // Function to format the time difference into "X minutes"
+    private fun formatTimeDifference(hour: Long, minutes: Long): String {
+        return "$hour Hour$minutes Minutes"
+    }
+
+    fun notificationoff() {
+
+        binding.notificationfajr.setOnClickListener {
+            binding.notificationfajr.visibility = View.GONE
+            binding.notificationfajroff.visibility = View.VISIBLE
+            cancelScheduledNotification(requireContext(), 0)
+        }
+        binding.notificationDhuhr.setOnClickListener {
+            binding.notificationDhuhr.visibility = View.GONE
+            binding.notificationDhuhroff.visibility = View.VISIBLE
+            cancelScheduledNotification(requireContext(), 1)
+        }
+        binding.notificationAsr.setOnClickListener {
+            binding.notificationAsr.visibility = View.GONE
+            binding.notificationAsroff.visibility = View.VISIBLE
+            cancelScheduledNotification(requireContext(), 2)
+
+        }
+        binding.notificationMaghrib.setOnClickListener {
+            binding.notificationMaghrib.visibility = View.GONE
+            binding.notificationMaghriboff.visibility = View.VISIBLE
+            cancelScheduledNotification(requireContext(), 3)
+        }
+        binding.notificationIsha.setOnClickListener {
+            binding.notificationIsha.visibility = View.GONE
+            binding.notificationIshaoff.visibility = View.VISIBLE
+            cancelScheduledNotification(requireContext(), 4)
+        }
+
     }
 
 }

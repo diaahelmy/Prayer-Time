@@ -72,328 +72,383 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/app_bar_layout" />
 
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvfajr"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintFajr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="13dp"
         android:layout_marginTop="32dp"
         android:gravity="center"
-        android:text="Fajr"
-        android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/logo" />
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvtimefajr"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="4:18"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="@+id/tvfajr"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/tvfajr"
-        app:layout_constraintTop_toBottomOf="@+id/tvfajr" />
-
-
-
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/notificationfajr"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_margin="5dp"
-        android:layout_marginEnd="24dp"
-        android:gravity="center"
-        android:visibility="visible"
-        android:src="@drawable/notification_bell_svgrepo_com"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/view"
-        app:layout_constraintEnd_toEndOf="@+id/view" />
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/notificationfajroff"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_margin="5dp"
-        android:layout_marginEnd="24dp"
-        android:gravity="center"
-        android:src="@drawable/baseline_notifications_off_24"
-        android:visibility="gone"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/view"
-        app:layout_constraintEnd_toEndOf="@+id/view" />
-    <View
-        android:id="@+id/view"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="10dp"
-        android:background="@color/md_theme_outline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvtimefajr" />
+        app:layout_constraintTop_toBottomOf="@+id/logo">
 
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvDhuhr"
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvfajr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="13dp"
+            android:gravity="center"
+            android:text="Fajr"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvtimefajr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="4:18"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="@+id/tvfajr"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/tvfajr"
+            app:layout_constraintTop_toBottomOf="@+id/tvfajr" />
+
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/notificationfajr"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_margin="5dp"
+            android:layout_marginEnd="24dp"
+            android:gravity="center"
+            android:src="@drawable/notification_bell_svgrepo_com"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@+id/view"
+            app:layout_constraintEnd_toEndOf="@+id/view" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/notificationfajroff"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_margin="5dp"
+            android:layout_marginEnd="24dp"
+            android:gravity="center"
+            android:src="@drawable/baseline_notifications_off_24"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/view"
+            app:layout_constraintEnd_toEndOf="@+id/view" />
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="10dp"
+            android:background="@color/md_theme_outline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvtimefajr" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintDhur"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="13dp"
-        android:layout_marginTop="10dp"
-        android:gravity="center"
-        android:text="Dhuhr"
-        android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view" />
-
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvTimeDhuhr"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLength="8"
-        android:text="12:57"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="@+id/tvDhuhr"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/tvDhuhr"
-        app:layout_constraintTop_toBottomOf="@+id/tvDhuhr" />
-
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/notificationDhuhr"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_margin="5dp"
-        android:layout_marginBottom="7dp"
-        android:gravity="center"
-        android:src="@drawable/notification_bell_svgrepo_com"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/view2"
-        app:layout_constraintEnd_toEndOf="@+id/view" />
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/notificationDhuhroff"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_margin="5dp"
-        android:layout_marginBottom="7dp"
-        android:gravity="center"
-        android:src="@drawable/baseline_notifications_off_24"
-        android:textSize="20sp"
-        android:visibility="gone"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/view2"
-        app:layout_constraintEnd_toEndOf="@+id/view" />
-    <View
-        android:id="@+id/view2"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="10dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="10dp"
-        android:background="@color/md_theme_outline"
-
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTimeDhuhr" />
+        app:layout_constraintTop_toBottomOf="@+id/constraintFajr">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvDhuhr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="13dp"
+            android:gravity="center"
+            android:text="Dhuhr"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvAsr"
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvTimeDhuhr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLength="8"
+            android:text="12:57"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="@+id/tvDhuhr"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/tvDhuhr"
+            app:layout_constraintTop_toBottomOf="@+id/tvDhuhr" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/notificationDhuhr"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_margin="5dp"
+            android:layout_marginBottom="7dp"
+            android:gravity="center"
+            android:src="@drawable/notification_bell_svgrepo_com"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/view2"
+            app:layout_constraintEnd_toEndOf="@+id/view2" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/notificationDhuhroff"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_margin="5dp"
+            android:layout_marginBottom="7dp"
+            android:gravity="center"
+            android:src="@drawable/baseline_notifications_off_24"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/view2"
+            app:layout_constraintEnd_toEndOf="@+id/view2" />
+
+        <View
+            android:id="@+id/view2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="10dp"
+            android:background="@color/md_theme_outline"
+
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTimeDhuhr" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintAsr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="10dp"
-        android:gravity="center"
-        android:text="Asr"
-        android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view2" />
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvtimeAsr"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="4:28"
-        android:maxLength="8"
-
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="@+id/tvAsr"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/tvAsr"
-        app:layout_constraintTop_toBottomOf="@+id/tvAsr" />
-
-
-
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/notificationAsr"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_margin="5dp"
-        android:layout_marginBottom="6dp"
-        android:gravity="center"
-        android:src="@drawable/notification_bell_svgrepo_com"
-        android:text="fajr"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/view3"
-        app:layout_constraintEnd_toEndOf="@+id/view2" />
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/notificationAsroff"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_margin="5dp"
-        android:layout_marginBottom="6dp"
-        android:gravity="center"
-        android:src="@drawable/baseline_notifications_off_24"
-        android:visibility="gone"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/view3"
-        app:layout_constraintEnd_toEndOf="@+id/view2" />
-
-    <View
-        android:id="@+id/view3"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="10dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="10dp"
-        android:background="@color/md_theme_outline"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvtimeAsr" />
+        app:layout_constraintTop_toBottomOf="@+id/constraintDhur">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvMaghrib"
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvAsr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:gravity="center"
+            android:text="Asr"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvtimeAsr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLength="8"
+            android:text="4:28"
+
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="@+id/tvAsr"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/tvAsr"
+            app:layout_constraintTop_toBottomOf="@+id/tvAsr" />
+
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/notificationAsr"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_margin="5dp"
+            android:layout_marginBottom="6dp"
+            android:gravity="center"
+            android:src="@drawable/notification_bell_svgrepo_com"
+            android:text="fajr"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/view3"
+            app:layout_constraintEnd_toEndOf="@+id/view3" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/notificationAsroff"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_margin="5dp"
+            android:layout_marginBottom="6dp"
+            android:gravity="center"
+            android:src="@drawable/baseline_notifications_off_24"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/view3"
+            app:layout_constraintEnd_toEndOf="@+id/view3" />
+
+        <View
+            android:id="@+id/view3"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="10dp"
+            android:background="@color/md_theme_outline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvtimeAsr" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintMaghrib"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="10dp"
-        android:gravity="center"
-        android:text="Maghrib"
-        android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view3" />
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvTimeMaghrib"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="7:44"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="@+id/tvMaghrib"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/tvMaghrib"
-        app:layout_constraintTop_toBottomOf="@+id/tvMaghrib" />
-
-
-
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/notificationMaghrib"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_margin="5dp"
-        android:layout_marginEnd="28dp"
-        android:gravity="center"
-        android:src="@drawable/notification_bell_svgrepo_com"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/view4"
-        app:layout_constraintEnd_toEndOf="@+id/view3" />
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/notificationMaghriboff"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_margin="5dp"
-        android:layout_marginEnd="28dp"
-        android:gravity="center"
-        android:src="@drawable/baseline_notifications_off_24"
-        android:textSize="20sp"
-        android:visibility="gone"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/view4"
-        app:layout_constraintEnd_toEndOf="@+id/view3" />
-    <View
-        android:id="@+id/view4"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="10dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="10dp"
-
-        android:background="@color/md_theme_outline"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTimeMaghrib" />
+        app:layout_constraintTop_toBottomOf="@+id/constraintAsr">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvIsha"
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvMaghrib"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:gravity="center"
+            android:text="Maghrib"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvTimeMaghrib"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="7:44"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="@+id/tvMaghrib"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/tvMaghrib"
+            app:layout_constraintTop_toBottomOf="@+id/tvMaghrib" />
+
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/notificationMaghrib"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_margin="5dp"
+            android:layout_marginEnd="28dp"
+            android:gravity="center"
+            android:src="@drawable/notification_bell_svgrepo_com"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/view4"
+            app:layout_constraintEnd_toEndOf="@+id/view4" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/notificationMaghriboff"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_margin="5dp"
+            android:layout_marginEnd="28dp"
+            android:gravity="center"
+            android:src="@drawable/baseline_notifications_off_24"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/view4"
+            app:layout_constraintEnd_toEndOf="@+id/view4" />
+
+        <View
+            android:id="@+id/view4"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="10dp"
+
+            android:background="@color/md_theme_outline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTimeMaghrib" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintIsha"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="10dp"
-        android:gravity="center"
-        android:text="Isha"
-        android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view4" />
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="9:13"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="@+id/tvIsha"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/tvIsha"
-        app:layout_constraintTop_toBottomOf="@+id/tvIsha" />
-
-
-
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/notificationIsha"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_margin="5dp"
-        android:layout_marginEnd="28dp"
-        android:gravity="center"
-        android:src="@drawable/notification_bell_svgrepo_com"
-        app:layout_constraintBottom_toTopOf="@+id/view5"
-        app:layout_constraintEnd_toEndOf="@+id/view4" />
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/notificationIshaoff"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_margin="5dp"
-        android:layout_marginEnd="28dp"
-        android:visibility="gone"
-        android:gravity="center"
-        android:src="@drawable/baseline_notifications_off_24"
-        app:layout_constraintBottom_toTopOf="@+id/view5"
-        app:layout_constraintEnd_toEndOf="@+id/view4" />
-    <View
-        android:id="@+id/view5"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="10dp"
-
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="10dp"
-        android:background="@color/md_theme_outline"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTime" />
+        app:layout_constraintTop_toBottomOf="@+id/constraintMaghrib">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvIsha"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:gravity="center"
+            android:text="Isha"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="9:13"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="@+id/tvIsha"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/tvIsha"
+            app:layout_constraintTop_toBottomOf="@+id/tvIsha" />
+
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/notificationIsha"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_margin="5dp"
+            android:layout_marginEnd="28dp"
+            android:gravity="center"
+            android:src="@drawable/notification_bell_svgrepo_com"
+            app:layout_constraintBottom_toTopOf="@+id/view5"
+            app:layout_constraintEnd_toEndOf="@+id/view5" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/notificationIshaoff"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_margin="5dp"
+            android:layout_marginEnd="28dp"
+            android:gravity="center"
+            android:src="@drawable/baseline_notifications_off_24"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/view5"
+            app:layout_constraintEnd_toEndOf="@+id/view5" />
+
+        <View
+            android:id="@+id/view5"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="10dp"
+
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="10dp"
+            android:background="@color/md_theme_outline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTime" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
