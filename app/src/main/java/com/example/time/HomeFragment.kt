@@ -53,6 +53,23 @@ class HomeFragment : Fragment() {
     private val PREFS_NAME = "LocationPrefs"
     private val KEY_LATITUDE = "latitude"
     private val KEY_LONGITUDE = "longitude"
+    val titles = listOf(
+        "صلاه الفجر الان",
+        "صلاه الظهر الان",
+        "صلاه العصر الان",
+        "صلاه المغرب الان",
+        "صلاه العشاء الان",
+        "صلاه العشاء الان",
+    )
+    val messages = listOf(
+        "حان موعد اذان الفجر بتوقيت القاهره",
+        "حان موعد اذان الظهر بتوقيت القاهره",
+        "حان موعد اذان العصر بتوقيت القاهره",
+        "حان موعد اذان المغرب بتوقيت القاهره",
+        "حان موعد اذان العشاء بتوقيت القاهره",
+        "صلاه العشاء الان",
+
+        )
     private val binding get() = _binding!!
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -69,14 +86,11 @@ class HomeFragment : Fragment() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
+                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                1
+                requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1
             )
 
         } else {
@@ -84,7 +98,7 @@ class HomeFragment : Fragment() {
             fetchLocation()
 //            scheduleNotifications()
         }
-
+        notificationOn()
         notificationoff()
 
         checkNotificationPermission(requireActivity(), 100)
@@ -101,7 +115,7 @@ class HomeFragment : Fragment() {
 
         binding.settings.setOnClickListener {
             Toast.makeText(requireContext(), "Coming Soon", Toast.LENGTH_SHORT).show()
-fetchLocation()
+            fetchLocation()
 
 //            val intent = Intent(requireContext(), SettingsActivity::class.java)
 //            startActivity(intent)
@@ -140,8 +154,7 @@ fetchLocation()
         val RA = normalizeAngle(
             Math.toDegrees(
                 atan2(
-                    cos(Math.toRadians(e)) * sin(Math.toRadians(L)),
-                    cos(Math.toRadians(L))
+                    cos(Math.toRadians(e)) * sin(Math.toRadians(L)), cos(Math.toRadians(L))
                 )
             )
         ) / 15.0
@@ -320,8 +333,7 @@ fetchLocation()
 
     private fun isNotificationPermissionGranted(context: Context): Boolean {
         val notificationManager = ContextCompat.getSystemService(
-            context,
-            NotificationManager::class.java
+            context, NotificationManager::class.java
         ) as NotificationManager
 
         // Check if notification permission is granted
@@ -405,61 +417,55 @@ fetchLocation()
     @RequiresApi(Build.VERSION_CODES.O)
     private fun fetchLocation() {
         if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
+                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
+                requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             requestLocationPermissions()
             return
         }
 
-        fusedLocationClient.lastLocation
-            .addOnSuccessListener { location ->
-                if (location != null) {
-                    // Successfully fetched location
-                    val longitude = location.longitude
-                    val latitude = location.latitude
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null) {
+                // Successfully fetched location
+                val longitude = location.longitude
+                val latitude = location.latitude
 
-                    // Save location to SharedPreferences
-                    saveLocationToPrefs(latitude, longitude)
+                // Save location to SharedPreferences
+                saveLocationToPrefs(latitude, longitude)
 
-                    // Use the fetched location data
+                // Use the fetched location data
+                useLocationData(latitude, longitude)
+            } else {
+                // Failed to retrieve location, use the last saved location
+                val savedLocation = getLocationFromPrefs()
+                if (savedLocation != null) {
+                    val (latitude, longitude) = savedLocation
+                    Toast.makeText(
+                        requireContext(),
+                        "Using last known location$latitude,$longitude",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    // Use the saved location data
                     useLocationData(latitude, longitude)
                 } else {
-                    // Failed to retrieve location, use the last saved location
-                    val savedLocation = getLocationFromPrefs()
-                    if (savedLocation != null) {
-                        val (latitude, longitude) = savedLocation
-                        Toast.makeText(
-                            requireContext(),
-                            "Using last known location$latitude,$longitude",
-                            Toast.LENGTH_SHORT
-                        ).show()
-
-                        // Use the saved location data
-                        useLocationData(latitude, longitude)
-                    } else {
-                        Toast.makeText(
-                            requireContext(),
-                            "Failed to retrieve location and no saved location available",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                    Toast.makeText(
+                        requireContext(),
+                        "Failed to retrieve location and no saved location available",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
+        }
     }
 
     private fun requestLocationPermissions() {
         ActivityCompat.requestPermissions(
-            requireActivity(),
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ),
-            LOCATION_PERMISSION_REQUEST_CODE
+            requireActivity(), arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
+            ), LOCATION_PERMISSION_REQUEST_CODE
         )
     }
 
@@ -539,40 +545,16 @@ fetchLocation()
         }
 
         // Example: Schedule notifications
-        val titles = listOf(
-            "صلاه الفجر الان",
-            "صلاه الظهر الان",
-            "صلاه العصر الان",
-            "صلاه المغرب الان",
-            "صلاه العشاء الان",
-        )
-        val messages = listOf(
-            "حان موعد اذان الفجر بتوقيت القاهره",
-            "حان موعد اذان الظهر بتوقيت القاهره",
-            "حان موعد اذان العصر بتوقيت القاهره",
-            "حان موعد اذان المغرب بتوقيت القاهره",
-            "حان موعد اذان العشاء بتوقيت القاهره",
 
-
-        )
         val notificationTimes = listOf(
-            fajr,
-            dhuhr,
-            asr,
-            maghrib,
-            isha,
+            fajr, dhuhr, asr, maghrib, isha, "12:58 AM"
         )
         Log.v("diaa", "$notificationTimes")
 
 
         for (i in notificationTimes.indices) {
             scheduleNotification(
-                requireContext(),
-                notificationTimes[i],
-                i,
-                titles[i],
-                messages[i],
-                timeZone.id
+                requireContext(), notificationTimes[i], i, titles[i], messages[i], timeZone.id
             )
             Log.v("diaa", "$i")
         }
@@ -601,16 +583,13 @@ fetchLocation()
             val currentTime = Calendar.getInstance()
 
             // Calculate the time difference in minutes
-            val timeDifferenceMinutes =
-                calculateTimeDifferenceInMinutes(currentTime, targetTime)
+            val timeDifferenceMinutes = calculateTimeDifferenceInMinutes(currentTime, targetTime)
 
             // Format the difference
             val differenceText =
                 formatTimeDifference(timeDifferenceMinutes.first, timeDifferenceMinutes.second)
             Toast.makeText(
-                requireContext(),
-                "Coming in : $differenceText",
-                Toast.LENGTH_SHORT
+                requireContext(), "Coming in : $differenceText", Toast.LENGTH_SHORT
             ).show()
         } else {
             Toast.makeText(requireContext(), "Invalid time format", Toast.LENGTH_SHORT).show()
@@ -637,13 +616,11 @@ fetchLocation()
         var timeMinutes = timeDifference / (1000 * 60)
         val timeHour = timeMinutes / 60
         if (timeMinutes >= 60) {
-            for (n in 1..23) if (timeMinutes >= 60)
-                timeMinutes -= 60
+            for (n in 1..23) if (timeMinutes >= 60) timeMinutes -= 60
             Log.d("diaa", "$timeMinutes")
         }
         return Pair(
-            timeHour,
-            timeMinutes + 1
+            timeHour, timeMinutes + 1
         ) // Convert milliseconds to minutes
     }
 
@@ -678,9 +655,79 @@ fetchLocation()
         binding.notificationIsha.setOnClickListener {
             binding.notificationIsha.visibility = View.GONE
             binding.notificationIshaoff.visibility = View.VISIBLE
-            cancelScheduledNotification(requireContext(), 4)
+            cancelScheduledNotification(requireContext(), 5)
         }
 
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun notificationOn() {
+        val savedLocation = getLocationFromPrefs()
+        if (savedLocation != null) {
+            val (latitude, longitude) = savedLocation
+
+            val jd = getJulianDateForToday()
+            val timeZone = TimeZone.getDefault()
+            val timeZoneOffset = timeZone.rawOffset / (1000 * 60 * 60).toDouble()
+            val sunParams = calculateSunParameters(jd, timeZoneOffset, longitude, latitude)
+
+            binding.notificationfajroff.setOnClickListener {
+                binding.notificationfajr.visibility = View.VISIBLE
+                binding.notificationfajroff.visibility = View.GONE
+                val fajrTime = sunParams.fifth
+                val fajr = convertDurationToTimeString(fajrTime)
+                scheduleNotification(requireContext(), fajr, 0, titles[0], messages[0], timeZone.id)
+
+            }
+            binding.notificationDhuhroff.setOnClickListener {
+                binding.notificationDhuhr.visibility = View.VISIBLE
+                binding.notificationDhuhroff.visibility = View.GONE
+                val dhuhrTime = calculateTime(2.0, longitude, latitude).first
+                Log.v("diaa", "time$dhuhrTime")
+
+
+                val dhuhr = convertDurationToTimeString(dhuhrTime)
+                scheduleNotification(
+                    requireContext(), dhuhr, 1, titles[1], messages[1], timeZone.id
+                )
+                Log.v("diaa", "$dhuhr")
+            }
+            binding.notificationAsroff.setOnClickListener {
+                binding.notificationAsr.visibility = View.VISIBLE
+                binding.notificationAsroff.visibility = View.GONE
+                val asrTime = calculateTime(timeZoneOffset, longitude, latitude).second
+                val asr = convertDurationToTimeString(asrTime)
+                scheduleNotification(
+                    requireContext(), asr, 2, titles[2], messages[2], timeZone.id
+                )
+
+            }
+            binding.notificationMaghriboff.setOnClickListener {
+                binding.notificationMaghrib.visibility = View.VISIBLE
+                binding.notificationMaghriboff.visibility = View.GONE
+                val maghribTime = sunParams.third
+                val maghrib = convertDurationToTimeString(maghribTime)
+
+
+                scheduleNotification(
+                    requireContext(), maghrib, 3, titles[3], messages[3], timeZone.id
+                )
+            }
+            binding.notificationIshaoff.setOnClickListener {
+                binding.notificationIsha.visibility = View.VISIBLE
+                binding.notificationIshaoff.visibility = View.GONE
+                val ishaTime = sunParams.fourth
+val isha = convertDurationToTimeString(ishaTime)
+                scheduleNotification(
+                    requireContext(), isha, 4, titles[4], messages[4], timeZone.id
+                )
+            }
+
+
+        } else {
+
+            fetchLocation()
+        }
     }
 
 }
