@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlarmManager
+import android.app.AlertDialog
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -12,6 +13,7 @@ import android.content.pm.PackageManager
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
@@ -88,7 +90,9 @@ class HomeFragment : Fragment() {
         if (ContextCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
+
         ) {
+            promptEnableLocation(requireContext())
             ActivityCompat.requestPermissions(
                 requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1
             )
@@ -423,6 +427,7 @@ class HomeFragment : Fragment() {
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             requestLocationPermissions()
+
             return
         }
 
@@ -434,9 +439,9 @@ class HomeFragment : Fragment() {
 
                 // Save location to SharedPreferences
                 saveLocationToPrefs(latitude, longitude)
-
                 // Use the fetched location data
                 useLocationData(latitude, longitude)
+
             } else {
                 // Failed to retrieve location, use the last saved location
                 val savedLocation = getLocationFromPrefs()
@@ -450,14 +455,36 @@ class HomeFragment : Fragment() {
 
                     // Use the saved location data
                     useLocationData(latitude, longitude)
+
                 } else {
-                    Toast.makeText(
-                        requireContext(),
-                        "Failed to retrieve location and no saved location available",
-                        Toast.LENGTH_SHORT
-                    ).show()
+
+                    promptEnableLocation(requireContext())
                 }
             }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun promptEnableLocation(context: Context) {
+        AlertDialog.Builder(context).apply {
+            setMessage("Location services are disabled. Please enable them to proceed.")
+            setPositiveButton("Enable") { dialog, _ ->
+                context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                dialog.dismiss()
+                fetchLocation()
+            }
+            setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+                fetchLocation()
+                Toast.makeText(
+                    context,
+                    "Failed to retrieve location and no saved location available",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            setCancelable(false)
+            create()
+            show()
         }
     }
 
@@ -547,7 +574,7 @@ class HomeFragment : Fragment() {
         // Example: Schedule notifications
 
         val notificationTimes = listOf(
-            fajr, dhuhr, asr, maghrib, isha, "12:58 AM"
+            fajr, dhuhr, asr, maghrib, isha, "5:05 PM"
         )
         Log.v("diaa", "$notificationTimes")
 
@@ -632,6 +659,7 @@ class HomeFragment : Fragment() {
     fun notificationoff() {
 
         binding.notificationfajr.setOnClickListener {
+
             binding.notificationfajr.visibility = View.GONE
             binding.notificationfajroff.visibility = View.VISIBLE
             cancelScheduledNotification(requireContext(), 0)
@@ -717,7 +745,7 @@ class HomeFragment : Fragment() {
                 binding.notificationIsha.visibility = View.VISIBLE
                 binding.notificationIshaoff.visibility = View.GONE
                 val ishaTime = sunParams.fourth
-val isha = convertDurationToTimeString(ishaTime)
+                val isha = convertDurationToTimeString(ishaTime)
                 scheduleNotification(
                     requireContext(), isha, 4, titles[4], messages[4], timeZone.id
                 )
@@ -725,13 +753,13 @@ val isha = convertDurationToTimeString(ishaTime)
 
 
         } else {
-
             fetchLocation()
         }
     }
 
-}
 
+
+}
 //    override fun onResume() {
 //        super.onResume()
 //        ThemeManager.applyTheme(requireContext()) // Apply theme when activity resumes
