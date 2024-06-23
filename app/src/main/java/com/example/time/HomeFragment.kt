@@ -104,7 +104,6 @@ class HomeFragment : Fragment() {
         }
         notificationOn()
         notificationoff()
-
         checkNotificationPermission(requireActivity(), 100)
 
         binding.logo.setOnClickListener {
@@ -657,32 +656,42 @@ class HomeFragment : Fragment() {
     }
 
     fun notificationoff() {
-
+        updateNotificationUI()
         binding.notificationfajr.setOnClickListener {
 
             binding.notificationfajr.visibility = View.GONE
             binding.notificationfajroff.visibility = View.VISIBLE
+            saveNotificationState(requireContext(), "fajr_notification", false)
+
             cancelScheduledNotification(requireContext(), 0)
         }
         binding.notificationDhuhr.setOnClickListener {
             binding.notificationDhuhr.visibility = View.GONE
             binding.notificationDhuhroff.visibility = View.VISIBLE
+            saveNotificationState(requireContext(), "dhuhr_notification", false)
+
             cancelScheduledNotification(requireContext(), 1)
         }
         binding.notificationAsr.setOnClickListener {
             binding.notificationAsr.visibility = View.GONE
             binding.notificationAsroff.visibility = View.VISIBLE
+            saveNotificationState(requireContext(), "asr_notification", false)
+
             cancelScheduledNotification(requireContext(), 2)
 
         }
         binding.notificationMaghrib.setOnClickListener {
             binding.notificationMaghrib.visibility = View.GONE
             binding.notificationMaghriboff.visibility = View.VISIBLE
+            saveNotificationState(requireContext(), "maghrib_notification", false)
+
             cancelScheduledNotification(requireContext(), 3)
         }
         binding.notificationIsha.setOnClickListener {
             binding.notificationIsha.visibility = View.GONE
             binding.notificationIshaoff.visibility = View.VISIBLE
+            saveNotificationState(requireContext(), "isha_notification", false)
+
             cancelScheduledNotification(requireContext(), 5)
         }
 
@@ -690,6 +699,7 @@ class HomeFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun notificationOn() {
+        updateNotificationUI()
         val savedLocation = getLocationFromPrefs()
         if (savedLocation != null) {
             val (latitude, longitude) = savedLocation
@@ -704,6 +714,7 @@ class HomeFragment : Fragment() {
                 binding.notificationfajroff.visibility = View.GONE
                 val fajrTime = sunParams.fifth
                 val fajr = convertDurationToTimeString(fajrTime)
+                saveNotificationState(requireContext(), "fajr_notification", true)
                 scheduleNotification(requireContext(), fajr, 0, titles[0], messages[0], timeZone.id)
 
             }
@@ -715,6 +726,7 @@ class HomeFragment : Fragment() {
 
 
                 val dhuhr = convertDurationToTimeString(dhuhrTime)
+                saveNotificationState(requireContext(), "dhuhr_notification", true)
                 scheduleNotification(
                     requireContext(), dhuhr, 1, titles[1], messages[1], timeZone.id
                 )
@@ -725,6 +737,7 @@ class HomeFragment : Fragment() {
                 binding.notificationAsroff.visibility = View.GONE
                 val asrTime = calculateTime(timeZoneOffset, longitude, latitude).second
                 val asr = convertDurationToTimeString(asrTime)
+                saveNotificationState(requireContext(),"asr_notification",true)
                 scheduleNotification(
                     requireContext(), asr, 2, titles[2], messages[2], timeZone.id
                 )
@@ -735,6 +748,7 @@ class HomeFragment : Fragment() {
                 binding.notificationMaghriboff.visibility = View.GONE
                 val maghribTime = sunParams.third
                 val maghrib = convertDurationToTimeString(maghribTime)
+                saveNotificationState(requireContext(), "maghrib_notification", true)
 
 
                 scheduleNotification(
@@ -746,6 +760,7 @@ class HomeFragment : Fragment() {
                 binding.notificationIshaoff.visibility = View.GONE
                 val ishaTime = sunParams.fourth
                 val isha = convertDurationToTimeString(ishaTime)
+                saveNotificationState(requireContext(), "isha_notification", true)
                 scheduleNotification(
                     requireContext(), isha, 4, titles[4], messages[4], timeZone.id
                 )
@@ -757,8 +772,61 @@ class HomeFragment : Fragment() {
         }
     }
 
+    fun saveNotificationState(context: Context, key: String, state: Boolean) {
+        val sharedPref =
+            context.getSharedPreferences("NotificationPreferences", Context.MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putBoolean(key, state)
+            apply()
+        }
+    }
 
+    fun getNotificationState(context: Context, key: String): Boolean {
+        val sharedPref =
+            context.getSharedPreferences("NotificationPreferences", Context.MODE_PRIVATE)
+        return sharedPref.getBoolean(key, true) // default is true (notification enabled)
+    }
 
+    private fun updateNotificationUI() {
+        if (!getNotificationState(requireContext(), "fajr_notification")) {
+            binding.notificationfajr.visibility = View.GONE
+            binding.notificationfajroff.visibility = View.VISIBLE
+        }else{
+            binding.notificationfajr.visibility = View.VISIBLE
+            binding.notificationfajroff.visibility = View.GONE
+        }
+        if (!getNotificationState(requireContext(), "dhuhr_notification")) {
+            binding.notificationDhuhr.visibility = View.GONE
+            binding.notificationDhuhroff.visibility = View.VISIBLE
+        }else{
+            binding.notificationDhuhr.visibility = View.VISIBLE
+            binding.notificationDhuhroff.visibility = View.GONE
+        }
+        if (!getNotificationState(requireContext(), "asr_notification")) {
+            binding.notificationAsr.visibility = View.GONE
+            binding.notificationAsroff.visibility = View.VISIBLE
+        }
+        else{
+            binding.notificationAsr.visibility = View.VISIBLE
+            binding.notificationAsroff.visibility = View.GONE
+        }
+        if (!getNotificationState(requireContext(), "maghrib_notification")) {
+            binding.notificationMaghrib.visibility = View.GONE
+            binding.notificationMaghriboff.visibility = View.VISIBLE
+        }else{
+            binding.notificationMaghrib.visibility = View.VISIBLE
+            binding.notificationMaghriboff.visibility = View.GONE
+
+        }
+        if (!getNotificationState(requireContext(), "isha_notification")) {
+            binding.notificationIsha.visibility = View.GONE
+            binding.notificationIshaoff.visibility = View.VISIBLE
+        }else{
+            binding.notificationIsha.visibility = View.VISIBLE
+            binding.notificationIshaoff.visibility = View.GONE
+
+        }
+    }
 }
 //    override fun onResume() {
 //        super.onResume()
