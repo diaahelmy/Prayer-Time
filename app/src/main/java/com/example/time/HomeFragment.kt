@@ -258,22 +258,32 @@ class HomeFragment : Fragment() {
         val dateFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
         dateFormat.timeZone = TimeZone.getTimeZone(targetTimeZoneId)
 
-        val parsedDate =
-            dateFormat.parse(time) ?: throw IllegalArgumentException("Invalid time format")
+        val parsedDate = dateFormat.parse(time) ?: throw IllegalArgumentException("Invalid time format")
 
-        val targetCalendar = Calendar.getInstance(TimeZone.getTimeZone(targetTimeZoneId)).apply {
-            set(Calendar.HOUR_OF_DAY, parsedDate.hours)
-            set(Calendar.MINUTE, parsedDate.minutes)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
+        val now = Calendar.getInstance()
+        val targetCalendar = Calendar.getInstance(TimeZone.getTimeZone(targetTimeZoneId))
+        targetCalendar.time = parsedDate
+        targetCalendar.set(Calendar.YEAR, now.get(Calendar.YEAR))
+        targetCalendar.set(Calendar.MONTH, now.get(Calendar.MONTH))
+        targetCalendar.set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH))
+        targetCalendar.set(Calendar.SECOND, 0)
+        targetCalendar.set(Calendar.MILLISECOND, 0)
 
-            if (timeInMillis < System.currentTimeMillis()) {
-                add(Calendar.DAY_OF_YEAR, 1)
-            }
+        // If the target time is before the current time, schedule it for the next day
+        if (targetCalendar.timeInMillis < now.timeInMillis) {
+            targetCalendar.add(Calendar.DAY_OF_YEAR, 1)
         }
 
-        return targetCalendar.timeInMillis - System.currentTimeMillis()
-    }
+        // Calculate the elapsed time until the target time
+        val elapsedTime = targetCalendar.timeInMillis - now.timeInMillis
+
+        Log.v("diaa", "now: ${now.time}")
+        Log.v("diaa", "target: ${targetCalendar.time}")
+        Log.v("diaa", "elapsedTime: $elapsedTime")
+
+        return elapsedTime
+        }
+
 
     @SuppressLint("ScheduleExactAlarm")
     fun scheduleNotification(
@@ -737,7 +747,7 @@ class HomeFragment : Fragment() {
                 binding.notificationAsroff.visibility = View.GONE
                 val asrTime = calculateTime(timeZoneOffset, longitude, latitude).second
                 val asr = convertDurationToTimeString(asrTime)
-                saveNotificationState(requireContext(),"asr_notification",true)
+                saveNotificationState(requireContext(), "asr_notification", true)
                 scheduleNotification(
                     requireContext(), asr, 2, titles[2], messages[2], timeZone.id
                 )
@@ -756,6 +766,7 @@ class HomeFragment : Fragment() {
                 )
             }
             binding.notificationIshaoff.setOnClickListener {
+
                 binding.notificationIsha.visibility = View.VISIBLE
                 binding.notificationIshaoff.visibility = View.GONE
                 val ishaTime = sunParams.fourth
@@ -791,29 +802,28 @@ class HomeFragment : Fragment() {
         if (!getNotificationState(requireContext(), "fajr_notification")) {
             binding.notificationfajr.visibility = View.GONE
             binding.notificationfajroff.visibility = View.VISIBLE
-        }else{
+        } else {
             binding.notificationfajr.visibility = View.VISIBLE
             binding.notificationfajroff.visibility = View.GONE
         }
         if (!getNotificationState(requireContext(), "dhuhr_notification")) {
             binding.notificationDhuhr.visibility = View.GONE
             binding.notificationDhuhroff.visibility = View.VISIBLE
-        }else{
+        } else {
             binding.notificationDhuhr.visibility = View.VISIBLE
             binding.notificationDhuhroff.visibility = View.GONE
         }
         if (!getNotificationState(requireContext(), "asr_notification")) {
             binding.notificationAsr.visibility = View.GONE
             binding.notificationAsroff.visibility = View.VISIBLE
-        }
-        else{
+        } else {
             binding.notificationAsr.visibility = View.VISIBLE
             binding.notificationAsroff.visibility = View.GONE
         }
         if (!getNotificationState(requireContext(), "maghrib_notification")) {
             binding.notificationMaghrib.visibility = View.GONE
             binding.notificationMaghriboff.visibility = View.VISIBLE
-        }else{
+        } else {
             binding.notificationMaghrib.visibility = View.VISIBLE
             binding.notificationMaghriboff.visibility = View.GONE
 
@@ -821,7 +831,7 @@ class HomeFragment : Fragment() {
         if (!getNotificationState(requireContext(), "isha_notification")) {
             binding.notificationIsha.visibility = View.GONE
             binding.notificationIshaoff.visibility = View.VISIBLE
-        }else{
+        } else {
             binding.notificationIsha.visibility = View.VISIBLE
             binding.notificationIshaoff.visibility = View.GONE
 
