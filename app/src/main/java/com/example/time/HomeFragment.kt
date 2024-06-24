@@ -61,7 +61,7 @@ class HomeFragment : Fragment() {
         "صلاه العصر الان",
         "صلاه المغرب الان",
         "صلاه العشاء الان",
-        "صلاه العشاء الان",
+
     )
     val messages = listOf(
         "حان موعد اذان الفجر بتوقيت القاهره",
@@ -69,7 +69,6 @@ class HomeFragment : Fragment() {
         "حان موعد اذان العصر بتوقيت القاهره",
         "حان موعد اذان المغرب بتوقيت القاهره",
         "حان موعد اذان العشاء بتوقيت القاهره",
-        "صلاه العشاء الان",
 
         )
     private val binding get() = _binding!!
@@ -583,7 +582,7 @@ class HomeFragment : Fragment() {
         // Example: Schedule notifications
 
         val notificationTimes = listOf(
-            fajr, dhuhr, asr, maghrib, isha, "5:05 PM"
+            fajr, dhuhr, asr, maghrib, isha
         )
         Log.v("diaa", "$notificationTimes")
 
