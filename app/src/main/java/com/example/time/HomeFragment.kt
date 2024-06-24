@@ -13,7 +13,6 @@ import android.content.pm.PackageManager
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
@@ -30,6 +29,7 @@ import androidx.core.content.ContextCompat
 import com.example.time.databinding.FragmentHomeBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.snackbar.Snackbar
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -52,6 +52,8 @@ import kotlin.time.Duration.Companion.minutes
 class HomeFragment : Fragment() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var _binding: FragmentHomeBinding? = null
+    private lateinit var themeManager: ThemeManager
+
     private val PREFS_NAME = "LocationPrefs"
     private val KEY_LATITUDE = "latitude"
     private val KEY_LONGITUDE = "longitude"
@@ -84,6 +86,7 @@ class HomeFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        ThemeManager.applyTheme(requireContext())
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         if (ContextCompat.checkSelfPermission(
@@ -124,6 +127,35 @@ class HomeFragment : Fragment() {
 
 
         }
+
+        binding.shapeableImageView1.setOnClickListener {
+
+            val context = requireContext()
+            val activity = requireActivity()
+
+            // Toggle the theme
+            try {
+                // Toggle the theme
+                ThemeManager.toggleTheme(context)
+
+                // Provide feedback to the user
+                val sharedPreferences =
+                    context.getSharedPreferences("ThemePrefs", Context.MODE_PRIVATE)
+                val isDarkMode = sharedPreferences.getBoolean("isDarkMode", false)
+                val modeText = if (isDarkMode) "Switched to Dark mode" else "Switched to Light mode"
+                Toast.makeText(context, modeText, Toast.LENGTH_SHORT).show()
+
+                // Recreate the activity to apply the new theme
+                activity.recreate()
+
+            } catch (e: NullPointerException) {
+                e.printStackTrace()
+                // Handle or log the exception appropriately
+                Toast.makeText(context, "Error toggling theme", Toast.LENGTH_SHORT).show()
+            }
+
+        }
+
         binding.tvIsha.setOnClickListener {
 
 
@@ -623,8 +655,8 @@ class HomeFragment : Fragment() {
             // Format the difference
             val differenceText =
                 formatTimeDifference(timeDifferenceMinutes.first, timeDifferenceMinutes.second)
-            Toast.makeText(
-                requireContext(), "Coming in : $differenceText", Toast.LENGTH_SHORT
+            Snackbar.make(
+                requireView(), "Coming in : $differenceText", Snackbar.LENGTH_SHORT
             ).show()
         } else {
             Toast.makeText(requireContext(), "Invalid time format", Toast.LENGTH_SHORT).show()
@@ -661,7 +693,7 @@ class HomeFragment : Fragment() {
 
     // Function to format the time difference into "X minutes"
     private fun formatTimeDifference(hour: Long, minutes: Long): String {
-        return "$hour Hour$minutes Minutes"
+        return "$hour Hour , $minutes Minutes"
     }
 
     fun notificationoff() {
