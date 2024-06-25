@@ -63,6 +63,7 @@ class HomeFragment : Fragment() {
         "صلاه العصر الان",
         "صلاه المغرب الان",
         "صلاه العشاء الان",
+        "صلاه العشاء الان",
 
     )
     val messages = listOf(
@@ -71,6 +72,7 @@ class HomeFragment : Fragment() {
         "حان موعد اذان العصر بتوقيت القاهره",
         "حان موعد اذان المغرب بتوقيت القاهره",
         "حان موعد اذان العشاء بتوقيت القاهره",
+        "صلاه العشاء الان",
 
         )
     private val binding get() = _binding!!
@@ -87,22 +89,11 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         ThemeManager.applyTheme(requireContext())
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        if (ContextCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-
-        ) {
-            promptEnableLocation(requireContext())
-            ActivityCompat.requestPermissions(
-                requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1
-            )
-
-        } else {
-
-            fetchLocation()
-//            scheduleNotifications()
+        if (!isLocationFetched()) {
+            checkAndFetchLocation()
         }
         notificationOn()
         notificationoff()
@@ -120,7 +111,7 @@ class HomeFragment : Fragment() {
 
         binding.settings.setOnClickListener {
             Toast.makeText(requireContext(), "Coming Soon", Toast.LENGTH_SHORT).show()
-            fetchLocation()
+
 
 //            val intent = Intent(requireContext(), SettingsActivity::class.java)
 //            startActivity(intent)
@@ -162,6 +153,21 @@ class HomeFragment : Fragment() {
         }
 
 
+    }
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun checkAndFetchLocation() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // Request location permission
+            ActivityCompat.requestPermissions(
+                requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST_CODE
+            )
+        } else {
+            // Permission is already granted, fetch location
+            fetchLocation()
+        }
     }
 
     fun normalizeAngle(angle: Double): Double {
@@ -317,41 +323,42 @@ class HomeFragment : Fragment() {
 
 
     @SuppressLint("ScheduleExactAlarm")
-    fun scheduleNotification(
-        context: Context,
-        notificationTime: String,
-        notificationId: Int,
-        title: String,
-        message: String,
-        targetTimeZoneId: String,
-    ) {
-        try {
-            val elapsedTimeInMillis =
-                getElapsedTimeUntilTargetTime(notificationTime, targetTimeZoneId)
+        fun scheduleNotification(
+            context: Context,
+            notificationTime: String,
+            notificationId: Int,
+            title: String,
+            message: String,
+            targetTimeZoneId: String,
+        ) {
+            try {
+                val elapsedTimeInMillis =
+                    getElapsedTimeUntilTargetTime(notificationTime, targetTimeZoneId)
 
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val intent = Intent(context, AlarmReceivers::class.java).apply {
-                putExtra("notificationId", notificationId)
-                putExtra("title", title)
-                putExtra("message", message)
+                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                val intent = Intent(context, AlarmReceivers::class.java).apply {
+                    putExtra("notificationId", notificationId)
+                    putExtra("title", title)
+                    putExtra("message", message)
+                }
+
+                val pendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    notificationId,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+
+                alarmManager.setRepeating(
+                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime() + elapsedTimeInMillis,
+                    AlarmManager.INTERVAL_DAY,
+                    pendingIntent
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-
-            val pendingIntent = PendingIntent.getBroadcast(
-                context,
-                notificationId,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            alarmManager.setExact(
-                AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + elapsedTimeInMillis,
-                pendingIntent
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
-    }
 
     fun cancelScheduledNotification(
         context: Context,
@@ -481,6 +488,8 @@ class HomeFragment : Fragment() {
                 saveLocationToPrefs(latitude, longitude)
                 // Use the fetched location data
                 useLocationData(latitude, longitude)
+                saveLocationFetchedFlag(true)
+
 
             } else {
                 // Failed to retrieve location, use the last saved location
@@ -503,7 +512,17 @@ class HomeFragment : Fragment() {
             }
         }
     }
+    private fun saveLocationFetchedFlag(fetched: Boolean) {
+        val sharedPreferences = requireContext().getSharedPreferences("LocationPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putBoolean("location_fetched", fetched)
+        editor.apply()
+    }
 
+    private fun isLocationFetched(): Boolean {
+        val sharedPreferences = requireContext().getSharedPreferences("LocationPrefs", Context.MODE_PRIVATE)
+        return sharedPreferences.getBoolean("location_fetched", false)
+    }
     @RequiresApi(Build.VERSION_CODES.O)
     fun promptEnableLocation(context: Context) {
         AlertDialog.Builder(context).apply {
@@ -614,16 +633,16 @@ class HomeFragment : Fragment() {
         // Example: Schedule notifications
 
         val notificationTimes = listOf(
-            fajr, dhuhr, asr, maghrib, isha
+            fajr, dhuhr, asr, maghrib, isha,"2:19 PM"
         )
-        Log.v("diaa", "$notificationTimes")
+        Log.v("isha", "$notificationTimes")
 
 
         for (i in notificationTimes.indices) {
             scheduleNotification(
                 requireContext(), notificationTimes[i], i, titles[i], messages[i], timeZone.id
             )
-            Log.v("diaa", "$i")
+            Log.v("isha", "$i")
         }
 
     }
@@ -810,7 +829,7 @@ class HomeFragment : Fragment() {
 
 
         } else {
-            fetchLocation()
+            promptEnableLocation(requireContext())
         }
     }
 
