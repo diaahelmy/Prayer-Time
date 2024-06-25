@@ -52,7 +52,6 @@ import kotlin.time.Duration.Companion.minutes
 class HomeFragment : Fragment() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var _binding: FragmentHomeBinding? = null
-    private lateinit var themeManager: ThemeManager
 
     private val PREFS_NAME = "LocationPrefs"
     private val KEY_LATITUDE = "latitude"
@@ -64,6 +63,8 @@ class HomeFragment : Fragment() {
         "صلاه المغرب الان",
         "صلاه العشاء الان",
 
+
+
         )
     val messages = listOf(
         "حان موعد اذان الفجر بتوقيت القاهره",
@@ -71,6 +72,8 @@ class HomeFragment : Fragment() {
         "حان موعد اذان العصر بتوقيت القاهره",
         "حان موعد اذان المغرب بتوقيت القاهره",
         "حان موعد اذان العشاء بتوقيت القاهره",
+
+
 
         )
     private val binding get() = _binding!!
@@ -298,13 +301,7 @@ class HomeFragment : Fragment() {
         return isDST
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    internal fun ZonedDateTime.atStartOfDay() = with(LocalTime.MIN)
 
-    // TODO: research if this could result in the day before
-    @RequiresApi(Build.VERSION_CODES.O)
-    internal fun ZonedDateTime.atDuration(duration: Duration) =
-        atStartOfDay().plusNanos(duration.inWholeNanoseconds)!!
 
 
     fun getElapsedTimeUntilTargetTime(time: String, targetTimeZoneId: String): Long {
@@ -366,10 +363,9 @@ class HomeFragment : Fragment() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
-            alarmManager.setRepeating(
+            alarmManager.setExact(
                 AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 SystemClock.elapsedRealtime() + elapsedTimeInMillis,
-                AlarmManager.INTERVAL_DAY,
                 pendingIntent
             )
         } catch (e: Exception) {
@@ -659,13 +655,13 @@ class HomeFragment : Fragment() {
             val notificationTimes = listOf(
                 fajr, dhuhr, asr, maghrib, isha
             )
-            Log.v("diaa", "$notificationTimes")
+            Log.v("isha", "$notificationTimes")
 
             for (i in notificationTimes.indices) {
                 scheduleNotification(
                     requireContext(), notificationTimes[i], i, titles[i], messages[i], timeZone.id
                 )
-                Log.v("diaa", "$i")
+                Log.v("isha", "$i")
             }
 
             with(sharedPreferences.edit()) {
@@ -673,7 +669,6 @@ class HomeFragment : Fragment() {
                 apply()
             }
         }
-
     }
 
     // Function to parse time from a string
