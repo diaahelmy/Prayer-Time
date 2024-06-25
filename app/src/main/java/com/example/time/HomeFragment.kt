@@ -346,8 +346,17 @@ class HomeFragment : Fragment() {
         targetTimeZoneId: String,
     ) {
         try {
-            val elapsedTimeInMillis =
+            val triggerTimeMillis =
                 getElapsedTimeUntilTargetTime(notificationTime, targetTimeZoneId)
+
+            // Calculate elapsedTimeInMillis as the difference between trigger time and current time
+            val elapsedTimeInMillis = triggerTimeMillis - System.currentTimeMillis()
+
+            // Ensure elapsed time is positive
+            if (elapsedTimeInMillis <= 0) {
+                Log.d("scheduleNotification", "Notification time has already passed")
+                return
+            }
 
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(context, AlarmReceivers::class.java).apply {
@@ -363,11 +372,22 @@ class HomeFragment : Fragment() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
-            alarmManager.setExact(
-                AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + elapsedTimeInMillis,
-                pendingIntent
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerTimeMillis,
+                    pendingIntent
+                )
+            } else {
+                // For versions below M, fallback to setExact to ensure exact timing (not while idle)
+                alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerTimeMillis,
+                    pendingIntent
+                )
+            }
+
+            Log.d("scheduleNotification", "Notification scheduled for $notificationTime in $targetTimeZoneId")
         } catch (e: Exception) {
             e.printStackTrace()
         }

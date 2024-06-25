@@ -19,8 +19,9 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 
-const val ACTION_STOP_ALARM = "com.example.time.ACTION_STOP_ALARM"
 class AlarmReceivers: BroadcastReceiver() {
+     val ACTION_STOP_ALARM = "com.example.time.ACTION_STOP_ALARM"
+
     override fun onReceive(context: Context?, intent: Intent?) {
         context?.let {
         AlarmSound.playAlarmSound(it)
