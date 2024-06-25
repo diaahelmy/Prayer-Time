@@ -302,37 +302,27 @@ class HomeFragment : Fragment() {
     }
 
 
-
-
     fun getElapsedTimeUntilTargetTime(time: String, targetTimeZoneId: String): Long {
         val dateFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
         dateFormat.timeZone = TimeZone.getTimeZone(targetTimeZoneId)
 
-        val parsedDate =
-            dateFormat.parse(time) ?: throw IllegalArgumentException("Invalid time format")
+        val parsedDate = dateFormat.parse(time) ?: throw IllegalArgumentException("Invalid time format")
 
         val now = Calendar.getInstance()
-        val targetCalendar = Calendar.getInstance(TimeZone.getTimeZone(targetTimeZoneId))
-        targetCalendar.time = parsedDate
-        targetCalendar.set(Calendar.YEAR, now.get(Calendar.YEAR))
-        targetCalendar.set(Calendar.MONTH, now.get(Calendar.MONTH))
-        targetCalendar.set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH))
-        targetCalendar.set(Calendar.SECOND, 0)
-        targetCalendar.set(Calendar.MILLISECOND, 0)
+        val targetCalendar = Calendar.getInstance(TimeZone.getTimeZone(targetTimeZoneId)).apply {
+            set(Calendar.HOUR_OF_DAY, parsedDate.hours)
+            set(Calendar.MINUTE, parsedDate.minutes)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
 
-        // If the target time is before the current time, schedule it for the next day
-        if (targetCalendar.timeInMillis < now.timeInMillis) {
-            targetCalendar.add(Calendar.DAY_OF_YEAR, 1)
+            // If the target time is before the current time, schedule it for the next day
+            if (timeInMillis < now.timeInMillis) {
+                add(Calendar.DAY_OF_YEAR, 1)
+            }
         }
-
-        // Calculate the elapsed time until the target time
-        val elapsedTime = targetCalendar.timeInMillis - now.timeInMillis
-
-        Log.v("diaa", "now: ${now.time}")
-        Log.v("diaa", "target: ${targetCalendar.time}")
-        Log.v("diaa", "elapsedTime: $elapsedTime")
-
-        return elapsedTime
+        Log.d("getElapsedTimeUntilTargetTime", "Current time: ${now.timeInMillis}")
+        Log.d("getElapsedTimeUntilTargetTime", "Target time: ${targetCalendar.timeInMillis}")
+        return targetCalendar.timeInMillis
     }
 
 
@@ -346,17 +336,10 @@ class HomeFragment : Fragment() {
         targetTimeZoneId: String,
     ) {
         try {
-            val triggerTimeMillis =
-                getElapsedTimeUntilTargetTime(notificationTime, targetTimeZoneId)
-
-            // Calculate elapsedTimeInMillis as the difference between trigger time and current time
+            val triggerTimeMillis = getElapsedTimeUntilTargetTime(notificationTime, targetTimeZoneId)
             val elapsedTimeInMillis = triggerTimeMillis - System.currentTimeMillis()
 
-            // Ensure elapsed time is positive
-            if (elapsedTimeInMillis <= 0) {
-                Log.d("scheduleNotification", "Notification time has already passed")
-                return
-            }
+
 
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(context, AlarmReceivers::class.java).apply {
@@ -375,19 +358,21 @@ class HomeFragment : Fragment() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 alarmManager.setExactAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
-                    triggerTimeMillis,
+                    System.currentTimeMillis() + elapsedTimeInMillis,
                     pendingIntent
                 )
             } else {
-                // For versions below M, fallback to setExact to ensure exact timing (not while idle)
                 alarmManager.setExact(
                     AlarmManager.RTC_WAKEUP,
-                    triggerTimeMillis,
+                    System.currentTimeMillis() + elapsedTimeInMillis,
                     pendingIntent
                 )
             }
 
-            Log.d("scheduleNotification", "Notification scheduled for $notificationTime in $targetTimeZoneId")
+            Log.d(
+                "scheduleNotification",
+                "Notification scheduled for $notificationTime in $targetTimeZoneId"
+            )
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -665,7 +650,8 @@ class HomeFragment : Fragment() {
             timeComing(isha)
 
         }
-        val sharedPreferences = requireContext().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val sharedPreferences =
+            requireContext().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
         val notificationsScheduled = sharedPreferences.getBoolean("notificationsScheduled", false)
 
         // Example: Schedule notifications
