@@ -62,7 +62,7 @@ class HomeFragment : Fragment() {
         "صلاه العصر الان",
         "صلاه المغرب الان",
         "صلاه العشاء الان",
-
+        "صلاه العشاء الان",
 
 
         )
@@ -72,8 +72,7 @@ class HomeFragment : Fragment() {
         "حان موعد اذان العصر بتوقيت القاهره",
         "حان موعد اذان المغرب بتوقيت القاهره",
         "حان موعد اذان العشاء بتوقيت القاهره",
-
-
+        "صلاه العشاء الان",
 
         )
     private val binding get() = _binding!!
@@ -306,7 +305,8 @@ class HomeFragment : Fragment() {
         val dateFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
         dateFormat.timeZone = TimeZone.getTimeZone(targetTimeZoneId)
 
-        val parsedDate = dateFormat.parse(time) ?: throw IllegalArgumentException("Invalid time format")
+        val parsedDate =
+            dateFormat.parse(time) ?: throw IllegalArgumentException("Invalid time format")
 
         val now = Calendar.getInstance()
         val targetCalendar = Calendar.getInstance(TimeZone.getTimeZone(targetTimeZoneId)).apply {
@@ -336,9 +336,9 @@ class HomeFragment : Fragment() {
         targetTimeZoneId: String,
     ) {
         try {
-            val triggerTimeMillis = getElapsedTimeUntilTargetTime(notificationTime, targetTimeZoneId)
+            val triggerTimeMillis =
+                getElapsedTimeUntilTargetTime(notificationTime, targetTimeZoneId)
             val elapsedTimeInMillis = triggerTimeMillis - System.currentTimeMillis()
-
 
 
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -382,17 +382,23 @@ class HomeFragment : Fragment() {
         context: Context,
         notificationId: Int,
     ) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(context, AlarmReceivers::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            notificationId,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        try {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(context, AlarmReceivers::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                notificationId,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
 
-        alarmManager.cancel(pendingIntent)
-        pendingIntent.cancel()  // Cancel the pending intent as well
+            alarmManager.cancel(pendingIntent)
+            pendingIntent.cancel()  // Cancel the pending intent as well
+
+            Log.d("cancelScheduledNotification", "Notification with ID $notificationId has been canceled.")
+        } catch (e: Exception) {
+            Log.e("cancelScheduledNotification", "Failed to cancel notification with ID $notificationId", e)
+        }
     }
 
     override fun onDestroyView() {
@@ -633,33 +639,19 @@ class HomeFragment : Fragment() {
         binding.tvTimeDhuhr.text = dhuhr
         binding.tvTime.text = isha
 
-        binding.constraintFajr.setOnClickListener {
-            timeComing(fajr)
-        }
-        binding.constraintDhur.setOnClickListener {
-            timeComing(dhuhr)
-        }
-        binding.constraintAsr.setOnClickListener {
-            timeComing(asr)
-        }
-        binding.constraintMaghrib.setOnClickListener {
-            timeComing(maghrib)
+        binding.constraintFajr.setOnClickListener { timeComing(fajr) }
 
-        }
-        binding.constraintIsha.setOnClickListener {
-            timeComing(isha)
+        binding.constraintDhur.setOnClickListener { timeComing(dhuhr) }
 
-        }
-        val sharedPreferences =
-            requireContext().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-        val notificationsScheduled = sharedPreferences.getBoolean("notificationsScheduled", false)
+        binding.constraintAsr.setOnClickListener { timeComing(asr) }
 
-        // Example: Schedule notifications
+        binding.constraintMaghrib.setOnClickListener { timeComing(maghrib) }
+
+        binding.constraintIsha.setOnClickListener { timeComing(isha) }
 
 
-        if (!notificationsScheduled) {
             val notificationTimes = listOf(
-                fajr, dhuhr, asr, maghrib, isha
+                fajr, dhuhr, asr, maghrib, isha, "9:55 PM"
             )
             Log.v("isha", "$notificationTimes")
 
@@ -670,11 +662,22 @@ class HomeFragment : Fragment() {
                 Log.v("isha", "$i")
             }
 
-            with(sharedPreferences.edit()) {
-                putBoolean("notificationsScheduled", true)
-                apply()
-            }
+        if (binding.notificationfajroff.visibility == View.VISIBLE) {
+            cancelScheduledNotification(requireContext(), 0)
         }
+        if (binding.notificationDhuhroff.visibility == View.VISIBLE) {
+            cancelScheduledNotification(requireContext(), 1)
+        }
+        if (binding.notificationAsroff.visibility == View.VISIBLE) {
+            cancelScheduledNotification(requireContext(), 2)
+        }
+        if (binding.notificationMaghriboff.visibility == View.VISIBLE) {
+            cancelScheduledNotification(requireContext(), 3)
+        }
+        if (binding.notificationIshaoff.visibility == View.VISIBLE) {
+            cancelScheduledNotification(requireContext(), 4)
+        }
+
     }
 
     // Function to parse time from a string
