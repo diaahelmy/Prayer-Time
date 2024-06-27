@@ -15,7 +15,6 @@ import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.os.Build
 import android.os.Bundle
-import android.os.SystemClock
 import android.provider.Settings
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -56,23 +55,21 @@ class HomeFragment : Fragment() {
     private val PREFS_NAME = "LocationPrefs"
     private val KEY_LATITUDE = "latitude"
     private val KEY_LONGITUDE = "longitude"
-    val titles = listOf(
+    private val titles = listOf(
         "صلاه الفجر الان",
         "صلاه الظهر الان",
         "صلاه العصر الان",
         "صلاه المغرب الان",
         "صلاه العشاء الان",
-        "صلاه العشاء الان",
 
 
         )
-    val messages = listOf(
+    private val messages = listOf(
         "حان موعد اذان الفجر بتوقيت القاهره",
         "حان موعد اذان الظهر بتوقيت القاهره",
         "حان موعد اذان العصر بتوقيت القاهره",
         "حان موعد اذان المغرب بتوقيت القاهره",
         "حان موعد اذان العشاء بتوقيت القاهره",
-        "صلاه العشاء الان",
 
         )
     private val binding get() = _binding!!
@@ -146,10 +143,6 @@ class HomeFragment : Fragment() {
 
         }
 
-        binding.tvIsha.setOnClickListener {
-
-
-        }
 
 
     }
@@ -172,23 +165,8 @@ class HomeFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<out String>, grantResults: IntArray,
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, fetch location
-                fetchLocation()
-            } else {
-                // Permission denied, prompt the user to enable location
-                promptEnableLocation(requireContext())
-            }
-        }
-    }
 
-    fun normalizeAngle(angle: Double): Double {
+    private fun normalizeAngle(angle: Double): Double {
         var normalizedAngle = angle % 360.0
         if (normalizedAngle < 0) {
             normalizedAngle += 360.0
@@ -273,7 +251,7 @@ class HomeFragment : Fragment() {
         )
     }
 
-    fun showTimeZoneInfo(context: Context) {
+    private fun showTimeZoneInfo(context: Context) {
         val timeZone = TimeZone.getDefault()
         val timeZoneId = timeZone.id
         val timeZoneName = timeZone.displayName
@@ -301,7 +279,7 @@ class HomeFragment : Fragment() {
     }
 
 
-    fun getElapsedTimeUntilTargetTime(time: String, targetTimeZoneId: String): Long {
+    private fun getElapsedTimeUntilTargetTime(time: String, targetTimeZoneId: String): Long {
         val dateFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
         dateFormat.timeZone = TimeZone.getTimeZone(targetTimeZoneId)
 
@@ -378,7 +356,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    fun cancelScheduledNotification(
+    private fun cancelScheduledNotification(
         context: Context,
         notificationId: Int,
     ) {
@@ -395,9 +373,16 @@ class HomeFragment : Fragment() {
             alarmManager.cancel(pendingIntent)
             pendingIntent.cancel()  // Cancel the pending intent as well
 
-            Log.d("cancelScheduledNotification", "Notification with ID $notificationId has been canceled.")
+            Log.d(
+                "cancelScheduledNotification",
+                "Notification with ID $notificationId has been canceled."
+            )
         } catch (e: Exception) {
-            Log.e("cancelScheduledNotification", "Failed to cancel notification with ID $notificationId", e)
+            Log.e(
+                "cancelScheduledNotification",
+                "Failed to cancel notification with ID $notificationId",
+                e
+            )
         }
     }
 
@@ -532,6 +517,32 @@ class HomeFragment : Fragment() {
                     promptEnableLocation(requireContext())
                 }
             }
+        }.addOnFailureListener { exception ->
+            // Log the error
+            Log.e("LocationError", "Failed to get location", exception)
+
+            // Notify the user
+            Toast.makeText(
+                requireContext(),
+                "Failed to retrieve location. Please enable location services.",
+                Toast.LENGTH_LONG
+            ).show()
+
+            // Handle failure by prompting the user to enable location services or use saved location
+            val savedLocation = getLocationFromPrefs()
+            if (savedLocation != null) {
+                val (latitude, longitude) = savedLocation
+                Toast.makeText(
+                    requireContext(),
+                    "Using last known location: $latitude, $longitude",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                // Use the saved location data
+                useLocationData(latitude, longitude)
+            } else {
+                promptEnableLocation(requireContext())
+            }
         }
     }
 
@@ -543,11 +554,6 @@ class HomeFragment : Fragment() {
         editor.apply()
     }
 
-    private fun isLocationFetched(): Boolean {
-        val sharedPreferences =
-            requireContext().getSharedPreferences("LocationPrefs", Context.MODE_PRIVATE)
-        return sharedPreferences.getBoolean("location_fetched", false)
-    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun promptEnableLocation(context: Context) {
@@ -650,17 +656,17 @@ class HomeFragment : Fragment() {
         binding.constraintIsha.setOnClickListener { timeComing(isha) }
 
 
-            val notificationTimes = listOf(
-                fajr, dhuhr, asr, maghrib, isha, "9:55 PM"
-            )
-            Log.v("isha", "$notificationTimes")
+        val notificationTimes = listOf(
+            fajr, dhuhr, asr, maghrib, isha
+        )
+        Log.v("isha", "$notificationTimes")
 
-            for (i in notificationTimes.indices) {
-                scheduleNotification(
-                    requireContext(), notificationTimes[i], i, titles[i], messages[i], timeZone.id
-                )
-                Log.v("isha", "$i")
-            }
+        for (i in notificationTimes.indices) {
+            scheduleNotification(
+                requireContext(), notificationTimes[i], i, titles[i], messages[i], timeZone.id
+            )
+            Log.v("isha", "$i")
+        }
 
         if (binding.notificationfajroff.visibility == View.VISIBLE) {
             cancelScheduledNotification(requireContext(), 0)
@@ -748,7 +754,7 @@ class HomeFragment : Fragment() {
         return "$hour Hour , $minutes Minutes"
     }
 
-    fun notificationoff() {
+    private fun notificationoff() {
         updateNotificationUI()
         binding.notificationfajr.setOnClickListener {
 
@@ -824,7 +830,7 @@ class HomeFragment : Fragment() {
                 scheduleNotification(
                     requireContext(), dhuhr, 1, titles[1], messages[1], timeZone.id
                 )
-                Log.v("diaa", "$dhuhr")
+
             }
             binding.notificationAsroff.setOnClickListener {
                 binding.notificationAsr.visibility = View.VISIBLE
@@ -867,7 +873,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    fun saveNotificationState(context: Context, key: String, state: Boolean) {
+    private fun saveNotificationState(context: Context, key: String, state: Boolean) {
         val sharedPref =
             context.getSharedPreferences("NotificationPreferences", Context.MODE_PRIVATE)
         with(sharedPref.edit()) {
@@ -876,7 +882,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    fun getNotificationState(context: Context, key: String): Boolean {
+    private fun getNotificationState(context: Context, key: String): Boolean {
         val sharedPref =
             context.getSharedPreferences("NotificationPreferences", Context.MODE_PRIVATE)
         return sharedPref.getBoolean(key, true) // default is true (notification enabled)
