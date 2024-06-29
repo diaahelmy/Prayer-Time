@@ -24,8 +24,11 @@ class AlarmReceivers: BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         context?.let {
-        AlarmSound.playAlarmSound(it)
-
+            val soundUri = when (intent?.action) {
+                "ACTION_FAJR_ALARM" -> Uri.parse("android.resource://${context.packageName}/raw/alarm")
+                else -> Uri.parse("android.resource://${context.packageName}/raw/fajr")
+            }
+            AlarmSound.playAlarmSound(context,soundUri)
             val resultIntent = Intent(it, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }

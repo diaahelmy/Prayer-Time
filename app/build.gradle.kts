@@ -55,6 +55,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation ("com.huawei.hms:location:6.0.0.300")
+    implementation ("com.huawei.hms:location:6.7.0.300")
     implementation ("com.google.android.gms:play-services-location:21.2.0")
 }

@@ -7,14 +7,18 @@ import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
+import android.location.LocationManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.provider.Settings
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -29,11 +33,13 @@ import com.example.time.databinding.FragmentHomeBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
+import com.huawei.hms.location.LocationCallback
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.JulianFields
+import java.util.Date
 import java.util.Locale
 import kotlin.math.absoluteValue
 import kotlin.math.acos
@@ -46,12 +52,14 @@ import kotlin.math.tan
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
-
+import com.huawei.hms.location.FusedLocationProviderClient as HmsFusedLocationProviderClient
+import com.huawei.hms.location.LocationServices as HmsLocationServices
 
 class HomeFragment : Fragment() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var _binding: FragmentHomeBinding? = null
-
+    private lateinit var hmsFusedLocationClient: HmsFusedLocationProviderClient
+    private lateinit var locationCallback: LocationCallback
     private val PREFS_NAME = "LocationPrefs"
     private val KEY_LATITUDE = "latitude"
     private val KEY_LONGITUDE = "longitude"
@@ -88,22 +96,16 @@ class HomeFragment : Fragment() {
         ThemeManager.applyTheme(requireContext())
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        hmsFusedLocationClient =
+            HmsLocationServices.getFusedLocationProviderClient(requireContext())
+        handleBatteryOptimizations(requireContext())
 
         checkAndFetchLocation()
-
         notificationOn()
         notificationoff()
         checkNotificationPermission(requireActivity(), 100)
 
-        binding.logo.setOnClickListener {
-            showTimeZoneInfo(requireContext())
 
-
-//            val serviceIntent = Intent(requireContext(), MyForegroundService::class.java)
-//            ContextCompat.startForegroundService(requireContext(), serviceIntent)
-//            setAlarm()
-
-        }
 
         binding.settings.setOnClickListener {
             Toast.makeText(requireContext(), "Coming Soon", Toast.LENGTH_SHORT).show()
@@ -144,7 +146,6 @@ class HomeFragment : Fragment() {
         }
 
 
-
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -162,6 +163,7 @@ class HomeFragment : Fragment() {
         } else {
             // Permission is already granted, fetch location
             fetchLocation()
+
         }
     }
 
@@ -251,16 +253,7 @@ class HomeFragment : Fragment() {
         )
     }
 
-    private fun showTimeZoneInfo(context: Context) {
-        val timeZone = TimeZone.getDefault()
-        val timeZoneId = timeZone.id
-        val timeZoneName = timeZone.displayName
-        val timeZoneOffset = timeZone.rawOffset / (1000 * 60 * 60) // Offset in hours
 
-        val message =
-            "Current Time Zone: $timeZoneId\nDisplay Name: $timeZoneName\nOffset: $timeZoneOffset hours"
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun isInDaylightSavingTime(): Boolean {
@@ -279,82 +272,96 @@ class HomeFragment : Fragment() {
     }
 
 
-    private fun getElapsedTimeUntilTargetTime(time: String, targetTimeZoneId: String): Long {
-        val dateFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
-        dateFormat.timeZone = TimeZone.getTimeZone(targetTimeZoneId)
 
-        val parsedDate =
-            dateFormat.parse(time) ?: throw IllegalArgumentException("Invalid time format")
 
-        val now = Calendar.getInstance()
-        val targetCalendar = Calendar.getInstance(TimeZone.getTimeZone(targetTimeZoneId)).apply {
-            set(Calendar.HOUR_OF_DAY, parsedDate.hours)
-            set(Calendar.MINUTE, parsedDate.minutes)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
+    fun handleBatteryOptimizations(context: Context) {
+        val packageName = context.packageName
+        val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+            // Prompt user to ignore battery optimizations
+            val intent = Intent().apply {
 
-            // If the target time is before the current time, schedule it for the next day
-            if (timeInMillis < now.timeInMillis) {
-                add(Calendar.DAY_OF_YEAR, 1)
+                action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                data = Uri.parse("package:$packageName")
+            }
+            try {
+                context.startActivity(intent)
+
+                Log.e("BatteryOptimizations", "Activity  request battery optimizations")
+            } catch (e: ActivityNotFoundException) {
+                e.printStackTrace()
+                Log.e("BatteryOptimizations", "Activity not found to request battery optimizations")
             }
         }
-        Log.d("getElapsedTimeUntilTargetTime", "Current time: ${now.timeInMillis}")
-        Log.d("getElapsedTimeUntilTargetTime", "Target time: ${targetCalendar.timeInMillis}")
-        return targetCalendar.timeInMillis
     }
 
+        private fun getElapsedTimeUntilTargetTime(time: String, targetTimeZoneId: String): Long {
+            val dateFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
+            dateFormat.timeZone = TimeZone.getTimeZone(targetTimeZoneId)
 
-    @SuppressLint("ScheduleExactAlarm")
-    fun scheduleNotification(
-        context: Context,
-        notificationTime: String,
-        notificationId: Int,
-        title: String,
-        message: String,
-        targetTimeZoneId: String,
-    ) {
-        try {
-            val triggerTimeMillis =
-                getElapsedTimeUntilTargetTime(notificationTime, targetTimeZoneId)
-            val elapsedTimeInMillis = triggerTimeMillis - System.currentTimeMillis()
-
-
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val intent = Intent(context, AlarmReceivers::class.java).apply {
-                putExtra("notificationId", notificationId)
-                putExtra("title", title)
-                putExtra("message", message)
+            val parsedDate =
+                dateFormat.parse(time) ?: throw IllegalArgumentException("Invalid time format")
+            val now = Calendar.getInstance()
+            val targetCalendar = Calendar.getInstance(TimeZone.getTimeZone(targetTimeZoneId)).apply {
+                set(Calendar.HOUR_OF_DAY, parsedDate.hours)
+                set(Calendar.MINUTE, parsedDate.minutes)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+                // If the target time is before the current time, schedule it for the next day
+                if (timeInMillis < now.timeInMillis) {
+                    add(Calendar.DAY_OF_YEAR, 1)
+                }
             }
-
-            val pendingIntent = PendingIntent.getBroadcast(
-                context,
-                notificationId,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    System.currentTimeMillis() + elapsedTimeInMillis,
-                    pendingIntent
-                )
-            } else {
-                alarmManager.setExact(
-                    AlarmManager.RTC_WAKEUP,
-                    System.currentTimeMillis() + elapsedTimeInMillis,
-                    pendingIntent
-                )
-            }
-
-            Log.d(
-                "scheduleNotification",
-                "Notification scheduled for $notificationTime in $targetTimeZoneId"
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
+            Log.d("getElapsedTimeUntilTargetTime", "Current time: ${now.timeInMillis}")
+            Log.d("getElapsedTimeUntilTargetTime", "Target time: ${targetCalendar.timeInMillis}")
+            return targetCalendar.timeInMillis
         }
-    }
+        @SuppressLint("ScheduleExactAlarm")
+        fun scheduleNotification(
+            context: Context,
+            notificationTime: String,
+            notificationId: Int,
+            title: String,
+            message: String,
+            targetTimeZoneId: String,
+        ) {
+            try {
+                val triggerTimeMillis =
+                    getElapsedTimeUntilTargetTime(notificationTime, targetTimeZoneId)
+                val elapsedTimeInMillis = triggerTimeMillis - System.currentTimeMillis()
+                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                val intent = Intent(context, AlarmReceivers::class.java).apply {
+                    putExtra("notificationId", notificationId)
+                    putExtra("title", title)
+                    putExtra("message", message)
+                }
+                val pendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    notificationId,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        System.currentTimeMillis() + elapsedTimeInMillis,
+                        pendingIntent
+                    )
+                }else {
+                    alarmManager.setExact(
+                        AlarmManager.RTC_WAKEUP,
+                        System.currentTimeMillis() + elapsedTimeInMillis,
+                        pendingIntent
+                    )
+                }
+                Log.d(
+                    "scheduleNotification",
+                    "Notification scheduled for $notificationTime in $targetTimeZoneId"
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
 
     private fun cancelScheduledNotification(
         context: Context,
@@ -453,12 +460,8 @@ class HomeFragment : Fragment() {
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-//    internal fun ZonedDateTime.atStartOfDay() = with(LocalTime.MIN)
 
-    // TODO: research if this could result in the day before
-//    @RequiresApi(Build.VERSION_CODES.O)
-//    internal fun ZonedDateTime.atDuration(duration: Duration) = atStartOfDay().plusNanos(duration.inWholeNanoseconds)!!
+    @RequiresApi(Build.VERSION_CODES.O)
     fun getJulianDateForToday(): Double {
 
         val zonedDateTime = ZonedDateTime.now(ZoneId.of("Africa/Cairo"))
@@ -475,76 +478,6 @@ class HomeFragment : Fragment() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun fetchLocation() {
-        if (ActivityCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestLocationPermissions()
-
-            return
-        }
-
-        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            if (location != null) {
-                // Successfully fetched location
-                val longitude = location.longitude
-                val latitude = location.latitude
-
-                // Save location to SharedPreferences
-                saveLocationToPrefs(latitude, longitude)
-                // Use the fetched location data
-                useLocationData(latitude, longitude)
-                saveLocationFetchedFlag(true)
-            } else {
-                // Failed to retrieve location, use the last saved location
-                val savedLocation = getLocationFromPrefs()
-                if (savedLocation != null) {
-                    val (latitude, longitude) = savedLocation
-                    Toast.makeText(
-                        requireContext(),
-                        "Using last known location$latitude,$longitude",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
-                    // Use the saved location data
-                    useLocationData(latitude, longitude)
-
-                } else {
-
-                    promptEnableLocation(requireContext())
-                }
-            }
-        }.addOnFailureListener { exception ->
-            // Log the error
-            Log.e("LocationError", "Failed to get location", exception)
-
-            // Notify the user
-            Toast.makeText(
-                requireContext(),
-                "Failed to retrieve location. Please enable location services.",
-                Toast.LENGTH_LONG
-            ).show()
-
-            // Handle failure by prompting the user to enable location services or use saved location
-            val savedLocation = getLocationFromPrefs()
-            if (savedLocation != null) {
-                val (latitude, longitude) = savedLocation
-                Toast.makeText(
-                    requireContext(),
-                    "Using last known location: $latitude, $longitude",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-                // Use the saved location data
-                useLocationData(latitude, longitude)
-            } else {
-                promptEnableLocation(requireContext())
-            }
-        }
-    }
 
     private fun saveLocationFetchedFlag(fetched: Boolean) {
         val sharedPreferences =
@@ -560,33 +493,52 @@ class HomeFragment : Fragment() {
         AlertDialog.Builder(context).apply {
             setMessage("Location services are disabled. Please enable them to proceed.")
             setPositiveButton("Enable") { dialog, _ ->
-                context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-                dialog.dismiss()
-                fetchLocation()
+                    context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                    if (areLocationServicesEnabled(requireContext())) {
+                        checkAndFetchLocation(requireContext())
+                            dialog.dismiss()
+                    } else {
+                        // Location services are disabled, prompt the user to enable them
+                        promptEnableLocation(requireContext())
+                    }
+
             }
+
             setNegativeButton("Cancel") { dialog, _ ->
-                dialog.dismiss()
-                fetchLocation()
-                Toast.makeText(
-                    context,
-                    "Failed to retrieve location and no saved location available",
-                    Toast.LENGTH_SHORT
-                ).show()
+
+                if (binding.tvtimefajr.text == "00:00"&& binding.tvTime.text == "00:00") {
+                    promptEnableLocation(requireContext())
+                    checkAndFetchLocation(requireContext())
+                } else {
+                    checkAndFetchLocation()
+                    dialog.dismiss()
+                }
+
             }
-            setCancelable(false)
+            setCancelable(false) // Ensure dialog is not cancellable
             create()
             show()
         }
     }
 
-    private fun requestLocationPermissions() {
-        ActivityCompat.requestPermissions(
-            requireActivity(), arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
-            ), LOCATION_PERMISSION_REQUEST_CODE
-        )
-    }
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun checkAndFetchLocation(context: Context) {
+        if (areLocationServicesEnabled(context)) {
+            // Location services are enabled, proceed with location-related operations
 
+            AlertDialog.Builder(context).apply {
+                setMessage("Prayer times program to alert all prayer times. Please make sure to give it notification and location permissions.")
+                setPositiveButton("OK") { dialog, _ ->
+                    fetchLocation()
+                    dialog.dismiss()
+
+                }
+            }.show()
+        } else {
+            // Location services are disabled, prompt the user to enable them
+            promptEnableLocation(context)
+        }
+    }
     // Constants for request codes and preference keys
     private val LOCATION_PERMISSION_REQUEST_CODE = 1000
 
@@ -654,6 +606,7 @@ class HomeFragment : Fragment() {
         binding.constraintMaghrib.setOnClickListener { timeComing(maghrib) }
 
         binding.constraintIsha.setOnClickListener { timeComing(isha) }
+
 
 
         val notificationTimes = listOf(
@@ -927,6 +880,82 @@ class HomeFragment : Fragment() {
 
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun fetchLocation() {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestLocationPermissions()
+            return
+        }
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null) {
+                // Successfully fetched location
+                val longitude = location.longitude
+                val latitude = location.latitude
+                // Save location to SharedPreferences
+                saveLocationToPrefs(latitude, longitude)
+                // Use the fetched location data
+                useLocationData(latitude, longitude)
+                saveLocationFetchedFlag(true)
+            } else {
+                // Failed to retrieve location, use the last saved location
+                val savedLocation = getLocationFromPrefs()
+                if (savedLocation != null) {
+                    val (latitude, longitude) = savedLocation
+
+                    // Use the saved location data
+                    useLocationData(latitude, longitude)
+                }
+            }
+        }.addOnFailureListener { exception ->
+            hmsFusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    // Successfully fetched location
+                    val longitude = location.longitude
+                    val latitude = location.latitude
+                    // Save location to SharedPreferences
+                    saveLocationToPrefs(latitude, longitude)
+                    // Use the fetched location data
+                    useLocationData(latitude, longitude)
+                    saveLocationFetchedFlag(true)
+                } else {
+                    // Failed to retrieve location, use the last saved location
+                    val savedLocation = getLocationFromPrefs()
+                    if (savedLocation != null) {
+                        val (latitude, longitude) = savedLocation
+
+                        // Use the saved location data
+                        useLocationData(latitude, longitude)
+                    }
+                }
+            }
+        }
+    }
+    fun areLocationServicesEnabled(context: Context): Boolean {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
+    private fun requestLocationPermissions() {
+        val permissions = arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            permissions,
+            1000
+        )
+    }
+
+
+
 }
 //    override fun onResume() {
 //        super.onResume()
