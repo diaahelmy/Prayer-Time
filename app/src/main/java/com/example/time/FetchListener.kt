@@ -128,9 +128,6 @@ object FetchListener {
         try {
             val triggerTimeMillis =
                 getElapsedTimeUntilTargetTime(notificationTime, targetTimeZoneId)
-            val elapsedTimeInMillis = triggerTimeMillis - System.currentTimeMillis()
-
-
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(context, AlarmReceivers::class.java).apply {
                 action = when (notificationId) {
@@ -148,16 +145,17 @@ object FetchListener {
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 alarmManager.setExactAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
-                    System.currentTimeMillis() + elapsedTimeInMillis,
+                    triggerTimeMillis,
                     pendingIntent
                 )
             } else {
                 alarmManager.setExact(
                     AlarmManager.RTC_WAKEUP,
-                    System.currentTimeMillis() + elapsedTimeInMillis,
+                    triggerTimeMillis,
                     pendingIntent
                 )
             }
@@ -166,7 +164,7 @@ object FetchListener {
                 "Notification scheduled for $notificationTime in $targetTimeZoneId"
             )
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("scheduleNotification", "Failed to schedule notification", e)
         }
     }
 
@@ -206,34 +204,21 @@ object FetchListener {
     }
 
     internal fun start_work(context: Context) {
-        val sharedPreferences =
-            context.getSharedPreferences("NotificationPreferences", Context.MODE_PRIVATE)
+        val sharedPreferences = context.getSharedPreferences("NotificationPreferences", Context.MODE_PRIVATE)
 
-        if (sharedPreferences.getBoolean("fajr_notification", false)) {
-
-        } else {
+        if (!sharedPreferences.getBoolean("fajr_notification", true)) {
             cancelScheduledNotification(context, 0)
         }
-        if (sharedPreferences.getBoolean("dhuhr_notification", false)) {
-
-        } else {
-
+        if (!sharedPreferences.getBoolean("dhuhr_notification", true)) {
             cancelScheduledNotification(context, 1)
         }
-        if (sharedPreferences.getBoolean("asr_notification", false)) {
-
-        } else {
+        if (!sharedPreferences.getBoolean("asr_notification", true)) {
             cancelScheduledNotification(context, 2)
         }
-        if (sharedPreferences.getBoolean("maghrib_notification", false)) {
-
-        } else {
-
+        if (!sharedPreferences.getBoolean("maghrib_notification", true)) {
             cancelScheduledNotification(context, 3)
         }
-        if (sharedPreferences.getBoolean("isha_notification", false)) {
-
-        } else {
+        if (!sharedPreferences.getBoolean("isha_notification", true)) {
             cancelScheduledNotification(context, 4)
         }
     }

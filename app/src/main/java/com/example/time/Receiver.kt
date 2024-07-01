@@ -6,8 +6,6 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import com.example.time.FetchListener.cancelScheduledNotification
-import com.example.time.FetchListener.start_work
 
 class Receiver : BroadcastReceiver(),LocationFetchListener {
     @RequiresApi(Build.VERSION_CODES.O)

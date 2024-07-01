@@ -31,15 +31,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.time.FetchListener.cancelScheduledNotification
 import com.example.time.FetchListener.convertDurationToTimeString
+import com.example.time.FetchListener.getElapsedTimeUntilTargetTime
 import com.example.time.FetchListener.getLocationFromPrefs
 import com.example.time.FetchListener.useLocationData
 import com.example.time.databinding.FragmentHomeBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.temporal.JulianFields
 import java.util.Locale
 import com.huawei.hms.location.FusedLocationProviderClient as HmsFusedLocationProviderClient
 import com.huawei.hms.location.LocationServices as HmsLocationServices
@@ -178,28 +176,6 @@ class HomeFragment : Fragment(), LocationFetchListener {
                 Log.e("BatteryOptimizations", "Activity not found to request battery optimizations")
             }
         }
-    }
-
-    private fun getElapsedTimeUntilTargetTime(time: String, targetTimeZoneId: String): Long {
-        val dateFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
-        dateFormat.timeZone = TimeZone.getTimeZone(targetTimeZoneId)
-
-        val parsedDate =
-            dateFormat.parse(time) ?: throw IllegalArgumentException("Invalid time format")
-        val now = Calendar.getInstance()
-        val targetCalendar = Calendar.getInstance(TimeZone.getTimeZone(targetTimeZoneId)).apply {
-            set(Calendar.HOUR_OF_DAY, parsedDate.hours)
-            set(Calendar.MINUTE, parsedDate.minutes)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-            // If the target time is before the current time, schedule it for the next day
-            if (timeInMillis < now.timeInMillis) {
-                add(Calendar.DAY_OF_YEAR, 1)
-            }
-        }
-        Log.d("getElapsedTimeUntilTargetTime", "Current time: ${now.timeInMillis}")
-        Log.d("getElapsedTimeUntilTargetTime", "Target time: ${targetCalendar.timeInMillis}")
-        return targetCalendar.timeInMillis
     }
 
     @SuppressLint("ScheduleExactAlarm")
