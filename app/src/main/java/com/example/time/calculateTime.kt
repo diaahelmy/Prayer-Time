@@ -4,7 +4,6 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import kotlin.math.acos
-import kotlin.math.atan
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.tan
@@ -12,30 +11,25 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 
 @RequiresApi(Build.VERSION_CODES.O)
-internal fun calculateTime(
+internal fun DhuhrTime(
     timeZone: Double,
     longitude: Double,
-    latitude: Double,
-): Pair<Duration, Duration> {
-    val dstAdjustment = if (isInDaylightSavingTime()) 1.0 else 0.0
-    val EqT = calculateSunParameters(getJulianDateForToday())
+): Duration {
+    val EqT = calculateEqTAndReturnHours()
 
-    val Dhuhr = 12.0.hours + timeZone.hours - (longitude.hours / 15) - EqT.first
-    Log.d("diaa", "first$Dhuhr")
-    val D = EqT.second
+    val Dhuhr = 12.0.hours + timeZone.hours - (longitude.hours / 15) - EqT
+    Log.d("ohamed", "first$Dhuhr")
 
 
 
-
-    val asrTime = Dhuhr + asr(1.0,latitude,D).hours
-
-
-    return Pair(Dhuhr + dstAdjustment.hours, asrTime + dstAdjustment.hours)
+    return Dhuhr + dstAdjustment()
 
 }
-internal fun asr(alpha: Double,latitude: Double,D: Double): Double {
+
+@RequiresApi(Build.VERSION_CODES.O)
+internal fun asr(alpha: Double, latitude: Double): Double {
     val term1 = Math.toRadians(latitude)
-    val term2 = Math.toRadians(D)
+    val term2 = Math.toRadians(D())
 
     val angle = arccot(alpha + tan(term1 - term2))
     val sinAngle = sin(angle)
@@ -48,6 +42,59 @@ internal fun asr(alpha: Double,latitude: Double,D: Double): Double {
     return arccosValue.hours / 15.0.hours // Convert to hours
 }
 
-fun arccot(x: Double): Double {
-    return atan(1 / x)
+@RequiresApi(Build.VERSION_CODES.O)
+internal fun T(alpha: Double, latitude: Double): Duration {
+    val term1 = sin(Math.toRadians(alpha))
+    val term2 = sin(Math.toRadians(latitude)) * sin(Math.toRadians(D()))
+    val term3 = cos(Math.toRadians(latitude)) * cos(Math.toRadians(D()))
+    val cosH = (-term1 - term2) / term3
+    return (Math.toDegrees(acos(cosH)).hours / 15.0.hours).hours
+
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+internal fun sunsetTime(
+    timeZone: Double,
+    longitude: Double,
+    latitude: Double,
+) = DhuhrTime(timeZone, longitude) + T(0.833, latitude)
+
+@RequiresApi(Build.VERSION_CODES.O)
+internal fun sunriseTime(
+    timeZone: Double,
+    longitude: Double,
+    latitude: Double,
+) = DhuhrTime(timeZone, longitude) - T(0.833, latitude)
+
+@RequiresApi(Build.VERSION_CODES.O)
+internal fun asrTime(
+    timeZone: Double,
+    longitude: Double, latitude: Double,
+): Duration {
+
+    val asrTime = DhuhrTime(timeZone, longitude) + asr(1.0, latitude).hours
+    return asrTime
+
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+internal fun fajrTime(
+    timeZone: Double,
+    longitude: Double,
+    latitude: Double,
+
+    ): Duration {
+    val fajrTime = DhuhrTime(timeZone, longitude) - T(19.5, latitude)
+    return fajrTime
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+internal fun ishaTime(
+    timeZone: Double,
+    longitude: Double,
+    latitude: Double,
+
+    ): Duration {
+    val ishaTime = DhuhrTime(timeZone, longitude) + T(17.5, latitude)
+    return ishaTime
 }

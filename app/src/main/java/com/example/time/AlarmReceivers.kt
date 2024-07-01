@@ -20,13 +20,13 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 
 class AlarmReceivers: BroadcastReceiver() {
-     val ACTION_STOP_ALARM = "com.example.time.ACTION_STOP_ALARM"
 
     override fun onReceive(context: Context?, intent: Intent?) {
         context?.let {
             val soundUri = when (intent?.action) {
-                "ACTION_FAJR_ALARM" -> Uri.parse("android.resource://${context.packageName}/raw/alarm")
-                else -> Uri.parse("android.resource://${context.packageName}/raw/fajr")
+                ACTION_FAJR_ALARM -> Uri.parse("android.resource://${context.packageName}/raw/alarm")
+                ACTION_All_ALARM -> Uri.parse("android.resource://${context.packageName}/raw/fajr")
+                else -> RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
             }
             AlarmSound.playAlarmSound(context,soundUri)
             val resultIntent = Intent(it, MainActivity::class.java).apply {
@@ -82,5 +82,8 @@ class AlarmReceivers: BroadcastReceiver() {
     companion object {
         const val CHANNEL_ID = "alarm_channel"
         const val NOTIFICATION_ID = 1
+        const val ACTION_STOP_ALARM = "com.example.time.ACTION_STOP_ALARM"
+        const val ACTION_FAJR_ALARM = "ACTION_FAJR_ALARM"
+        const val ACTION_All_ALARM = "ACTION_All_ALARM"
     }
 }

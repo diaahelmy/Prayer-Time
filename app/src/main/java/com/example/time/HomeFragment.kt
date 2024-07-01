@@ -29,37 +29,25 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.time.FetchListener.cancelScheduledNotification
+import com.example.time.FetchListener.convertDurationToTimeString
+import com.example.time.FetchListener.getLocationFromPrefs
+import com.example.time.FetchListener.useLocationData
 import com.example.time.databinding.FragmentHomeBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
-import com.huawei.hms.location.LocationCallback
-import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import java.time.temporal.JulianFields
-import java.util.Date
 import java.util.Locale
-import kotlin.math.absoluteValue
-import kotlin.math.acos
-import kotlin.math.asin
-import kotlin.math.atan
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.tan
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
 import com.huawei.hms.location.FusedLocationProviderClient as HmsFusedLocationProviderClient
 import com.huawei.hms.location.LocationServices as HmsLocationServices
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), LocationFetchListener {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var _binding: FragmentHomeBinding? = null
     private lateinit var hmsFusedLocationClient: HmsFusedLocationProviderClient
-    private lateinit var locationCallback: LocationCallback
     private val PREFS_NAME = "LocationPrefs"
     private val KEY_LATITUDE = "latitude"
     private val KEY_LONGITUDE = "longitude"
@@ -68,6 +56,7 @@ class HomeFragment : Fragment() {
         "صلاه الظهر الان",
         "صلاه العصر الان",
         "صلاه المغرب الان",
+        "صلاه العشاء الان",
         "صلاه العشاء الان",
 
 
@@ -78,6 +67,7 @@ class HomeFragment : Fragment() {
         "حان موعد اذان العصر بتوقيت القاهره",
         "حان موعد اذان المغرب بتوقيت القاهره",
         "حان موعد اذان العشاء بتوقيت القاهره",
+        "صلاه العشاء الان",
 
         )
     private val binding get() = _binding!!
@@ -99,7 +89,7 @@ class HomeFragment : Fragment() {
         hmsFusedLocationClient =
             HmsLocationServices.getFusedLocationProviderClient(requireContext())
         handleBatteryOptimizations(requireContext())
-
+        scheduleDailyFetchLocation(requireContext())
         checkAndFetchLocation()
         notificationOn()
         notificationoff()
@@ -168,111 +158,6 @@ class HomeFragment : Fragment() {
     }
 
 
-    private fun normalizeAngle(angle: Double): Double {
-        var normalizedAngle = angle % 360.0
-        if (normalizedAngle < 0) {
-            normalizedAngle += 360.0
-        }
-        return normalizedAngle
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun calculateSunParameters(
-        jd: Double,
-        timeZone: Double,
-        longitude: Double,
-        latitude: Double,
-    ): Quintuple<Duration, Duration, Duration, Duration, Duration> {
-        val d = jd - 2451545.0
-        val g = normalizeAngle(357.529 + 0.98560028 * d)
-        val q = normalizeAngle(280.459 + 0.98564736 * d)
-        val L =
-            normalizeAngle(q + 1.915 * sin(Math.toRadians(g)) + 0.020 * sin(Math.toRadians(2 * g)))
-        val e = normalizeAngle(23.439 - 0.00000036 * d)
-        val RA = normalizeAngle(
-            Math.toDegrees(
-                atan2(
-                    cos(Math.toRadians(e)) * sin(Math.toRadians(L)), cos(Math.toRadians(L))
-                )
-            )
-        ) / 15.0
-
-        val D =
-            Math.toDegrees(asin(sin(Math.toRadians(e)) * sin(Math.toRadians(L))))  // declination of the Sun
-        var EqT = (q / 15 - RA)
-        if (EqT.absoluteValue * 60 > 20) EqT -= 24// equation of time, absolute value
-
-        val Dhuhr = 12.0.hours + timeZone.hours - (longitude.hours / 15) - EqT.hours
-        Log.d("isha", Dhuhr.toString())
-        fun T(alpha: Double): Duration {
-            val term1 = sin(Math.toRadians(alpha))
-            val term2 = sin(Math.toRadians(latitude)) * sin(Math.toRadians(D))
-            val term3 = cos(Math.toRadians(latitude)) * cos(Math.toRadians(D))
-            val cosH = (-term1 - term2) / term3
-            return (Math.toDegrees(acos(cosH)).hours / 15.0.hours).hours
-
-        }
-
-        fun arccot(x: Double): Double {
-            return atan(1 / x)
-        }
-
-        fun asr(alpha: Double): Double {
-            val term1 = Math.toRadians(latitude)
-            val term2 = Math.toRadians(D)
-
-            val angle = arccot(alpha + tan(term1 - term2))
-            val sinAngle = sin(angle)
-
-            val numerator = sinAngle - (sin(term1) * sin(term2))
-            val denominator = cos(term1) * cos(term2)
-
-            val arccosValue = Math.toDegrees(acos(numerator / denominator))
-
-            return arccosValue.hours / 15.0.hours // Convert to hours
-        }
-
-        val dstAdjustment = if (isInDaylightSavingTime()) 1.0 else 0.0
-
-        val t0833 = T(0.833)
-        val tfajr = T(19.5)
-        val tisha = T(17.5)
-        val asrTime = Dhuhr + asr(1.0).hours
-        val sunrise = Dhuhr - t0833
-        val sunset = Dhuhr + t0833
-        val fajr = Dhuhr - tfajr
-        val isha = (Dhuhr + tisha)
-
-
-        return Quintuple(
-            Dhuhr + dstAdjustment.hours,
-            asrTime + dstAdjustment.hours,
-            sunset + dstAdjustment.hours,
-            isha + dstAdjustment.hours,
-            fajr + dstAdjustment.hours
-        )
-    }
-
-
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun isInDaylightSavingTime(): Boolean {
-        // Get the current date and time in the system's default time zone
-        val now = ZonedDateTime.now()
-
-        // Get the rules for the system's default time zone
-        val zoneId = ZoneId.systemDefault()
-        val zoneRules = zoneId.rules
-
-        // Check if the current date and time are within a Daylight Saving Time period
-        val isDST = zoneRules.isDaylightSavings(now.toInstant())
-
-
-        return isDST
-    }
-
-
-
 
     fun handleBatteryOptimizations(context: Context) {
         val packageName = context.packageName
@@ -295,103 +180,80 @@ class HomeFragment : Fragment() {
         }
     }
 
-        private fun getElapsedTimeUntilTargetTime(time: String, targetTimeZoneId: String): Long {
-            val dateFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
-            dateFormat.timeZone = TimeZone.getTimeZone(targetTimeZoneId)
+    private fun getElapsedTimeUntilTargetTime(time: String, targetTimeZoneId: String): Long {
+        val dateFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
+        dateFormat.timeZone = TimeZone.getTimeZone(targetTimeZoneId)
 
-            val parsedDate =
-                dateFormat.parse(time) ?: throw IllegalArgumentException("Invalid time format")
-            val now = Calendar.getInstance()
-            val targetCalendar = Calendar.getInstance(TimeZone.getTimeZone(targetTimeZoneId)).apply {
-                set(Calendar.HOUR_OF_DAY, parsedDate.hours)
-                set(Calendar.MINUTE, parsedDate.minutes)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-                // If the target time is before the current time, schedule it for the next day
-                if (timeInMillis < now.timeInMillis) {
-                    add(Calendar.DAY_OF_YEAR, 1)
-                }
-            }
-            Log.d("getElapsedTimeUntilTargetTime", "Current time: ${now.timeInMillis}")
-            Log.d("getElapsedTimeUntilTargetTime", "Target time: ${targetCalendar.timeInMillis}")
-            return targetCalendar.timeInMillis
-        }
-        @SuppressLint("ScheduleExactAlarm")
-        fun scheduleNotification(
-            context: Context,
-            notificationTime: String,
-            notificationId: Int,
-            title: String,
-            message: String,
-            targetTimeZoneId: String,
-        ) {
-            try {
-                val triggerTimeMillis =
-                    getElapsedTimeUntilTargetTime(notificationTime, targetTimeZoneId)
-                val elapsedTimeInMillis = triggerTimeMillis - System.currentTimeMillis()
-                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                val intent = Intent(context, AlarmReceivers::class.java).apply {
-                    putExtra("notificationId", notificationId)
-                    putExtra("title", title)
-                    putExtra("message", message)
-                }
-                val pendingIntent = PendingIntent.getBroadcast(
-                    context,
-                    notificationId,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    alarmManager.setExactAndAllowWhileIdle(
-                        AlarmManager.RTC_WAKEUP,
-                        System.currentTimeMillis() + elapsedTimeInMillis,
-                        pendingIntent
-                    )
-                }else {
-                    alarmManager.setExact(
-                        AlarmManager.RTC_WAKEUP,
-                        System.currentTimeMillis() + elapsedTimeInMillis,
-                        pendingIntent
-                    )
-                }
-                Log.d(
-                    "scheduleNotification",
-                    "Notification scheduled for $notificationTime in $targetTimeZoneId"
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
+        val parsedDate =
+            dateFormat.parse(time) ?: throw IllegalArgumentException("Invalid time format")
+        val now = Calendar.getInstance()
+        val targetCalendar = Calendar.getInstance(TimeZone.getTimeZone(targetTimeZoneId)).apply {
+            set(Calendar.HOUR_OF_DAY, parsedDate.hours)
+            set(Calendar.MINUTE, parsedDate.minutes)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+            // If the target time is before the current time, schedule it for the next day
+            if (timeInMillis < now.timeInMillis) {
+                add(Calendar.DAY_OF_YEAR, 1)
             }
         }
+        Log.d("getElapsedTimeUntilTargetTime", "Current time: ${now.timeInMillis}")
+        Log.d("getElapsedTimeUntilTargetTime", "Target time: ${targetCalendar.timeInMillis}")
+        return targetCalendar.timeInMillis
+    }
 
-    private fun cancelScheduledNotification(
+    @SuppressLint("ScheduleExactAlarm")
+    fun scheduleNotification(
         context: Context,
+        notificationTime: String,
         notificationId: Int,
+        title: String,
+        message: String,
+        targetTimeZoneId: String,
     ) {
         try {
+            val triggerTimeMillis =
+                getElapsedTimeUntilTargetTime(notificationTime, targetTimeZoneId)
+            val elapsedTimeInMillis = triggerTimeMillis - System.currentTimeMillis()
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val intent = Intent(context, AlarmReceivers::class.java)
+            val intent = Intent(context, AlarmReceivers::class.java).apply {
+
+                if (notificationId == 0) {
+                    action = "ACTION_FAJR_ALARM"
+                }
+                putExtra("notificationId", notificationId)
+                putExtra("title", title)
+                putExtra("message", message)
+            }
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
                 notificationId,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-
-            alarmManager.cancel(pendingIntent)
-            pendingIntent.cancel()  // Cancel the pending intent as well
-
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    System.currentTimeMillis() + elapsedTimeInMillis,
+                    pendingIntent
+                )
+            } else {
+                alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    System.currentTimeMillis() + elapsedTimeInMillis,
+                    pendingIntent
+                )
+            }
             Log.d(
-                "cancelScheduledNotification",
-                "Notification with ID $notificationId has been canceled."
+                "scheduleNotification",
+                "Notification scheduled for $notificationTime in $targetTimeZoneId"
             )
         } catch (e: Exception) {
-            Log.e(
-                "cancelScheduledNotification",
-                "Failed to cancel notification with ID $notificationId",
-                e
-            )
+            e.printStackTrace()
         }
     }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -432,51 +294,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun convertDurationToTimeString(hours: Duration): String {
-        // Create a LocalTime instance from hours and minutes
-//        if (hours.inWholeSeconds >= 30) {
-        var hour = hours.inWholeHours
-        var minutes = hours.minus(hour.hours).inWholeMinutes
-        val seconds = hours.minus(hour.hours).minus(minutes.minutes).inWholeSeconds
-        Log.v("diaa", "mintes this number is low $minutes")
-        if (seconds >= 30) {
-            minutes += 1
-        }
-        if (minutes >= 60) {
-            hour += 1
-            minutes = (minutes - 60)
-
-        }
-
-
-
-        Log.v("diaa", "mintes this number is $minutes")
-
-        val time = LocalTime.of(hour.toInt(), minutes.toInt())
-        val formatter = DateTimeFormatter.ofPattern("h:mm a")
-        return time.format(formatter)
-
-    }
-
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun getJulianDateForToday(): Double {
-
-        val zonedDateTime = ZonedDateTime.now(ZoneId.of("Africa/Cairo"))
-
-        val julianDateAtNoon = zonedDateTime.julianDateAt12()
-        return julianDateAtNoon
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    internal fun ZonedDateTime.julianDateAt12(): Double {
-        val julianDay = this.getLong(JulianFields.JULIAN_DAY)
-        val timezoneOffsetHours = this.offset.totalSeconds / 3600.0
-        return julianDay + 0.5 - timezoneOffsetHours / 24.0
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
 
     private fun saveLocationFetchedFlag(fetched: Boolean) {
@@ -493,20 +310,20 @@ class HomeFragment : Fragment() {
         AlertDialog.Builder(context).apply {
             setMessage("Location services are disabled. Please enable them to proceed.")
             setPositiveButton("Enable") { dialog, _ ->
-                    context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-                    if (areLocationServicesEnabled(requireContext())) {
-                        checkAndFetchLocation(requireContext())
-                            dialog.dismiss()
-                    } else {
-                        // Location services are disabled, prompt the user to enable them
-                        promptEnableLocation(requireContext())
-                    }
+                context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                if (areLocationServicesEnabled(requireContext())) {
+                    checkAndFetchLocation(requireContext())
+                    dialog.dismiss()
+                } else {
+                    // Location services are disabled, prompt the user to enable them
+                    promptEnableLocation(requireContext())
+                }
 
             }
 
             setNegativeButton("Cancel") { dialog, _ ->
 
-                if (binding.tvtimefajr.text == "00:00"&& binding.tvTime.text == "00:00") {
+                if (binding.tvtimefajr.text == "00:00" && binding.tvTime.text == "00:00") {
                     promptEnableLocation(requireContext())
                     checkAndFetchLocation(requireContext())
                 } else {
@@ -539,6 +356,7 @@ class HomeFragment : Fragment() {
             promptEnableLocation(context)
         }
     }
+
     // Constants for request codes and preference keys
     private val LOCATION_PERMISSION_REQUEST_CODE = 1000
 
@@ -555,89 +373,10 @@ class HomeFragment : Fragment() {
     }
 
     // Function to retrieve location from SharedPreferences
-    private fun getLocationFromPrefs(): Pair<Double, Double>? {
-        val sharedPreferences =
-            requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val latitude = sharedPreferences.getString(KEY_LATITUDE, null)
-        val longitude = sharedPreferences.getString(KEY_LONGITUDE, null)
-        return if (latitude != null && longitude != null) {
-            Pair(latitude.toDouble(), longitude.toDouble())
-        } else {
-            null
-        }
-    }
+
 
     // Function to use location data (e.g., updating the UI or scheduling notifications)
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun useLocationData(latitude: Double, longitude: Double) {
-
-
-        // Example: Calculate prayer times
-        val timeZone = TimeZone.getDefault()
-        val jd = getJulianDateForToday()
-        val timeZoneOffset = timeZone.rawOffset / (1000 * 60 * 60).toDouble()
-        val sunParams = calculateSunParameters(jd, timeZoneOffset, longitude, latitude)
-
-        val asrTime = calculateTime(timeZoneOffset, longitude, latitude).second
-        val maghribTime = sunParams.third
-        val ishaTime = sunParams.fourth
-        val fajrTime = sunParams.fifth
-        val dhuhrTime = calculateTime(timeZoneOffset, longitude, latitude).first
-
-        val fajr = convertDurationToTimeString(fajrTime)
-        val dhuhr = convertDurationToTimeString(dhuhrTime)
-        val asr = convertDurationToTimeString(asrTime)
-        val maghrib = convertDurationToTimeString(maghribTime)
-        val isha = convertDurationToTimeString(ishaTime)
-
-
-        binding.tvtimeAsr.text = asr
-        binding.tvTimeMaghrib.text = maghrib
-        binding.tvtimefajr.text = fajr
-        binding.tvTimeDhuhr.text = dhuhr
-        binding.tvTime.text = isha
-
-        binding.constraintFajr.setOnClickListener { timeComing(fajr) }
-
-        binding.constraintDhur.setOnClickListener { timeComing(dhuhr) }
-
-        binding.constraintAsr.setOnClickListener { timeComing(asr) }
-
-        binding.constraintMaghrib.setOnClickListener { timeComing(maghrib) }
-
-        binding.constraintIsha.setOnClickListener { timeComing(isha) }
-
-
-
-        val notificationTimes = listOf(
-            fajr, dhuhr, asr, maghrib, isha
-        )
-        Log.v("isha", "$notificationTimes")
-
-        for (i in notificationTimes.indices) {
-            scheduleNotification(
-                requireContext(), notificationTimes[i], i, titles[i], messages[i], timeZone.id
-            )
-            Log.v("isha", "$i")
-        }
-
-        if (binding.notificationfajroff.visibility == View.VISIBLE) {
-            cancelScheduledNotification(requireContext(), 0)
-        }
-        if (binding.notificationDhuhroff.visibility == View.VISIBLE) {
-            cancelScheduledNotification(requireContext(), 1)
-        }
-        if (binding.notificationAsroff.visibility == View.VISIBLE) {
-            cancelScheduledNotification(requireContext(), 2)
-        }
-        if (binding.notificationMaghriboff.visibility == View.VISIBLE) {
-            cancelScheduledNotification(requireContext(), 3)
-        }
-        if (binding.notificationIshaoff.visibility == View.VISIBLE) {
-            cancelScheduledNotification(requireContext(), 4)
-        }
-
-    }
 
     // Function to parse time from a string
     private fun parseTime(timeStr: String): Calendar? {
@@ -654,6 +393,8 @@ class HomeFragment : Fragment() {
         }
     }
 
+
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun timeComing(targetTimeStr: String) {
         val targetTime = parseTime(targetTimeStr)
 
@@ -745,7 +486,7 @@ class HomeFragment : Fragment() {
             binding.notificationIshaoff.visibility = View.VISIBLE
             saveNotificationState(requireContext(), "isha_notification", false)
 
-            cancelScheduledNotification(requireContext(), 5)
+            cancelScheduledNotification(requireContext(), 4)
         }
 
     }
@@ -753,19 +494,16 @@ class HomeFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     fun notificationOn() {
         updateNotificationUI()
-        val savedLocation = getLocationFromPrefs()
+        val savedLocation = getLocationFromPrefs(requireContext())
         if (savedLocation != null) {
             val (latitude, longitude) = savedLocation
-
-            val jd = getJulianDateForToday()
             val timeZone = TimeZone.getDefault()
             val timeZoneOffset = timeZone.rawOffset / (1000 * 60 * 60).toDouble()
-            val sunParams = calculateSunParameters(jd, timeZoneOffset, longitude, latitude)
 
             binding.notificationfajroff.setOnClickListener {
                 binding.notificationfajr.visibility = View.VISIBLE
                 binding.notificationfajroff.visibility = View.GONE
-                val fajrTime = sunParams.fifth
+                val fajrTime = fajrTime(timeZoneOffset, longitude,latitude)
                 val fajr = convertDurationToTimeString(fajrTime)
                 saveNotificationState(requireContext(), "fajr_notification", true)
                 scheduleNotification(requireContext(), fajr, 0, titles[0], messages[0], timeZone.id)
@@ -774,7 +512,7 @@ class HomeFragment : Fragment() {
             binding.notificationDhuhroff.setOnClickListener {
                 binding.notificationDhuhr.visibility = View.VISIBLE
                 binding.notificationDhuhroff.visibility = View.GONE
-                val dhuhrTime = calculateTime(2.0, longitude, latitude).first
+                val dhuhrTime = DhuhrTime(2.0, longitude)
                 Log.v("diaa", "time$dhuhrTime")
 
 
@@ -788,7 +526,7 @@ class HomeFragment : Fragment() {
             binding.notificationAsroff.setOnClickListener {
                 binding.notificationAsr.visibility = View.VISIBLE
                 binding.notificationAsroff.visibility = View.GONE
-                val asrTime = calculateTime(timeZoneOffset, longitude, latitude).second
+                val asrTime = asrTime(timeZoneOffset, longitude,latitude)
                 val asr = convertDurationToTimeString(asrTime)
                 saveNotificationState(requireContext(), "asr_notification", true)
                 scheduleNotification(
@@ -799,7 +537,7 @@ class HomeFragment : Fragment() {
             binding.notificationMaghriboff.setOnClickListener {
                 binding.notificationMaghrib.visibility = View.VISIBLE
                 binding.notificationMaghriboff.visibility = View.GONE
-                val maghribTime = sunParams.third
+                val maghribTime = sunsetTime(timeZoneOffset, longitude,latitude)
                 val maghrib = convertDurationToTimeString(maghribTime)
                 saveNotificationState(requireContext(), "maghrib_notification", true)
 
@@ -812,7 +550,8 @@ class HomeFragment : Fragment() {
 
                 binding.notificationIsha.visibility = View.VISIBLE
                 binding.notificationIshaoff.visibility = View.GONE
-                val ishaTime = sunParams.fourth
+                val ishaTime = ishaTime(timeZoneOffset, longitude,latitude)
+
                 val isha = convertDurationToTimeString(ishaTime)
                 saveNotificationState(requireContext(), "isha_notification", true)
                 scheduleNotification(
@@ -881,8 +620,46 @@ class HomeFragment : Fragment() {
         }
     }
 
+    val FETCH_LOCATION_REQUEST_CODE = 1001
+    fun scheduleDailyFetchLocation(context: Context) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        // Set the time to 12:00 AM (midnight)
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis = System.currentTimeMillis()
+            set(Calendar.HOUR_OF_DAY, 1)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+        }
+
+        // Create an intent for the BroadcastReceiver to execute fetchLocation()
+        val intent = Intent(context, Receiver::class.java)
+        intent.action = "FETCH_LOCATION_ACTION" // Set action for the receiver
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            FETCH_LOCATION_REQUEST_CODE,
+            intent,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
+        )
+
+        // Schedule the alarm to trigger daily at 12:00 AM
+        alarmManager.setRepeating(
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            AlarmManager.INTERVAL_DAY,
+            pendingIntent
+        )
+
+        Log.d("scheduleDailyFetchLocation", "Scheduled daily fetchLocation() at ${calendar.time}")
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun fetchLocation() {
+     fun fetchLocation() {
         if (ActivityCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
@@ -900,16 +677,19 @@ class HomeFragment : Fragment() {
                 // Save location to SharedPreferences
                 saveLocationToPrefs(latitude, longitude)
                 // Use the fetched location data
-                useLocationData(latitude, longitude)
+                useLocationData(latitude, longitude,requireContext(),this)
+
                 saveLocationFetchedFlag(true)
+                Log.d("fetchLocation", "Location fetched: $latitude, $longitude")
             } else {
                 // Failed to retrieve location, use the last saved location
-                val savedLocation = getLocationFromPrefs()
+                val savedLocation = getLocationFromPrefs(requireContext())
                 if (savedLocation != null) {
                     val (latitude, longitude) = savedLocation
+                    Log.d("fetchLocation", "Location fetched: $latitude, $longitude")
 
                     // Use the saved location data
-                    useLocationData(latitude, longitude)
+                    useLocationData(latitude, longitude,requireContext(),this)
                 }
             }
         }.addOnFailureListener { exception ->
@@ -921,26 +701,45 @@ class HomeFragment : Fragment() {
                     // Save location to SharedPreferences
                     saveLocationToPrefs(latitude, longitude)
                     // Use the fetched location data
-                    useLocationData(latitude, longitude)
+                    useLocationData(latitude, longitude,requireContext(),this)
                     saveLocationFetchedFlag(true)
                 } else {
                     // Failed to retrieve location, use the last saved location
-                    val savedLocation = getLocationFromPrefs()
+                    val savedLocation = getLocationFromPrefs(requireContext())
                     if (savedLocation != null) {
                         val (latitude, longitude) = savedLocation
 
                         // Use the saved location data
-                        useLocationData(latitude, longitude)
+                        useLocationData(latitude, longitude,requireContext(),this)
                     }
                 }
             }
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onPrayerTimesCalculated(prayerTimes: time) {
+        binding.tvtimefajr.text = prayerTimes.fajr
+        binding.tvTimeDhuhr.text = prayerTimes.dhuhr
+        binding.tvtimeAsr.text = prayerTimes.asr
+        binding.tvTimeMaghrib.text = prayerTimes.maghrib
+        binding.tvTime.text = prayerTimes.isha
+
+        binding.constraintFajr.setOnClickListener { timeComing(prayerTimes.fajr) }
+        binding.constraintDhur.setOnClickListener { timeComing(prayerTimes.dhuhr) }
+        binding.constraintAsr.setOnClickListener { timeComing(prayerTimes.asr) }
+        binding.constraintMaghrib.setOnClickListener { timeComing(prayerTimes.maghrib) }
+        binding.constraintIsha.setOnClickListener { timeComing(prayerTimes.isha) }
+
+
+    }
+
     fun areLocationServicesEnabled(context: Context): Boolean {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
+
     private fun requestLocationPermissions() {
         val permissions = arrayOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -953,7 +752,6 @@ class HomeFragment : Fragment() {
             1000
         )
     }
-
 
 
 }

@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import kotlin.time.Duration.Companion.hours
 
 @RequiresApi(Build.VERSION_CODES.O)
 internal fun isInDaylightSavingTime(): Boolean {
@@ -20,3 +21,5 @@ internal fun isInDaylightSavingTime(): Boolean {
 
     return isDST
 }
+@RequiresApi(Build.VERSION_CODES.O)
+internal fun dstAdjustment() = if (isInDaylightSavingTime()) 1.0.hours else 0.0.hours
