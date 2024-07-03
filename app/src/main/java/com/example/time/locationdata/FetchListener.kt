@@ -16,6 +16,7 @@ import com.example.time.calculate.DhuhrTime
 import com.example.time.calculate.asrTime
 import com.example.time.calculate.fajrTime
 import com.example.time.calculate.getCalculationMethod
+import com.example.time.calculate.getCalculationMethodAsr
 import com.example.time.calculate.ishaTime
 import com.example.time.calculate.sunsetTime
 import com.example.time.time
@@ -62,10 +63,14 @@ object FetchListener {
         // Example: Calculate prayer times
         val timeZone = TimeZone.getDefault()
         val timeZoneOffset = timeZone.rawOffset / (1000 * 60 * 60).toDouble()
-        val asrTime = asrTime(timeZoneOffset, longitude, latitude)
+        val asrTime = asrTime(
+            timeZoneOffset, longitude, latitude,
+            getCalculationMethodAsr(context),
+            context
+        )
         val maghribTime = sunsetTime(timeZoneOffset, longitude, latitude)
-        val ishaTime = ishaTime(timeZoneOffset, longitude, latitude, calculationMethod)
-        val fajrTime = fajrTime(timeZoneOffset, longitude, latitude,calculationMethod)
+        val ishaTime = ishaTime(timeZoneOffset, longitude, latitude, calculationMethod, context)
+        val fajrTime = fajrTime(timeZoneOffset, longitude, latitude, calculationMethod, context)
         val dhuhrTime = DhuhrTime(timeZoneOffset, longitude)
 
         val fajr = convertDurationToTimeString(fajrTime)
@@ -161,8 +166,7 @@ object FetchListener {
                     triggerTimeMillis,
                     pendingIntent
                 )
-            }
-            else {
+            } else {
                 alarmManager.setExact(
                     AlarmManager.RTC_WAKEUP,
                     triggerTimeMillis,

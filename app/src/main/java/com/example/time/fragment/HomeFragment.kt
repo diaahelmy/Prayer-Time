@@ -46,6 +46,7 @@ import com.example.time.calculate.asrTime
 import com.example.time.databinding.FragmentHomeBinding
 import com.example.time.calculate.fajrTime
 import com.example.time.calculate.getCalculationMethod
+import com.example.time.calculate.getCalculationMethodAsr
 import com.example.time.calculate.ishaTime
 import com.example.time.calculate.sunsetTime
 import com.example.time.time
@@ -71,7 +72,6 @@ class HomeFragment : Fragment(), LocationFetchListener {
         "صلاه العصر الان",
         "صلاه المغرب الان",
         "صلاه العشاء الان",
-        "صلاه العشاء الان",
 
 
         )
@@ -82,7 +82,6 @@ class HomeFragment : Fragment(), LocationFetchListener {
         "حان موعد اذان العصر بتوقيت القاهره",
         "حان موعد اذان المغرب بتوقيت القاهره",
         "حان موعد اذان العشاء بتوقيت القاهره",
-        "صلاه العشاء الان",
 
         )
     private val binding get() = _binding!!
@@ -509,7 +508,13 @@ class HomeFragment : Fragment(), LocationFetchListener {
             binding.notificationfajroff.setOnClickListener {
                 binding.notificationfajr.visibility = View.VISIBLE
                 binding.notificationfajroff.visibility = View.GONE
-                val fajrTime = fajrTime(timeZoneOffset, longitude, latitude, calculationMethod)
+                val fajrTime = fajrTime(
+                    timeZoneOffset,
+                    longitude,
+                    latitude,
+                    calculationMethod,
+                    requireContext()
+                )
                 val fajr = convertDurationToTimeString(fajrTime)
                 saveNotificationState(requireContext(), "fajr_notification", true)
                 scheduleNotification(requireContext(), fajr, 0, titles[0], messages[0], timeZone.id)
@@ -518,7 +523,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
             binding.notificationDhuhroff.setOnClickListener {
                 binding.notificationDhuhr.visibility = View.VISIBLE
                 binding.notificationDhuhroff.visibility = View.GONE
-                val dhuhrTime = DhuhrTime(2.0, longitude)
+                val dhuhrTime = DhuhrTime(timeZoneOffset, longitude)
                 Log.v("diaa", "time$dhuhrTime")
 
 
@@ -532,7 +537,13 @@ class HomeFragment : Fragment(), LocationFetchListener {
             binding.notificationAsroff.setOnClickListener {
                 binding.notificationAsr.visibility = View.VISIBLE
                 binding.notificationAsroff.visibility = View.GONE
-                val asrTime = asrTime(timeZoneOffset, longitude, latitude)
+                val asrTime = asrTime(
+                    timeZoneOffset,
+                    longitude,
+                    latitude,
+                    getCalculationMethodAsr(requireContext()),
+                    requireContext()
+                )
                 val asr = convertDurationToTimeString(asrTime)
                 saveNotificationState(requireContext(), "asr_notification", true)
                 scheduleNotification(
@@ -556,7 +567,13 @@ class HomeFragment : Fragment(), LocationFetchListener {
 
                 binding.notificationIsha.visibility = View.VISIBLE
                 binding.notificationIshaoff.visibility = View.GONE
-                val ishaTime = ishaTime(timeZoneOffset, longitude, latitude, calculationMethod)
+                val ishaTime = ishaTime(
+                    timeZoneOffset,
+                    longitude,
+                    latitude,
+                    calculationMethod,
+                    requireContext()
+                )
 
                 val isha = convertDurationToTimeString(ishaTime)
                 saveNotificationState(requireContext(), "isha_notification", true)

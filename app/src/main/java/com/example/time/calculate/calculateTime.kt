@@ -1,8 +1,10 @@
 package com.example.time.calculate
 
+import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.example.time.R
 import java.time.chrono.HijrahDate
 import java.time.temporal.ChronoField
 import kotlin.math.acos
@@ -71,10 +73,20 @@ internal fun sunriseTime(
 @RequiresApi(Build.VERSION_CODES.O)
 internal fun asrTime(
     timeZone: Double,
-    longitude: Double, latitude: Double,
-): Duration {
+    longitude: Double,
+    latitude: Double,
+    calculationMethod: String,
+    context: Context
 
-    val asrTime = DhuhrTime(timeZone, longitude) + asr(1.0, latitude).hours
+    ): Duration {
+    val majorityOpinion = context.getString(R.string.majority)
+    val hanafiSchool = context.getString(R.string.hanafi)
+    val latitudeValue = when (calculationMethod) {
+        majorityOpinion-> 1.0
+        hanafiSchool -> 2.0// Example latitude value
+        else ->  1.0
+    }
+    val asrTime = DhuhrTime(timeZone, longitude) + asr(latitudeValue, latitude).hours
     return asrTime
 
 }
@@ -85,16 +97,20 @@ internal fun fajrTime(
     longitude: Double,
     latitude: Double,
     calculationMethod: String,
+    context: Context
     ): Duration {
+
+
     val latitudeValue = when (calculationMethod) {
-        "Muslim World League" -> 18.0
-        "Islamic Society of North America (ISNA)" -> 15.0
-        "Egyptian General Authority of Survey" -> 19.5 // Example latitude value
-        "Umm al-Qura University, Makkah" -> 18.5 // Example latitude value
-        "University of Islamic Sciences, Karachi" -> 18.0 // Example latitude value
+        context.getString(R.string.calculation_method_mwl) -> 18.0
+        context. getString(R.string.calculation_method_isna) -> 15.0
+        context.getString(R.string.calculation_method_egas) -> 19.5 // Example latitude value
+        context.getString(R.string.calculation_method_umm_al_qura) -> 18.5 // Example latitude value
+        context.getString(R.string.calculation_method_karachi) -> 18.0 // Example latitude value
         else -> 19.5// Default latitude
     }
     val fajrTime = DhuhrTime(timeZone, longitude) - T(latitudeValue, latitude)
+    Log.d("ohamed", "diaa$fajrTime ,${DhuhrTime(timeZone, longitude)} ,${T(latitudeValue, latitude)}")
     return fajrTime
 }
 
@@ -104,19 +120,20 @@ internal fun ishaTime(
     longitude: Double,
     latitude: Double,
     calculationMethod: String,
+    context: Context
     ): Duration {
     val latitudeValue = when (calculationMethod) {
-        "Muslim World League" -> 17.0
-        "Islamic Society of North America (ISNA)" -> 15.0
-        "Egyptian General Authority of Survey" -> 17.5 // Example latitude value
-        "Umm al-Qura University, Makkah" ->  {
+        context.getString(R.string.calculation_method_mwl) -> 17.0
+        context. getString(R.string.calculation_method_isna) -> 15.0
+        context.getString(R.string.calculation_method_egas) -> 17.5 // Example latitude value
+        context.getString(R.string.calculation_method_umm_al_qura) ->  {
             val maghribTime = sunsetTime(timeZone, longitude, latitude)
             val minutesToAdd = if (duringRamadan()) 2.hours else 1.5.hours
             val ishaTime = maghribTime + minutesToAdd
             return ishaTime
 
         }
-        "University of Islamic Sciences, Karachi" -> 18.0 // Example latitude value
+        context.getString(R.string.calculation_method_karachi) -> 18.0 // Example latitude value
         else -> 17.5 // Default latitude
     }
     val ishaTime = DhuhrTime(timeZone, longitude) + T(latitudeValue, latitude)

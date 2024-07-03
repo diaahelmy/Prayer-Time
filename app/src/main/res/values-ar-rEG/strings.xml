@@ -21,4 +21,19 @@
     <string name="Egyptian">مصر</string>
     <string name="Makkah">مكة</string>
     <string name="Karachi">كراتشي</string>
+    <string name="hanafi">مذهب أبي حنيفه</string>
+    <string name="majority">مذهب الجمهور</string>
+    <string name="fajr_andisha_calculation_method"> طريقة حساب الفجر والعشاء</string>
+    <string name="asr_calculation_method">طريقة حساب العصر</string>
+    <string name="fajr_prayer_title">صلاه الفجر الان</string>
+    <string name="dhuhr_prayer_title">صلاه الظهر الان</string>
+    <string name="asr_prayer_title">صلاه العصر الان</string>
+    <string name="maghrib_prayer_title">صلاه المغرب الان</string>
+    <string name="isha_prayer_title">صلاه العشاء الان</string>
+
+    <string name="fajr_prayer_message">حان موعد اذان الفجر</string>
+    <string name="dhuhr_prayer_message">حان موعد اذان الظهر</string>
+    <string name="asr_prayer_message">حان موعد اذان العصر </string>
+    <string name="maghrib_prayer_message">بتوقيت القاهره</string>
+    <string name="isha_prayer_message">حان موعد اذان العشاء </string>
 </resources>

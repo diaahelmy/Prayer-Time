@@ -20,7 +20,9 @@ import androidx.navigation.Navigation
 import com.example.time.LanguageManager
 import com.example.time.R
 import com.example.time.calculate.getCalculationMethod
+import com.example.time.calculate.getCalculationMethodAsr
 import com.example.time.calculate.saveCalculationMethod
+import com.example.time.calculate.saveCalculationMethodAsr
 import com.example.time.databinding.FragmentSettingBinding
 
 
@@ -61,16 +63,18 @@ class SettingFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val displayTextView = binding.display
-        saveTextCalculationMethod()
+        val displayTextView = binding.calculationFajrandIsha
+        saveTextCalculationMethodFajrandIsha()
         languageManager = LanguageManager(requireContext())
-
-        // Apply saved language settings
+        saveTextCalculationMethodAsr()        // Apply saved language settings
         languageManager.applySelectedLanguage()
 
         // Set click listener to show dialog
         displayTextView.setOnClickListener {
             showCalculationMethodDialog()
+        }
+        binding.asrCalculation.setOnClickListener {
+           showCalculationASR()
         }
 
         binding.back.setOnClickListener {
@@ -204,7 +208,48 @@ class SettingFragment : Fragment() {
         val dialog = dialogBuilder.create()
         dialog.show()
     }
-    fun saveTextCalculationMethod() {
+    private fun showCalculationASR() {
+        val calculationMethods = arrayOf(
+            getString(R.string.majority),
+            getString(R.string.hanafi),
+        )
+
+        // Retrieve the saved calculation method
+        val savedMethod = getCalculationMethodAsr(requireContext())
+
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+        dialogBuilder.setTitle("Choose Calculation Method")
+
+        // Highlight the saved method
+        val checkedItem = calculationMethods.indexOf(savedMethod)
+
+        dialogBuilder.setSingleChoiceItems(calculationMethods, checkedItem) { dialog, which ->
+            val selectedMethod = calculationMethods[which]
+
+
+            // Save the selected method
+            saveCalculationMethodAsr(requireContext(), selectedMethod)
+            saveCalculationtextAsr(requireContext(), selectedMethod)
+            val displayText = calculationMethodDisplayNames[selectedMethod] ?: selectedMethod
+            binding.hnafi.text = displayText
+
+
+
+
+            // Log or use the result as needed
+            Log.d("PrayerTime", "Isha Time calculated using $selectedMethod:")
+
+            dialog.dismiss()
+        }
+
+        dialogBuilder.setNegativeButton("Cancel") { dialog, _ ->
+            dialog.dismiss()
+        }
+
+        val dialog = dialogBuilder.create()
+        dialog.show()
+    }
+    fun saveTextCalculationMethodFajrandIsha() {
         val sharedPreferences = requireContext().getSharedPreferences("Settings", Context.MODE_PRIVATE)
         val savedMethod = sharedPreferences.getString("calculationMethod", "Egyptian") // Default value
 
@@ -219,5 +264,19 @@ class SettingFragment : Fragment() {
             apply()
         }
     }
+    fun saveTextCalculationMethodAsr() {
+        val sharedPreferences = requireContext().getSharedPreferences("Setting", Context.MODE_PRIVATE)
+        val savedMethod = sharedPreferences.getString("calculationMethodAsr", "Majority") // Default value
 
+        // Get the shortened display name
+        val displayText = calculationMethodDisplayNames[savedMethod] ?: savedMethod
+        binding.hnafi.text = displayText
+    }
+    private fun saveCalculationtextAsr(context: Context, method: String) {
+        val sharedPreferences = context.getSharedPreferences("Setting", Context.MODE_PRIVATE)
+        with(sharedPreferences.edit()) {
+            putString("calculationMethodAsr", method)
+            apply()
+        }
+    }
 }

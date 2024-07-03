@@ -25,9 +25,7 @@ class LanguageManager( private val context: Context) {
         applyLayoutDirection(languageCode)
     }
 
-    fun getSelectedLanguage(): String {
-        return sharedPreferences.getString("pref_language", "en") ?: "en"
-    }
+
 
     fun setLocale(languageCode: String) {
         val locale = Locale(languageCode)

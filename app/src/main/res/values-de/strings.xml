@@ -21,4 +21,19 @@
     <string name="Egyptian">Ägypten</string>
     <string name="Makkah">Mekka</string>
     <string name="Karachi">Karatschi</string>
+    <string name="hanafi">Hanafitische Schule</string>
+    <string name="majority">Mehrheitsmeinung</string>
+    <string name="fajr_andisha_calculation_method">Fajr- und Isha-Berechnungsmethode</string>
+    <string name="asr_calculation_method">Asr-Berechnungsmethode</string>
+    <string name="fajr_prayer_title">Fajr Gebet jetzt</string>
+    <string name="dhuhr_prayer_title">Dhuhr Gebet jetzt</string>
+    <string name="asr_prayer_title">Asr Gebet jetzt</string>
+    <string name="maghrib_prayer_title">Maghrib Gebet jetzt</string>
+    <string name="isha_prayer_title">Isha Gebet jetzt</string>
+
+    <string name="fajr_prayer_message">Es ist Zeit für das Fajr Gebet</string>
+    <string name="dhuhr_prayer_message">Es ist Zeit für das Dhuhr Gebet</string>
+    <string name="asr_prayer_message">Es ist Zeit für das Asr Gebet</string>
+    <string name="maghrib_prayer_message">Es ist Zeit für das Maghrib Gebet</string>
+    <string name="isha_prayer_message">Es ist Zeit für das Isha Gebet</string>
 </resources>
