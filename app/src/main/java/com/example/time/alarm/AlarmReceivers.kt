@@ -1,4 +1,4 @@
-package com.example.time
+package com.example.time.alarm
 
 import android.Manifest
 import android.app.NotificationChannel
@@ -8,16 +8,14 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.media.Ringtone
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
+import com.example.time.MainActivity
+import com.example.time.R
 
 class AlarmReceivers: BroadcastReceiver() {
 
@@ -28,7 +26,7 @@ class AlarmReceivers: BroadcastReceiver() {
                 ACTION_All_ALARM -> Uri.parse("android.resource://${context.packageName}/raw/fajr")
                 else -> RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             }
-            AlarmSound.playAlarmSound(context,soundUri)
+            AlarmSound.playAlarmSound(context, soundUri)
             val resultIntent = Intent(it, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }

@@ -1,4 +1,4 @@
-package com.example.time
+package com.example.time.alarm
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -6,8 +6,11 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.example.time.locationdata.FetchListener
+import com.example.time.locationdata.LocationFetchListener
+import com.example.time.time
 
-class Receiver : BroadcastReceiver(),LocationFetchListener {
+class Receiver : BroadcastReceiver(), LocationFetchListener {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {

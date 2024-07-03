@@ -1,4 +1,4 @@
-package com.example.time
+package com.example.time.locationdata
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
@@ -11,6 +11,14 @@ import android.icu.util.TimeZone
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.example.time.alarm.AlarmReceivers
+import com.example.time.calculate.DhuhrTime
+import com.example.time.calculate.asrTime
+import com.example.time.calculate.fajrTime
+import com.example.time.calculate.getCalculationMethod
+import com.example.time.calculate.ishaTime
+import com.example.time.calculate.sunsetTime
+import com.example.time.time
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -41,6 +49,7 @@ object FetchListener {
 
         )
 
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun useLocationData(
         latitude: Double,
@@ -48,15 +57,15 @@ object FetchListener {
         context: Context,
         callback: LocationFetchListener,
     ) {
-
+        val calculationMethod = getCalculationMethod(context)
 
         // Example: Calculate prayer times
         val timeZone = TimeZone.getDefault()
         val timeZoneOffset = timeZone.rawOffset / (1000 * 60 * 60).toDouble()
         val asrTime = asrTime(timeZoneOffset, longitude, latitude)
         val maghribTime = sunsetTime(timeZoneOffset, longitude, latitude)
-        val ishaTime = ishaTime(timeZoneOffset, longitude, latitude)
-        val fajrTime = fajrTime(timeZoneOffset, longitude, latitude)
+        val ishaTime = ishaTime(timeZoneOffset, longitude, latitude, calculationMethod)
+        val fajrTime = fajrTime(timeZoneOffset, longitude, latitude,calculationMethod)
         val dhuhrTime = DhuhrTime(timeZoneOffset, longitude)
 
         val fajr = convertDurationToTimeString(fajrTime)

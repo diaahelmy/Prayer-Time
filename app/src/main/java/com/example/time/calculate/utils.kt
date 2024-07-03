@@ -1,4 +1,4 @@
-package com.example.time
+package com.example.time.calculate
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -16,7 +16,7 @@ internal fun d () = getJulianDateForToday() - 2451545.0
 @RequiresApi(Build.VERSION_CODES.O)
 internal fun g() = normalizeAngle(357.529 + 0.98560028 * d())
 @RequiresApi(Build.VERSION_CODES.O)
-internal fun q()=normalizeAngle(280.459 + 0.98564736 * d())
+internal fun q()= normalizeAngle(280.459 + 0.98564736 * d())
 
 @RequiresApi(Build.VERSION_CODES.O)
 internal fun L()= normalizeAngle(q() + 1.915 * sin(Math.toRadians(g())))

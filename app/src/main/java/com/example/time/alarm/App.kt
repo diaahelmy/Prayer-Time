@@ -1,6 +1,7 @@
-package com.example.time
+package com.example.time.alarm
 
 import android.app.Application
+import com.example.time.ThemeManager
 
 class App: Application() {
     override fun onCreate() {

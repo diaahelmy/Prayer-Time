@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Prayer Time</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="language">Langue</string>
+    <string name="select_language">Choisir la langue</string>
+    <string name="cancel">Annuler</string>
+    <string name="prayer_time">Heure de prière</string>
+    <string name="Fajr">Fajr</string>
+    <string name="dhuhr">Dhuhr</string>
+    <string name="asr">Asr</string>
+    <string name="maghrib">Maghrib</string>
+    <string name="isha">Isha</string>
+    <string name="_00_00">00:00</string>
+    <string name="calculation">Calcul des heures de prière</string>
+    <string name="calculation_method_mwl">Ligue Islamique Mondiale</string>
+    <string name="calculation_method_isna">Société Islamique d\'Amérique du Nord (ISNA)</string>
+    <string name="calculation_method_egas">Autorité Générale Égyptienne de la Géodésie</string>
+    <string name="calculation_method_umm_al_qura">Université Umm al-Qura, La Mecque</string>
+    <string name="calculation_method_karachi">Université des Sciences Islamiques, Karachi</string>
+    <string name="ISNA">Amérique du Nord (ISNA)</string>
+    <string name="Egyptian">Égyptien</string>
+    <string name="Makkah">La Mecque</string>
+    <string name="Karachi">Karachi</string>
+</resources>

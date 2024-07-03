@@ -1,4 +1,4 @@
-package com.example.time
+package com.example.time.alarm
 
 import android.content.Context
 import android.media.Ringtone

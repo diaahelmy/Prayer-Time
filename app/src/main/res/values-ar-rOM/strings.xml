@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Prayer Time</string>
+    <string name="language" translatable="false">لغة</string>
+    <string name="select_language" translatable="false">اختر لغة</string>
+    <string name="cancel" translatable="false">إلغاء</string>
+    <string name="prayer_time" translatable="false">مواقيت الصلاة </string>
+    <string name="Fajr" translatable="false">الفجر</string>
+    <string name="dhuhr" translatable="false">الظهر</string>
+    <string name="asr" translatable="false">العصر</string>
+    <string name="maghrib" translatable="false">المغرب</string>
+    <string name="isha" translatable="false">العشاء</string>
+</resources>

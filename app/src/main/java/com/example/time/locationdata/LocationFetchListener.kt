@@ -1,4 +1,6 @@
-package com.example.time
+package com.example.time.locationdata
+
+import com.example.time.time
 
 interface LocationFetchListener {
 

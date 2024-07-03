@@ -8,7 +8,7 @@
 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".HomeFragment">
+    tools:context=".fragment.HomeFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
@@ -29,7 +29,7 @@
                 android:layout_height="70dp"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:text="Prayer Time"
+                android:text="@string/prayer_time"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -90,7 +90,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="13dp"
             android:gravity="center"
-            android:text="Fajr"
+            android:text="@string/Fajr"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -100,7 +100,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="00:00"
+            android:text="@string/_00_00"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="@+id/tvfajr"
             app:layout_constraintHorizontal_bias="0.0"
@@ -166,7 +166,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="13dp"
             android:gravity="center"
-            android:text="Dhuhr"
+            android:text="@string/dhuhr"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -178,7 +178,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:maxLength="8"
-            android:text="00:00"
+            android:text="@string/_00_00"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="@+id/tvDhuhr"
             app:layout_constraintHorizontal_bias="0.0"
@@ -243,7 +243,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:gravity="center"
-            android:text="Asr"
+            android:text="@string/asr"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -254,7 +254,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:maxLength="8"
-            android:text="00:00"
+            android:text="@string/_00_00"
 
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="@+id/tvAsr"
@@ -271,7 +271,6 @@
             android:layout_marginBottom="6dp"
             android:gravity="center"
             android:src="@drawable/notification_bell_svgrepo_com"
-            android:text="fajr"
             android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/view3"
@@ -320,7 +319,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:gravity="center"
-            android:text="Maghrib"
+            android:text="@string/maghrib"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -330,7 +329,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="00:00"
+            android:text="@string/_00_00"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="@+id/tvMaghrib"
             app:layout_constraintHorizontal_bias="0.0"
@@ -395,7 +394,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:gravity="center"
-            android:text="Isha"
+            android:text="@string/isha"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -405,7 +404,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="00:00"
+            android:text="@string/_00_00"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="@+id/tvIsha"
             app:layout_constraintHorizontal_bias="0.0"

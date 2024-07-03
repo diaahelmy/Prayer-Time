@@ -1,4 +1,4 @@
-package com.example.time
+package com.example.time.fragment
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -11,6 +11,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
@@ -19,6 +20,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
+import android.preference.PreferenceManager
 import android.provider.Settings
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -29,12 +31,25 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.time.FetchListener.cancelScheduledNotification
-import com.example.time.FetchListener.convertDurationToTimeString
-import com.example.time.FetchListener.getElapsedTimeUntilTargetTime
-import com.example.time.FetchListener.getLocationFromPrefs
-import com.example.time.FetchListener.useLocationData
+import androidx.navigation.Navigation
+import com.example.time.R
+import com.example.time.alarm.AlarmReceivers
+import com.example.time.calculate.DhuhrTime
+import com.example.time.locationdata.FetchListener.cancelScheduledNotification
+import com.example.time.locationdata.FetchListener.convertDurationToTimeString
+import com.example.time.locationdata.FetchListener.getElapsedTimeUntilTargetTime
+import com.example.time.locationdata.FetchListener.getLocationFromPrefs
+import com.example.time.locationdata.FetchListener.useLocationData
+import com.example.time.locationdata.LocationFetchListener
+import com.example.time.alarm.Receiver
+import com.example.time.ThemeManager
+import com.example.time.calculate.asrTime
 import com.example.time.databinding.FragmentHomeBinding
+import com.example.time.calculate.fajrTime
+import com.example.time.calculate.getCalculationMethod
+import com.example.time.calculate.ishaTime
+import com.example.time.calculate.sunsetTime
+import com.example.time.time
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
@@ -59,6 +74,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
 
 
         )
+
     private val messages = listOf(
         "حان موعد اذان الفجر بتوقيت القاهره",
         "حان موعد اذان الظهر بتوقيت القاهره",
@@ -93,17 +109,15 @@ class HomeFragment : Fragment(), LocationFetchListener {
         notificationoff()
         checkNotificationPermission(requireActivity(), 100)
 
-
+        Language()
 
         binding.settings.setOnClickListener {
-            Toast.makeText(requireContext(), "Coming Soon", Toast.LENGTH_SHORT).show()
 
 
-//            val intent = Intent(requireContext(), SettingsActivity::class.java)
-//            startActivity(intent)
 
-
+            Navigation.findNavController(it).navigate(R.id.action_homeFragment_to_settingFragment)
         }
+
 
         binding.shapeableImageView1.setOnClickListener {
 
@@ -154,7 +168,6 @@ class HomeFragment : Fragment(), LocationFetchListener {
 
         }
     }
-
 
 
     fun handleBatteryOptimizations(context: Context) {
@@ -228,7 +241,6 @@ class HomeFragment : Fragment(), LocationFetchListener {
             e.printStackTrace()
         }
     }
-
 
 
     override fun onDestroyView() {
@@ -472,6 +484,8 @@ class HomeFragment : Fragment(), LocationFetchListener {
         updateNotificationUI()
         val savedLocation = getLocationFromPrefs(requireContext())
         if (savedLocation != null) {
+            val calculationMethod = getCalculationMethod(requireContext())
+
             val (latitude, longitude) = savedLocation
             val timeZone = TimeZone.getDefault()
             val timeZoneOffset = timeZone.rawOffset / (1000 * 60 * 60).toDouble()
@@ -479,7 +493,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
             binding.notificationfajroff.setOnClickListener {
                 binding.notificationfajr.visibility = View.VISIBLE
                 binding.notificationfajroff.visibility = View.GONE
-                val fajrTime = fajrTime(timeZoneOffset, longitude,latitude)
+                val fajrTime = fajrTime(timeZoneOffset, longitude, latitude, calculationMethod)
                 val fajr = convertDurationToTimeString(fajrTime)
                 saveNotificationState(requireContext(), "fajr_notification", true)
                 scheduleNotification(requireContext(), fajr, 0, titles[0], messages[0], timeZone.id)
@@ -502,7 +516,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
             binding.notificationAsroff.setOnClickListener {
                 binding.notificationAsr.visibility = View.VISIBLE
                 binding.notificationAsroff.visibility = View.GONE
-                val asrTime = asrTime(timeZoneOffset, longitude,latitude)
+                val asrTime = asrTime(timeZoneOffset, longitude, latitude)
                 val asr = convertDurationToTimeString(asrTime)
                 saveNotificationState(requireContext(), "asr_notification", true)
                 scheduleNotification(
@@ -513,7 +527,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
             binding.notificationMaghriboff.setOnClickListener {
                 binding.notificationMaghrib.visibility = View.VISIBLE
                 binding.notificationMaghriboff.visibility = View.GONE
-                val maghribTime = sunsetTime(timeZoneOffset, longitude,latitude)
+                val maghribTime = sunsetTime(timeZoneOffset, longitude, latitude)
                 val maghrib = convertDurationToTimeString(maghribTime)
                 saveNotificationState(requireContext(), "maghrib_notification", true)
 
@@ -526,7 +540,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
 
                 binding.notificationIsha.visibility = View.VISIBLE
                 binding.notificationIshaoff.visibility = View.GONE
-                val ishaTime = ishaTime(timeZoneOffset, longitude,latitude)
+                val ishaTime = ishaTime(timeZoneOffset, longitude, latitude,calculationMethod)
 
                 val isha = convertDurationToTimeString(ishaTime)
                 saveNotificationState(requireContext(), "isha_notification", true)
@@ -635,7 +649,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-     fun fetchLocation() {
+    fun fetchLocation() {
         if (ActivityCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
@@ -653,7 +667,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
                 // Save location to SharedPreferences
                 saveLocationToPrefs(latitude, longitude)
                 // Use the fetched location data
-                useLocationData(latitude, longitude,requireContext(),this)
+                useLocationData(latitude, longitude, requireContext(), this)
 
                 saveLocationFetchedFlag(true)
                 Log.d("fetchLocation", "Location fetched: $latitude, $longitude")
@@ -665,7 +679,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
                     Log.d("fetchLocation", "Location fetched: $latitude, $longitude")
 
                     // Use the saved location data
-                    useLocationData(latitude, longitude,requireContext(),this)
+                    useLocationData(latitude, longitude, requireContext(), this)
                 }
             }
         }.addOnFailureListener { exception ->
@@ -677,7 +691,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
                     // Save location to SharedPreferences
                     saveLocationToPrefs(latitude, longitude)
                     // Use the fetched location data
-                    useLocationData(latitude, longitude,requireContext(),this)
+                    useLocationData(latitude, longitude, requireContext(), this)
                     saveLocationFetchedFlag(true)
                 } else {
                     // Failed to retrieve location, use the last saved location
@@ -686,7 +700,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
                         val (latitude, longitude) = savedLocation
 
                         // Use the saved location data
-                        useLocationData(latitude, longitude,requireContext(),this)
+                        useLocationData(latitude, longitude, requireContext(), this)
                     }
                 }
             }
@@ -729,7 +743,37 @@ class HomeFragment : Fragment(), LocationFetchListener {
         )
     }
 
+fun Language(){
+    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+    val selectedLanguageCode = sharedPreferences.getString("pref_language", null)
 
+    if (selectedLanguageCode != null) {
+        // Apply the saved language settings
+        applyLanguageSettings(selectedLanguageCode)
+    } else {
+        // Redirect to settings or perform any default behavior
+        redirectToSettings()
+    }
+}
+    private fun applyLanguageSettings(languageCode: String) {
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+        val config = Configuration()
+        config.setLocale(locale)
+        resources.updateConfiguration(config, resources.displayMetrics)
+
+        // Apply layout direction if needed
+        if (languageCode == "ar") {
+            requireActivity().window.decorView.layoutDirection = View.LAYOUT_DIRECTION_RTL
+        } else {
+            requireActivity().window.decorView.layoutDirection = View.LAYOUT_DIRECTION_LTR
+        }
+    }
+
+    private fun redirectToSettings() {
+        Navigation.findNavController(requireView()).navigate(R.id.action_homeFragment_to_settingFragment)
+
+    }
 }
 //    override fun onResume() {
 //        super.onResume()

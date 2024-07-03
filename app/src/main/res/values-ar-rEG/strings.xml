@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Prayer Time</string>
+    <string name="language">لغة</string>
+    <string name="select_language">اختر لغة </string>
+    <string name="cancel">إلغاء</string>
+    <string name="prayer_time">مواقيت الصلاة </string>
+    <string name="Fajr">الفجر</string>
+    <string name="dhuhr">الظهر</string>
+    <string name="asr">العصر</string>
+    <string name="maghrib">المغرب</string>
+    <string name="isha">العشاء</string>
+    <string name="display">عرض</string>
+    <string name="calculation"> حساب المواقيت </string>
+    <string name="calculation_method_mwl">رابطة العالم الإسلامي</string>
+    <string name="calculation_method_isna">الجمعية الإسلامية لأمريكا الشمالية (ISNA)</string>
+    <string name="calculation_method_egas">الهيئة المصرية العامة للمساحة</string>
+    <string name="calculation_method_umm_al_qura">جامعة أم القرى، مكة</string>
+    <string name="calculation_method_karachi">جامعة العلوم الإسلامية، كراتشي</string>
+    <string name="ISNA">أمريكا الشمالية (ISNA)</string>
+    <string name="Egyptian">مصر</string>
+    <string name="Makkah">مكة</string>
+    <string name="Karachi">كراتشي</string>
+</resources>

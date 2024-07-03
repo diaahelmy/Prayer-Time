@@ -1,8 +1,10 @@
-package com.example.time
+package com.example.time.calculate
 
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import java.time.chrono.HijrahDate
+import java.time.temporal.ChronoField
 import kotlin.math.acos
 import kotlin.math.cos
 import kotlin.math.sin
@@ -82,9 +84,17 @@ internal fun fajrTime(
     timeZone: Double,
     longitude: Double,
     latitude: Double,
-
+    calculationMethod: String,
     ): Duration {
-    val fajrTime = DhuhrTime(timeZone, longitude) - T(19.5, latitude)
+    val latitudeValue = when (calculationMethod) {
+        "Muslim World League" -> 18.0
+        "Islamic Society of North America (ISNA)" -> 15.0
+        "Egyptian General Authority of Survey" -> 19.5 // Example latitude value
+        "Umm al-Qura University, Makkah" -> 18.5 // Example latitude value
+        "University of Islamic Sciences, Karachi" -> 18.0 // Example latitude value
+        else -> 19.5// Default latitude
+    }
+    val fajrTime = DhuhrTime(timeZone, longitude) - T(latitudeValue, latitude)
     return fajrTime
 }
 
@@ -93,8 +103,28 @@ internal fun ishaTime(
     timeZone: Double,
     longitude: Double,
     latitude: Double,
-
+    calculationMethod: String,
     ): Duration {
-    val ishaTime = DhuhrTime(timeZone, longitude) + T(17.5, latitude)
+    val latitudeValue = when (calculationMethod) {
+        "Muslim World League" -> 17.0
+        "Islamic Society of North America (ISNA)" -> 15.0
+        "Egyptian General Authority of Survey" -> 17.5 // Example latitude value
+        "Umm al-Qura University, Makkah" ->  {
+            val maghribTime = sunsetTime(timeZone, longitude, latitude)
+            val minutesToAdd = if (duringRamadan()) 2.hours else 1.5.hours
+            val ishaTime = maghribTime + minutesToAdd
+            return ishaTime
+
+        }
+        "University of Islamic Sciences, Karachi" -> 18.0 // Example latitude value
+        else -> 17.5 // Default latitude
+    }
+    val ishaTime = DhuhrTime(timeZone, longitude) + T(latitudeValue, latitude)
     return ishaTime
+}
+@RequiresApi(Build.VERSION_CODES.O)
+fun duringRamadan(): Boolean {
+    val islamicDate = HijrahDate.now()
+    val currentMonth = islamicDate.get(ChronoField.MONTH_OF_YEAR)
+    return currentMonth == 9 // Ramadan is the 9th month in the Islamic calendar
 }
