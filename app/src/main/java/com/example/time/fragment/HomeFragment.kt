@@ -11,7 +11,6 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
@@ -20,7 +19,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
-import android.preference.PreferenceManager
 import android.provider.Settings
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -32,6 +30,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.Navigation
+import com.example.time.LanguageManager
 import com.example.time.R
 import com.example.time.alarm.AlarmReceivers
 import com.example.time.calculate.DhuhrTime
@@ -61,6 +60,8 @@ class HomeFragment : Fragment(), LocationFetchListener {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var _binding: FragmentHomeBinding? = null
     private lateinit var hmsFusedLocationClient: HmsFusedLocationProviderClient
+    private lateinit var languageManager: LanguageManager
+
     private val PREFS_NAME = "LocationPrefs"
     private val KEY_LATITUDE = "latitude"
     private val KEY_LONGITUDE = "longitude"
@@ -109,10 +110,13 @@ class HomeFragment : Fragment(), LocationFetchListener {
         notificationoff()
         checkNotificationPermission(requireActivity(), 100)
 
-        Language()
 
+
+        languageManager = LanguageManager(requireContext())
+        // Apply saved language settings
+        languageManager.applySelectedLanguage()
+        updateUIAfterLanguageChange()
         binding.settings.setOnClickListener {
-
 
 
             Navigation.findNavController(it).navigate(R.id.action_homeFragment_to_settingFragment)
@@ -147,6 +151,18 @@ class HomeFragment : Fragment(), LocationFetchListener {
 
         }
 
+
+    }
+
+    private fun updateUIAfterLanguageChange() {
+
+        // Example: Update text views or any UI components that rely on localized resources
+        binding.tvfajr.text = getString(R.string.Fajr)
+        binding.tvDhuhr.text = getString(R.string.dhuhr)
+        binding.tvAsr.text = getString(R.string.asr)
+        binding.tvMaghrib.text = getString(R.string.maghrib)
+        binding.tvIsha.text = getString(R.string.isha)
+binding.tvPrayerTime.text=getString(R.string.prayer_time)
 
     }
 
@@ -540,7 +556,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
 
                 binding.notificationIsha.visibility = View.VISIBLE
                 binding.notificationIshaoff.visibility = View.GONE
-                val ishaTime = ishaTime(timeZoneOffset, longitude, latitude,calculationMethod)
+                val ishaTime = ishaTime(timeZoneOffset, longitude, latitude, calculationMethod)
 
                 val isha = convertDurationToTimeString(ishaTime)
                 saveNotificationState(requireContext(), "isha_notification", true)
@@ -743,37 +759,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
         )
     }
 
-fun Language(){
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-    val selectedLanguageCode = sharedPreferences.getString("pref_language", null)
 
-    if (selectedLanguageCode != null) {
-        // Apply the saved language settings
-        applyLanguageSettings(selectedLanguageCode)
-    } else {
-        // Redirect to settings or perform any default behavior
-        redirectToSettings()
-    }
-}
-    private fun applyLanguageSettings(languageCode: String) {
-        val locale = Locale(languageCode)
-        Locale.setDefault(locale)
-        val config = Configuration()
-        config.setLocale(locale)
-        resources.updateConfiguration(config, resources.displayMetrics)
-
-        // Apply layout direction if needed
-        if (languageCode == "ar") {
-            requireActivity().window.decorView.layoutDirection = View.LAYOUT_DIRECTION_RTL
-        } else {
-            requireActivity().window.decorView.layoutDirection = View.LAYOUT_DIRECTION_LTR
-        }
-    }
-
-    private fun redirectToSettings() {
-        Navigation.findNavController(requireView()).navigate(R.id.action_homeFragment_to_settingFragment)
-
-    }
 }
 //    override fun onResume() {
 //        super.onResume()

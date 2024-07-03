@@ -10,7 +10,6 @@
     <string name="asr">Asr</string>
     <string name="maghrib">Maghrib</string>
     <string name="isha">Isha</string>
-    <string name="_00_00" translatable="false">00:00</string>
     <string name="display" translatable="false">Display</string>
     <string name="calculation">Calculation</string>
     <string name="calculation_method_mwl">Muslim World League</string>

@@ -125,7 +125,7 @@ object FetchListener {
 
 
     @SuppressLint("ScheduleExactAlarm")
-    internal fun scheduleNotification(
+     fun scheduleNotification(
         context: Context,
         notificationTime: String,
         notificationId: Int,
@@ -161,7 +161,8 @@ object FetchListener {
                     triggerTimeMillis,
                     pendingIntent
                 )
-            } else {
+            }
+            else {
                 alarmManager.setExact(
                     AlarmManager.RTC_WAKEUP,
                     triggerTimeMillis,
@@ -177,7 +178,7 @@ object FetchListener {
         }
     }
 
-    internal fun getElapsedTimeUntilTargetTime(time: String, targetTimeZoneId: String): Long {
+     fun getElapsedTimeUntilTargetTime(time: String, targetTimeZoneId: String): Long {
         val dateFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
         dateFormat.timeZone = TimeZone.getTimeZone(targetTimeZoneId)
 
@@ -200,7 +201,7 @@ object FetchListener {
     }
 
 
-    internal fun getLocationFromPrefs(context: Context): Pair<Double, Double>? {
+     fun getLocationFromPrefs(context: Context): Pair<Double, Double>? {
         val sharedPreferences =
             context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val latitude = sharedPreferences.getString(KEY_LATITUDE, null)
@@ -212,7 +213,7 @@ object FetchListener {
         }
     }
 
-    internal fun start_work(context: Context) {
+     fun start_work(context: Context) {
         val sharedPreferences = context.getSharedPreferences("NotificationPreferences", Context.MODE_PRIVATE)
 
         if (!sharedPreferences.getBoolean("fajr_notification", true)) {
@@ -232,7 +233,7 @@ object FetchListener {
         }
     }
 
-    internal fun cancelScheduledNotification(
+     fun cancelScheduledNotification(
         context: Context,
         notificationId: Int,
     ) {

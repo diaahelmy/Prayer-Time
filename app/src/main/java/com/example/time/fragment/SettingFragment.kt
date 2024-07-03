@@ -4,10 +4,8 @@ package com.example.time.fragment
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
-import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -19,11 +17,11 @@ import android.widget.ListView
 import android.widget.Spinner
 import androidx.annotation.RequiresApi
 import androidx.navigation.Navigation
+import com.example.time.LanguageManager
 import com.example.time.R
 import com.example.time.calculate.getCalculationMethod
 import com.example.time.calculate.saveCalculationMethod
 import com.example.time.databinding.FragmentSettingBinding
-import java.util.Locale
 
 
 class SettingFragment : Fragment() {
@@ -47,6 +45,7 @@ class SettingFragment : Fragment() {
     )
     private lateinit var languageDialog: AlertDialog
 
+    private lateinit var languageManager: LanguageManager
 
 
     override fun onCreateView(
@@ -64,13 +63,20 @@ class SettingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val displayTextView = binding.display
         saveTextCalculationMethod()
+        languageManager = LanguageManager(requireContext())
+
+        // Apply saved language settings
+        languageManager.applySelectedLanguage()
+
         // Set click listener to show dialog
         displayTextView.setOnClickListener {
             showCalculationMethodDialog()
         }
+
         binding.back.setOnClickListener {
             Navigation.findNavController(view).navigateUp()
         }
+
         // Initialize the Spinner
         languageSpinner = binding.languageSpinner
 
@@ -83,21 +89,21 @@ class SettingFragment : Fragment() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         languageSpinner.adapter = adapter
 
-
-
-        // Handle language selection
         languageSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
                 position: Int,
-                id: Long,
+                id: Long
             ) {
                 if (position != 0) { // Ensure it's not the default "Select Language" item
                     val selectedLanguageCode = languageCodes[position - 1] // Adjust position
-                    saveSelectedLanguage(selectedLanguageCode)
-                    setLocale(selectedLanguageCode)
-                    applyLayoutDirection(selectedLanguageCode)
+                    languageManager.saveSelectedLanguage(selectedLanguageCode)
+                    languageManager.setLocale(selectedLanguageCode)
+                    languageManager.applyLayoutDirection(selectedLanguageCode)
+
+                    // Optionally, recreate the activity to apply language changes
+                    requireActivity().recreate()
                 }
             }
 
@@ -134,9 +140,9 @@ class SettingFragment : Fragment() {
         listView.setOnItemClickListener { _, _, position, _ ->
             if (position >= 0 && position < languageCodes.size) {
                 val selectedLanguageCode = languageCodes[position]
-                saveSelectedLanguage(selectedLanguageCode)
-                setLocale(selectedLanguageCode)
-                applyLayoutDirection(selectedLanguageCode)
+                languageManager.saveSelectedLanguage(selectedLanguageCode)
+                languageManager.setLocale(selectedLanguageCode)
+                languageManager.applyLayoutDirection(selectedLanguageCode)
                 requireActivity().recreate()
                 languageDialog.dismiss()
             }
@@ -145,35 +151,7 @@ class SettingFragment : Fragment() {
         languageDialog.show()
     }
 
-    private fun saveSelectedLanguage(languageCode: String) {
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        with(sharedPreferences.edit()) {
-            putString("pref_language", languageCode)
-            apply()
-        }
-    }
 
-    private fun setLocale(languageCode: String) {
-        val locale = Locale(languageCode)
-        Locale.setDefault(locale)
-        val config = Configuration()
-        config.setLocale(locale)
-        requireContext().resources.updateConfiguration(
-            config,
-            requireContext().resources.displayMetrics
-        )
-
-        Log.d("SettingFragment", "Locale set to: ${locale.language}")
-    }
-
-    private fun applyLayoutDirection(languageCode: String) {
-        val layoutDirection = if (languageCode == "ar" || languageCode == "he") {
-            View.LAYOUT_DIRECTION_RTL
-        } else {
-            View.LAYOUT_DIRECTION_LTR
-        }
-        requireActivity().window.decorView.layoutDirection = layoutDirection
-    }
     private val calculationMethodDisplayNames = mapOf(
         "Muslim World League" to "Muslim World League",
         "Islamic Society of North America (ISNA)" to " North America (ISNA)",

@@ -11,7 +11,6 @@
     <string name="asr">Asr</string>
     <string name="maghrib">Maghrib</string>
     <string name="isha">Isha</string>
-    <string name="_00_00">00:00</string>
     <string name="calculation">Gebetszeiten berechnen</string>
     <string name="calculation_method_mwl">Muslimische Weltliga</string>
     <string name="calculation_method_isna">Islamische Gesellschaft von Nordamerika (ISNA)</string>
