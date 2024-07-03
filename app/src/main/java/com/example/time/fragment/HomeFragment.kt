@@ -162,7 +162,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
         binding.tvAsr.text = getString(R.string.asr)
         binding.tvMaghrib.text = getString(R.string.maghrib)
         binding.tvIsha.text = getString(R.string.isha)
-binding.tvPrayerTime.text=getString(R.string.prayer_time)
+        binding.tvPrayerTime.text = getString(R.string.prayer_time)
 
     }
 
