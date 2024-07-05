@@ -1,7 +1,6 @@
 package com.example.time.fragment
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlarmManager
 import android.app.AlertDialog
@@ -32,11 +31,9 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.Navigation
 import com.example.time.LanguageManager
 import com.example.time.R
-import com.example.time.alarm.AlarmReceivers
 import com.example.time.calculate.DhuhrTime
 import com.example.time.locationdata.FetchListener.cancelScheduledNotification
 import com.example.time.locationdata.FetchListener.convertDurationToTimeString
-import com.example.time.locationdata.FetchListener.getElapsedTimeUntilTargetTime
 import com.example.time.locationdata.FetchListener.getLocationFromPrefs
 import com.example.time.locationdata.FetchListener.useLocationData
 import com.example.time.locationdata.LocationFetchListener
@@ -49,6 +46,8 @@ import com.example.time.calculate.getCalculationMethod
 import com.example.time.calculate.getCalculationMethodAsr
 import com.example.time.calculate.ishaTime
 import com.example.time.calculate.sunsetTime
+import com.example.time.locationdata.FetchListener
+import com.example.time.locationdata.FetchListener.scheduleNotification
 import com.example.time.time
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -66,24 +65,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
     private val PREFS_NAME = "LocationPrefs"
     private val KEY_LATITUDE = "latitude"
     private val KEY_LONGITUDE = "longitude"
-    private val titles = listOf(
-        "صلاه الفجر الان",
-        "صلاه الظهر الان",
-        "صلاه العصر الان",
-        "صلاه المغرب الان",
-        "صلاه العشاء الان",
 
-
-        )
-
-    private val messages = listOf(
-        "حان موعد اذان الفجر بتوقيت القاهره",
-        "حان موعد اذان الظهر بتوقيت القاهره",
-        "حان موعد اذان العصر بتوقيت القاهره",
-        "حان موعد اذان المغرب بتوقيت القاهره",
-        "حان موعد اذان العشاء بتوقيت القاهره",
-
-        )
     private val binding get() = _binding!!
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -161,6 +143,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
         binding.tvAsr.text = getString(R.string.asr)
         binding.tvMaghrib.text = getString(R.string.maghrib)
         binding.tvIsha.text = getString(R.string.isha)
+        binding.tvsunrise.text = getString(R.string.sunrise)
         binding.tvPrayerTime.text = getString(R.string.prayer_time)
 
     }
@@ -203,57 +186,6 @@ class HomeFragment : Fragment(), LocationFetchListener {
                 e.printStackTrace()
                 Log.e("BatteryOptimizations", "Activity not found to request battery optimizations")
             }
-        }
-    }
-
-    @SuppressLint("ScheduleExactAlarm")
-    fun scheduleNotification(
-        context: Context,
-        notificationTime: String,
-        notificationId: Int,
-        title: String,
-        message: String,
-        targetTimeZoneId: String,
-    ) {
-        try {
-            val triggerTimeMillis =
-                getElapsedTimeUntilTargetTime(notificationTime, targetTimeZoneId)
-            val elapsedTimeInMillis = triggerTimeMillis - System.currentTimeMillis()
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val intent = Intent(context, AlarmReceivers::class.java).apply {
-
-                if (notificationId == 0) {
-                    action = "ACTION_FAJR_ALARM"
-                }
-                putExtra("notificationId", notificationId)
-                putExtra("title", title)
-                putExtra("message", message)
-            }
-            val pendingIntent = PendingIntent.getBroadcast(
-                context,
-                notificationId,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    System.currentTimeMillis() + elapsedTimeInMillis,
-                    pendingIntent
-                )
-            } else {
-                alarmManager.setExact(
-                    AlarmManager.RTC_WAKEUP,
-                    System.currentTimeMillis() + elapsedTimeInMillis,
-                    pendingIntent
-                )
-            }
-            Log.d(
-                "scheduleNotification",
-                "Notification scheduled for $notificationTime in $targetTimeZoneId"
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 
@@ -350,6 +282,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
                 setMessage("Prayer times program to alert all prayer times. Please make sure to give it notification and location permissions.")
                 setPositiveButton("OK") { dialog, _ ->
                     fetchLocation()
+                    sunriseoff()
                     dialog.dismiss()
 
                 }
@@ -451,6 +384,13 @@ class HomeFragment : Fragment(), LocationFetchListener {
         return "$hour Hour , $minutes Minutes"
     }
 
+    fun sunriseoff() {
+        binding.notificationsunrise.visibility = View.GONE
+        binding.notificationsunrisoff.visibility = View.VISIBLE
+        saveNotificationState(requireContext(), "sunrise_notification", false)
+        cancelScheduledNotification(requireContext(), 1)
+    }
+
     private fun notificationoff() {
         updateNotificationUI()
         binding.notificationfajr.setOnClickListener {
@@ -461,20 +401,23 @@ class HomeFragment : Fragment(), LocationFetchListener {
 
             cancelScheduledNotification(requireContext(), 0)
         }
+        binding.notificationsunrise.setOnClickListener {
+            sunriseoff()
+        }
 
         binding.notificationDhuhr.setOnClickListener {
             binding.notificationDhuhr.visibility = View.GONE
             binding.notificationDhuhroff.visibility = View.VISIBLE
             saveNotificationState(requireContext(), "dhuhr_notification", false)
 
-            cancelScheduledNotification(requireContext(), 1)
+            cancelScheduledNotification(requireContext(), 2)
         }
         binding.notificationAsr.setOnClickListener {
             binding.notificationAsr.visibility = View.GONE
             binding.notificationAsroff.visibility = View.VISIBLE
             saveNotificationState(requireContext(), "asr_notification", false)
 
-            cancelScheduledNotification(requireContext(), 2)
+            cancelScheduledNotification(requireContext(), 3)
 
         }
         binding.notificationMaghrib.setOnClickListener {
@@ -482,14 +425,14 @@ class HomeFragment : Fragment(), LocationFetchListener {
             binding.notificationMaghriboff.visibility = View.VISIBLE
             saveNotificationState(requireContext(), "maghrib_notification", false)
 
-            cancelScheduledNotification(requireContext(), 3)
+            cancelScheduledNotification(requireContext(), 4)
         }
         binding.notificationIsha.setOnClickListener {
             binding.notificationIsha.visibility = View.GONE
             binding.notificationIshaoff.visibility = View.VISIBLE
             saveNotificationState(requireContext(), "isha_notification", false)
 
-            cancelScheduledNotification(requireContext(), 4)
+            cancelScheduledNotification(requireContext(), 5)
         }
 
     }
@@ -499,6 +442,8 @@ class HomeFragment : Fragment(), LocationFetchListener {
         updateNotificationUI()
         val savedLocation = getLocationFromPrefs(requireContext())
         if (savedLocation != null) {
+            val titles = FetchListener.getTitles(requireContext())
+            val messages = FetchListener.getMessages(requireContext())
             val calculationMethod = getCalculationMethod(requireContext())
 
             val (latitude, longitude) = savedLocation
@@ -520,6 +465,21 @@ class HomeFragment : Fragment(), LocationFetchListener {
                 scheduleNotification(requireContext(), fajr, 0, titles[0], messages[0], timeZone.id)
 
             }
+            binding.notificationsunrisoff.setOnClickListener {
+                binding.notificationsunrise.visibility = View.VISIBLE
+                binding.notificationsunrisoff.visibility = View.GONE
+                val sunriseTime = sunsetTime(timeZoneOffset, longitude, latitude)
+                val sunrise = convertDurationToTimeString(sunriseTime)
+                saveNotificationState(requireContext(), "sunrise_notification", true)
+                scheduleNotification(
+                    requireContext(),
+                    sunrise,
+                    1,
+                    titles[1],
+                    messages[1],
+                    timeZone.id
+                )
+            }
             binding.notificationDhuhroff.setOnClickListener {
                 binding.notificationDhuhr.visibility = View.VISIBLE
                 binding.notificationDhuhroff.visibility = View.GONE
@@ -530,7 +490,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
                 val dhuhr = convertDurationToTimeString(dhuhrTime)
                 saveNotificationState(requireContext(), "dhuhr_notification", true)
                 scheduleNotification(
-                    requireContext(), dhuhr, 1, titles[1], messages[1], timeZone.id
+                    requireContext(), dhuhr, 2, titles[2], messages[2], timeZone.id
                 )
 
             }
@@ -547,7 +507,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
                 val asr = convertDurationToTimeString(asrTime)
                 saveNotificationState(requireContext(), "asr_notification", true)
                 scheduleNotification(
-                    requireContext(), asr, 2, titles[2], messages[2], timeZone.id
+                    requireContext(), asr, 3, titles[3], messages[3], timeZone.id
                 )
 
             }
@@ -560,7 +520,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
 
 
                 scheduleNotification(
-                    requireContext(), maghrib, 3, titles[3], messages[3], timeZone.id
+                    requireContext(), maghrib, 4, titles[4], messages[4], timeZone.id
                 )
             }
             binding.notificationIshaoff.setOnClickListener {
@@ -576,9 +536,10 @@ class HomeFragment : Fragment(), LocationFetchListener {
                 )
 
                 val isha = convertDurationToTimeString(ishaTime)
+
                 saveNotificationState(requireContext(), "isha_notification", true)
                 scheduleNotification(
-                    requireContext(), isha, 4, titles[4], messages[4], timeZone.id
+                    requireContext(), isha, 5, titles[5], messages[5], timeZone.id
                 )
             }
 
@@ -611,6 +572,14 @@ class HomeFragment : Fragment(), LocationFetchListener {
             binding.notificationfajr.visibility = View.VISIBLE
             binding.notificationfajroff.visibility = View.GONE
         }
+        if (!getNotificationState(requireContext(), "sunrise_notification")) {
+            binding.notificationsunrise.visibility = View.GONE
+            binding.notificationsunrisoff.visibility = View.VISIBLE
+        } else {
+            binding.notificationsunrise.visibility = View.VISIBLE
+            binding.notificationsunrisoff.visibility = View.GONE
+        }
+
         if (!getNotificationState(requireContext(), "dhuhr_notification")) {
             binding.notificationDhuhr.visibility = View.GONE
             binding.notificationDhuhroff.visibility = View.VISIBLE
@@ -747,13 +716,15 @@ class HomeFragment : Fragment(), LocationFetchListener {
         binding.tvtimeAsr.text = prayerTimes.asr
         binding.tvTimeMaghrib.text = prayerTimes.maghrib
         binding.tvTime.text = prayerTimes.isha
+        binding.tvtimeSunrise.text = prayerTimes.sunrise
+
 
         binding.constraintFajr.setOnClickListener { timeComing(prayerTimes.fajr) }
         binding.constraintDhur.setOnClickListener { timeComing(prayerTimes.dhuhr) }
         binding.constraintAsr.setOnClickListener { timeComing(prayerTimes.asr) }
         binding.constraintMaghrib.setOnClickListener { timeComing(prayerTimes.maghrib) }
         binding.constraintIsha.setOnClickListener { timeComing(prayerTimes.isha) }
-
+        binding.constraintSunrise.setOnClickListener { timeComing(prayerTimes.sunrise) }
 
     }
 

@@ -11,13 +11,16 @@ import android.icu.util.TimeZone
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.example.time.R
 import com.example.time.alarm.AlarmReceivers
 import com.example.time.calculate.DhuhrTime
 import com.example.time.calculate.asrTime
+import com.example.time.calculate.d
 import com.example.time.calculate.fajrTime
 import com.example.time.calculate.getCalculationMethod
 import com.example.time.calculate.getCalculationMethodAsr
 import com.example.time.calculate.ishaTime
+import com.example.time.calculate.sunriseTime
 import com.example.time.calculate.sunsetTime
 import com.example.time.time
 import java.time.LocalTime
@@ -31,25 +34,27 @@ object FetchListener {
     private val PREFS_NAME = "LocationPrefs"
     private val KEY_LATITUDE = "latitude"
     private val KEY_LONGITUDE = "longitude"
-    private val titles = listOf(
-        "صلاه الفجر الان",
-        "صلاه الظهر الان",
-        "صلاه العصر الان",
-        "صلاه المغرب الان",
-        "صلاه العشاء الان",
 
-
+    fun getTitles(context: Context): List<String> {
+        return listOf(
+            context.getString(R.string.fajr_prayer_title),
+            context.getString(R.string.sunrise_prayer_title),
+            context.getString(R.string.dhuhr_prayer_title),
+            context.getString(R.string.asr_prayer_title),
+            context.getString(R.string.maghrib_prayer_title),
+            context.getString(R.string.isha_prayer_title)
         )
-    private val messages = listOf(
-        "حان موعد اذان الفجر بتوقيت القاهره",
-        "حان موعد اذان الظهر بتوقيت القاهره",
-        "حان موعد اذان العصر بتوقيت القاهره",
-        "حان موعد اذان المغرب بتوقيت القاهره",
-        "حان موعد اذان العشاء بتوقيت القاهره",
-
-
+    }
+    fun getMessages(context: Context): List<String> {
+        return listOf(
+            context.getString(R.string.fajr_prayer_message),
+            context.getString(R.string.sunrise_prayer_message),
+            context.getString(R.string.dhuhr_prayer_message),
+            context.getString(R.string.asr_prayer_message),
+            context.getString(R.string.maghrib_prayer_message),
+            context.getString(R.string.isha_prayer_message)
         )
-
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun useLocationData(
@@ -58,6 +63,8 @@ object FetchListener {
         context: Context,
         callback: LocationFetchListener,
     ) {
+        val titles = getTitles(context)
+        val messages = getMessages(context)
         val calculationMethod = getCalculationMethod(context)
 
         // Example: Calculate prayer times
@@ -72,15 +79,17 @@ object FetchListener {
         val ishaTime = ishaTime(timeZoneOffset, longitude, latitude, calculationMethod, context)
         val fajrTime = fajrTime(timeZoneOffset, longitude, latitude, calculationMethod, context)
         val dhuhrTime = DhuhrTime(timeZoneOffset, longitude)
+        val sunriseTime = sunriseTime(timeZoneOffset, longitude, latitude)
 
         val fajr = convertDurationToTimeString(fajrTime)
         val dhuhr = convertDurationToTimeString(dhuhrTime)
         val asr = convertDurationToTimeString(asrTime)
         val maghrib = convertDurationToTimeString(maghribTime)
         val isha = convertDurationToTimeString(ishaTime)
+        val sunrise = convertDurationToTimeString(sunriseTime)
 
         val prayerTimes = time(
-            fajr = fajr, dhuhr = dhuhr, asr = asr, maghrib = maghrib, isha = isha
+            fajr = fajr, sunrise = sunrise, dhuhr = dhuhr, asr = asr, maghrib = maghrib, isha = isha
 
 
         )
@@ -90,7 +99,7 @@ object FetchListener {
 
 
         val notificationTimes = listOf(
-            fajr, dhuhr, asr, maghrib, isha
+            fajr, sunrise, dhuhr, asr, maghrib, isha,
         )
         Log.v("isha", "$notificationTimes")
 
@@ -101,7 +110,7 @@ object FetchListener {
             Log.v("isha", "$i")
         }
         start_work(context)
-
+        Log.v(isha, "$messages")
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -130,7 +139,7 @@ object FetchListener {
 
 
     @SuppressLint("ScheduleExactAlarm")
-     fun scheduleNotification(
+    fun scheduleNotification(
         context: Context,
         notificationTime: String,
         notificationId: Int,
@@ -146,7 +155,7 @@ object FetchListener {
             val intent = Intent(context, AlarmReceivers::class.java).apply {
                 action = when (notificationId) {
                     0 -> AlarmReceivers.ACTION_FAJR_ALARM
-                    in 1..4 -> AlarmReceivers.ACTION_All_ALARM
+                    in 1..5 -> AlarmReceivers.ACTION_All_ALARM
                     else -> ""
                 }
                 putExtra("notificationId", notificationId)
@@ -182,7 +191,7 @@ object FetchListener {
         }
     }
 
-     fun getElapsedTimeUntilTargetTime(time: String, targetTimeZoneId: String): Long {
+    fun getElapsedTimeUntilTargetTime(time: String, targetTimeZoneId: String): Long {
         val dateFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
         dateFormat.timeZone = TimeZone.getTimeZone(targetTimeZoneId)
 
@@ -205,7 +214,7 @@ object FetchListener {
     }
 
 
-     fun getLocationFromPrefs(context: Context): Pair<Double, Double>? {
+    fun getLocationFromPrefs(context: Context): Pair<Double, Double>? {
         val sharedPreferences =
             context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val latitude = sharedPreferences.getString(KEY_LATITUDE, null)
@@ -217,33 +226,47 @@ object FetchListener {
         }
     }
 
-     fun start_work(context: Context) {
-        val sharedPreferences = context.getSharedPreferences("NotificationPreferences", Context.MODE_PRIVATE)
+    fun start_work(context: Context) {
+        val sharedPreferences =
+            context.getSharedPreferences("NotificationPreferences", Context.MODE_PRIVATE)
 
         if (!sharedPreferences.getBoolean("fajr_notification", true)) {
             cancelScheduledNotification(context, 0)
         }
-        if (!sharedPreferences.getBoolean("dhuhr_notification", true)) {
+        if (!sharedPreferences.getBoolean("sunrise_notification", true)) {
             cancelScheduledNotification(context, 1)
         }
-        if (!sharedPreferences.getBoolean("asr_notification", true)) {
+        if (!sharedPreferences.getBoolean("dhuhr_notification", true)) {
             cancelScheduledNotification(context, 2)
         }
-        if (!sharedPreferences.getBoolean("maghrib_notification", true)) {
+        if (!sharedPreferences.getBoolean("asr_notification", true)) {
             cancelScheduledNotification(context, 3)
         }
-        if (!sharedPreferences.getBoolean("isha_notification", true)) {
+        if (!sharedPreferences.getBoolean("maghrib_notification", true)) {
             cancelScheduledNotification(context, 4)
+        }
+        if (!sharedPreferences.getBoolean("isha_notification", true)) {
+            cancelScheduledNotification(context, 5)
         }
     }
 
-     fun cancelScheduledNotification(
+    fun cancelScheduledNotification(
         context: Context,
         notificationId: Int,
     ) {
         try {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val intent = Intent(context, AlarmReceivers::class.java)
+
+            // Create the intent with the same action and data as used in scheduling
+            val intent = Intent(context, AlarmReceivers::class.java).apply {
+                action = when (notificationId) {
+                    0 -> AlarmReceivers.ACTION_FAJR_ALARM
+                    in 1..5 -> AlarmReceivers.ACTION_All_ALARM
+                    else -> ""
+                }
+            }
+
+            // Create the PendingIntent with the same parameters
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
                 notificationId,
@@ -251,19 +274,14 @@ object FetchListener {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
+            // Cancel the alarm manager's pending intent
             alarmManager.cancel(pendingIntent)
-            pendingIntent.cancel()  // Cancel the pending intent as well
+            // Also cancel the pending intent to ensure it is not reused
+            pendingIntent.cancel()
 
-            Log.d(
-                "cancelScheduledNotification",
-                "Notification with ID $notificationId has been canceled."
-            )
+            Log.d("cancelScheduledNotification", "Notification with ID $notificationId has been canceled.")
         } catch (e: Exception) {
-            Log.e(
-                "cancelScheduledNotification",
-                "Failed to cancel notification with ID $notificationId",
-                e
-            )
+            Log.e("cancelScheduledNotification", "Failed to cancel notification with ID $notificationId", e)
         }
     }
 

@@ -13,6 +13,7 @@ import kotlin.math.sin
 import kotlin.math.tan
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.seconds
 
 @RequiresApi(Build.VERSION_CODES.O)
 internal fun DhuhrTime(
@@ -64,11 +65,13 @@ internal fun sunsetTime(
 ) = DhuhrTime(timeZone, longitude) + T(0.833, latitude)
 
 @RequiresApi(Build.VERSION_CODES.O)
+// no rounding in runriseTime function - 25 seconds
+
 internal fun sunriseTime(
     timeZone: Double,
     longitude: Double,
     latitude: Double,
-) = DhuhrTime(timeZone, longitude) - T(0.833, latitude)
+) = DhuhrTime(timeZone, longitude) - T(0.833, latitude) - 25.seconds
 
 @RequiresApi(Build.VERSION_CODES.O)
 internal fun asrTime(
@@ -92,6 +95,7 @@ internal fun asrTime(
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
+// no rounding in fajrTime function - 28 seconds
 internal fun fajrTime(
     timeZone: Double,
     longitude: Double,
@@ -111,7 +115,7 @@ internal fun fajrTime(
     }
     val fajrTime = DhuhrTime(timeZone, longitude) - T(latitudeValue, latitude)
     Log.d("ohamed", "diaa$fajrTime ,${DhuhrTime(timeZone, longitude)} ,${T(latitudeValue, latitude)}")
-    return fajrTime
+    return fajrTime - 25.seconds
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
