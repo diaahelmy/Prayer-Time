@@ -1,4 +1,4 @@
-package com.example.time
+package com.example.time.Manager
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate

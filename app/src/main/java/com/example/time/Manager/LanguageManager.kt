@@ -1,4 +1,4 @@
-package com.example.time
+package com.example.time.Manager
 
 import android.app.Activity
 import android.content.Context

@@ -29,7 +29,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.Navigation
-import com.example.time.LanguageManager
+import com.example.time.Manager.LanguageManager
 import com.example.time.R
 import com.example.time.calculate.DhuhrTime
 import com.example.time.locationdata.FetchListener.cancelScheduledNotification
@@ -38,7 +38,7 @@ import com.example.time.locationdata.FetchListener.getLocationFromPrefs
 import com.example.time.locationdata.FetchListener.useLocationData
 import com.example.time.locationdata.LocationFetchListener
 import com.example.time.alarm.Receiver
-import com.example.time.ThemeManager
+import com.example.time.Manager.ThemeManager
 import com.example.time.calculate.asrTime
 import com.example.time.databinding.FragmentHomeBinding
 import com.example.time.calculate.fajrTime
@@ -48,7 +48,7 @@ import com.example.time.calculate.ishaTime
 import com.example.time.calculate.sunsetTime
 import com.example.time.locationdata.FetchListener
 import com.example.time.locationdata.FetchListener.scheduleNotification
-import com.example.time.time
+import com.example.time.data.time
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar

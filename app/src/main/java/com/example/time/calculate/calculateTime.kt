@@ -102,19 +102,20 @@ internal fun fajrTime(
     latitude: Double,
     calculationMethod: String,
     context: Context
-    ): Duration {
-
-
+): Duration {
     val latitudeValue = when (calculationMethod) {
         context.getString(R.string.calculation_method_mwl) -> 18.0
-        context. getString(R.string.calculation_method_isna) -> 15.0
-        context.getString(R.string.calculation_method_egas) -> 19.5 // Example latitude value
-        context.getString(R.string.calculation_method_umm_al_qura) -> 18.5 // Example latitude value
-        context.getString(R.string.calculation_method_karachi) -> 18.0 // Example latitude value
-        else -> 19.5// Default latitude
+        context.getString(R.string.calculation_method_isna) -> 15.0
+        context.getString(R.string.calculation_method_egas) -> 19.5
+        context.getString(R.string.calculation_method_umm_al_qura) -> 18.5
+        context.getString(R.string.calculation_method_karachi) -> 18.0
+        else -> 19.5 // Default latitude
     }
+
     val fajrTime = DhuhrTime(timeZone, longitude) - T(latitudeValue, latitude)
-    Log.d("ohamed", "diaa$fajrTime ,${DhuhrTime(timeZone, longitude)} ,${T(latitudeValue, latitude)}")
+    Log.d("PrayerTime", "Fajr time calculated using $calculationMethod: $fajrTime")
+
+    // Adjusted return type to Duration, subtracting 25 seconds
     return fajrTime - 25.seconds
 }
 

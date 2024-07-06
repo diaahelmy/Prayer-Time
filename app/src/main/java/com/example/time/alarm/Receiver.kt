@@ -8,7 +8,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.time.locationdata.FetchListener
 import com.example.time.locationdata.LocationFetchListener
-import com.example.time.time
+import com.example.time.data.time
 
 class Receiver : BroadcastReceiver(), LocationFetchListener {
     @RequiresApi(Build.VERSION_CODES.O)

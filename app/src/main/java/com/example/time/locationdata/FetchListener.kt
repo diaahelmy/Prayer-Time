@@ -15,14 +15,13 @@ import com.example.time.R
 import com.example.time.alarm.AlarmReceivers
 import com.example.time.calculate.DhuhrTime
 import com.example.time.calculate.asrTime
-import com.example.time.calculate.d
 import com.example.time.calculate.fajrTime
 import com.example.time.calculate.getCalculationMethod
 import com.example.time.calculate.getCalculationMethodAsr
 import com.example.time.calculate.ishaTime
 import com.example.time.calculate.sunriseTime
 import com.example.time.calculate.sunsetTime
-import com.example.time.time
+import com.example.time.data.time
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -99,7 +98,7 @@ object FetchListener {
 
 
         val notificationTimes = listOf(
-            fajr, sunrise, dhuhr, asr, maghrib, isha,
+            fajr, sunrise, dhuhr, asr,maghrib , isha,
         )
         Log.v("isha", "$notificationTimes")
 

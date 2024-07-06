@@ -1,4 +1,4 @@
-package com.example.time
+package com.example.time.data
 
 data class time(
     val fajr: String,
