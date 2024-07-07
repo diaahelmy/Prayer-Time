@@ -11,7 +11,6 @@ import android.content.pm.PackageManager
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
-import android.preference.PreferenceManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -23,6 +22,7 @@ class AlarmReceivers: BroadcastReceiver() {
 
     private var soundUriForFajr: Uri = Uri.parse("android.resource://com.example.time/raw/alibinahmedmulla") // Default sound URI for FAJR_ALARM
     private var soundUriForAll: Uri = Uri.parse("android.resource://com.example.time/raw/fajr") // Default sound URI for All_ALARM
+// Default sound URI for All_ALARM
 
     override fun onReceive(context: Context?, intent: Intent?) {
         context?.let {
@@ -35,7 +35,7 @@ class AlarmReceivers: BroadcastReceiver() {
                 else -> RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             }
             Log.d("AlarmReceiver", "onReceive: $soundUriForFajr $soundUriForAll")
-
+Log.d("AlarmReceiver", "onReceive: $soundUri")
             AlarmSound.playAlarmSound(context, soundUri)
             val resultIntent = Intent(it, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -115,7 +115,7 @@ class AlarmReceivers: BroadcastReceiver() {
     companion object {
         const val CHANNEL_ID = "alarm_channel"
         const val NOTIFICATION_ID = 1
-        const val ACTION_STOP_ALARM = "com.example.time.ACTION_STOP_ALARM"
+        const val ACTION_STOP_ALARM = "com.example.Time.ACTION_STOP_ALARM"
         var ACTION_FAJR_ALARM = "ACTION_FAJR_ALARM"
         var ACTION_All_ALARM = "ACTION_All_ALARM"
     }

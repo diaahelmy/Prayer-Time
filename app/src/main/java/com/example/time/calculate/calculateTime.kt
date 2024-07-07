@@ -113,7 +113,7 @@ internal fun fajrTime(
     }
 
     val fajrTime = DhuhrTime(timeZone, longitude) - T(latitudeValue, latitude)
-    Log.d("PrayerTime", "Fajr time calculated using $calculationMethod: $fajrTime")
+    Log.d("PrayerTime", "Fajr Time calculated using $calculationMethod: $fajrTime")
 
     // Adjusted return type to Duration, subtracting 25 seconds
     return fajrTime - 25.seconds
@@ -149,4 +149,31 @@ fun duringRamadan(): Boolean {
     val islamicDate = HijrahDate.now()
     val currentMonth = islamicDate.get(ChronoField.MONTH_OF_YEAR)
     return currentMonth == 9 // Ramadan is the 9th month in the Islamic calendar
+}
+
+
+
+
+
+
+fun saveCalculationMethod(context: Context, method: String) {
+    val prefs = context.getSharedPreferences("LocationPrefs", Context.MODE_PRIVATE)
+    prefs.edit().putString("calculationMethod", method).apply()
+}
+
+// Function to retrieve calculationMethod from SharedPreferences
+fun getCalculationMethod(context: Context): String {
+    val prefs = context.getSharedPreferences("LocationPrefs", Context.MODE_PRIVATE)
+    return prefs.getString("calculationMethod", "Egyptian General Authority of Survey") ?: "Egyptian General Authority of Survey"
+}
+
+fun getCalculationMethodAsr(context: Context): String {
+    val prefs = context.getSharedPreferences("LocationPref", Context.MODE_PRIVATE)
+    return prefs.getString("calculationMethodAsr", "Majority") ?: "Majority"
+}
+
+
+fun saveCalculationMethodAsr(context: Context, method: String) {
+    val prefs = context.getSharedPreferences("LocationPref", Context.MODE_PRIVATE)
+    prefs.edit().putString("calculationMethodAsr", method).apply()
 }

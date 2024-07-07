@@ -3,6 +3,8 @@
     <style name="Theme.Time" parent="Theme.Material3.Dark.NoActionBar">
         <item name="colorPrimary">@color/md_theme_primaryd</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimaryd</item>
+        <item name="vectorColor">#ffffff</item>
+        <item name="linecolor">@color/md_theme_backgroundd</item>
         <item name="colorPrimaryContainer">@color/md_theme_primaryContainerd</item>
         <item name="colorOnPrimaryContainer">@color/md_theme_onPrimaryContainerd</item>
         <item name="colorSecondary">@color/md_theme_secondaryd</item>

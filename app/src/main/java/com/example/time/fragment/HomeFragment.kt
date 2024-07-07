@@ -10,6 +10,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Typeface
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
@@ -19,11 +20,14 @@ import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
+import android.text.Spanned
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
@@ -48,9 +52,10 @@ import com.example.time.calculate.ishaTime
 import com.example.time.calculate.sunsetTime
 import com.example.time.locationdata.FetchListener
 import com.example.time.locationdata.FetchListener.scheduleNotification
-import com.example.time.data.time
+import com.example.time.data.Time
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.snackbar.Snackbar
 import java.util.Locale
 import com.huawei.hms.location.FusedLocationProviderClient as HmsFusedLocationProviderClient
@@ -121,6 +126,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
                 val modeText = if (isDarkMode) "Switched to Dark mode" else "Switched to Light mode"
                 Toast.makeText(context, modeText, Toast.LENGTH_SHORT).show()
 
+
                 // Recreate the activity to apply the new theme
                 activity.recreate()
 
@@ -170,7 +176,17 @@ class HomeFragment : Fragment(), LocationFetchListener {
 
     fun handleBatteryOptimizations(context: Context) {
         val packageName = context.packageName
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+            if (!pm.isIgnoringBatteryOptimizations(context.packageName)) {
+                val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                context.startActivity(intent)
+            }
+        }
         val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+
         if (!pm.isIgnoringBatteryOptimizations(packageName)) {
             // Prompt user to ignore battery optimizations
             val intent = Intent().apply {
@@ -314,13 +330,13 @@ class HomeFragment : Fragment(), LocationFetchListener {
     // Function to use location data (e.g., updating the UI or scheduling notifications)
     @RequiresApi(Build.VERSION_CODES.O)
 
-    // Function to parse time from a string
+    // Function to parse Time from a string
     private fun parseTime(timeStr: String): Calendar? {
         return try {
             val sdf = SimpleDateFormat("h:mm a", Locale.getDefault())
             val date = sdf.parse(timeStr)
 
-            // Create a Calendar instance and set the time
+            // Create a Calendar instance and set the Time
             Calendar.getInstance().apply {
                 time = date
             }
@@ -337,7 +353,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
         if (targetTime != null) {
             val currentTime = Calendar.getInstance()
 
-            // Calculate the time difference in minutes
+            // Calculate the Time difference in minutes
             val timeDifferenceMinutes = calculateTimeDifferenceInMinutes(currentTime, targetTime)
 
             // Format the difference
@@ -347,24 +363,23 @@ class HomeFragment : Fragment(), LocationFetchListener {
                 requireView(), "Coming in : $differenceText", Snackbar.LENGTH_SHORT
             ).show()
         } else {
-            Toast.makeText(requireContext(), "Invalid time format", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Invalid Time format", Toast.LENGTH_SHORT).show()
         }
 
     }
 
-    // Function to calculate the time difference in minutes
     private fun calculateTimeDifferenceInMinutes(
         currentTime: Calendar,
         targetTime: Calendar,
     ): Pair<Long, Long> {
-        // Set the same date for targetTime as currentTime to compare time only
+        // Set the same date for targetTime as currentTime to compare Time only
         targetTime.set(Calendar.YEAR, currentTime.get(Calendar.YEAR))
         targetTime.set(Calendar.MONTH, currentTime.get(Calendar.MONTH))
         targetTime.set(Calendar.DAY_OF_MONTH, currentTime.get(Calendar.DAY_OF_MONTH))
 
         var timeDifference = targetTime.timeInMillis - currentTime.timeInMillis
 
-        // If the target time is in the past, add 24 hours to make it the next day
+        // If the target Time is in the past, add 24 hours to make it the next day
         if (timeDifference < 0) {
             timeDifference += 24 * 60 * 60 * 1000 // Add one day in milliseconds
         }
@@ -379,10 +394,11 @@ class HomeFragment : Fragment(), LocationFetchListener {
         ) // Convert milliseconds to minutes
     }
 
-    // Function to format the time difference into "X minutes"
     private fun formatTimeDifference(hour: Long, minutes: Long): String {
         return "$hour Hour , $minutes Minutes"
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
 
     fun sunriseoff() {
         binding.notificationsunrise.visibility = View.GONE
@@ -460,7 +476,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
                     calculationMethod,
                     requireContext()
                 )
-                val fajr = convertDurationToTimeString(fajrTime)
+                val fajr = convertDurationToTimeString(fajrTime, requireContext())
                 saveNotificationState(requireContext(), "fajr_notification", true)
                 scheduleNotification(requireContext(), fajr, 0, titles[0], messages[0], timeZone.id)
 
@@ -469,7 +485,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
                 binding.notificationsunrise.visibility = View.VISIBLE
                 binding.notificationsunrisoff.visibility = View.GONE
                 val sunriseTime = sunsetTime(timeZoneOffset, longitude, latitude)
-                val sunrise = convertDurationToTimeString(sunriseTime)
+                val sunrise = convertDurationToTimeString(sunriseTime, requireContext())
                 saveNotificationState(requireContext(), "sunrise_notification", true)
                 scheduleNotification(
                     requireContext(),
@@ -484,10 +500,10 @@ class HomeFragment : Fragment(), LocationFetchListener {
                 binding.notificationDhuhr.visibility = View.VISIBLE
                 binding.notificationDhuhroff.visibility = View.GONE
                 val dhuhrTime = DhuhrTime(timeZoneOffset, longitude)
-                Log.v("diaa", "time$dhuhrTime")
+                Log.v("diaa", "Time$dhuhrTime")
 
 
-                val dhuhr = convertDurationToTimeString(dhuhrTime)
+                val dhuhr = convertDurationToTimeString(dhuhrTime, requireContext())
                 saveNotificationState(requireContext(), "dhuhr_notification", true)
                 scheduleNotification(
                     requireContext(), dhuhr, 2, titles[2], messages[2], timeZone.id
@@ -504,7 +520,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
                     getCalculationMethodAsr(requireContext()),
                     requireContext()
                 )
-                val asr = convertDurationToTimeString(asrTime)
+                val asr = convertDurationToTimeString(asrTime, requireContext())
                 saveNotificationState(requireContext(), "asr_notification", true)
                 scheduleNotification(
                     requireContext(), asr, 3, titles[3], messages[3], timeZone.id
@@ -515,7 +531,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
                 binding.notificationMaghrib.visibility = View.VISIBLE
                 binding.notificationMaghriboff.visibility = View.GONE
                 val maghribTime = sunsetTime(timeZoneOffset, longitude, latitude)
-                val maghrib = convertDurationToTimeString(maghribTime)
+                val maghrib = convertDurationToTimeString(maghribTime, requireContext())
                 saveNotificationState(requireContext(), "maghrib_notification", true)
 
 
@@ -535,7 +551,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
                     requireContext()
                 )
 
-                val isha = convertDurationToTimeString(ishaTime)
+                val isha = convertDurationToTimeString(ishaTime, requireContext())
 
                 saveNotificationState(requireContext(), "isha_notification", true)
                 scheduleNotification(
@@ -616,7 +632,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
     fun scheduleDailyFetchLocation(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        // Set the time to 12:00 AM (midnight)
+        // Set the Time to 12:00 AM (midnight)
         val calendar = Calendar.getInstance().apply {
             timeInMillis = System.currentTimeMillis()
             set(Calendar.HOUR_OF_DAY, 1)
@@ -710,7 +726,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun onPrayerTimesCalculated(prayerTimes: time) {
+    override fun onPrayerTimesCalculated(prayerTimes: Time) {
         binding.tvtimefajr.text = prayerTimes.fajr
         binding.tvTimeDhuhr.text = prayerTimes.dhuhr
         binding.tvtimeAsr.text = prayerTimes.asr
@@ -726,7 +742,10 @@ class HomeFragment : Fragment(), LocationFetchListener {
         binding.constraintIsha.setOnClickListener { timeComing(prayerTimes.isha) }
         binding.constraintSunrise.setOnClickListener { timeComing(prayerTimes.sunrise) }
 
+
     }
+
+
 
     fun areLocationServicesEnabled(context: Context): Boolean {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager

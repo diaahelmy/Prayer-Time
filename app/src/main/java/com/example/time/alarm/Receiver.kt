@@ -8,7 +8,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.time.locationdata.FetchListener
 import com.example.time.locationdata.LocationFetchListener
-import com.example.time.data.time
+import com.example.time.data.Time
 
 class Receiver : BroadcastReceiver(), LocationFetchListener {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -36,7 +36,7 @@ class Receiver : BroadcastReceiver(), LocationFetchListener {
             Log.d("Receiver", "No location data found")
         }
     }
-    override fun onPrayerTimesCalculated(prayerTimes: time) {
+    override fun onPrayerTimesCalculated(prayerTimes: Time) {
         Log.d("isha", "Prayer times calculated: $prayerTimes")
 
     }

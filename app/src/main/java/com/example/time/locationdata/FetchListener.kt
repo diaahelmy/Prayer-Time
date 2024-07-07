@@ -10,6 +10,7 @@ import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.os.Build
 import android.util.Log
+import android.view.View
 import androidx.annotation.RequiresApi
 import com.example.time.R
 import com.example.time.alarm.AlarmReceivers
@@ -21,7 +22,7 @@ import com.example.time.calculate.getCalculationMethodAsr
 import com.example.time.calculate.ishaTime
 import com.example.time.calculate.sunriseTime
 import com.example.time.calculate.sunsetTime
-import com.example.time.data.time
+import com.example.time.data.Time
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -80,14 +81,14 @@ object FetchListener {
         val dhuhrTime = DhuhrTime(timeZoneOffset, longitude)
         val sunriseTime = sunriseTime(timeZoneOffset, longitude, latitude)
 
-        val fajr = convertDurationToTimeString(fajrTime)
-        val dhuhr = convertDurationToTimeString(dhuhrTime)
-        val asr = convertDurationToTimeString(asrTime)
-        val maghrib = convertDurationToTimeString(maghribTime)
-        val isha = convertDurationToTimeString(ishaTime)
-        val sunrise = convertDurationToTimeString(sunriseTime)
+        val fajr = convertDurationToTimeString(fajrTime, context)
+        val dhuhr = convertDurationToTimeString(dhuhrTime,context)
+        val asr = convertDurationToTimeString(asrTime, context)
+        val maghrib = convertDurationToTimeString(maghribTime,context)
+        val isha = convertDurationToTimeString(ishaTime,context)
+        val sunrise = convertDurationToTimeString(sunriseTime,context)
 
-        val prayerTimes = time(
+        val prayerTimes = Time(
             fajr = fajr, sunrise = sunrise, dhuhr = dhuhr, asr = asr, maghrib = maghrib, isha = isha
 
 
@@ -113,7 +114,7 @@ object FetchListener {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun convertDurationToTimeString(hours: Duration): String {
+    fun convertDurationToTimeString(hours: Duration, context: Context): String {
         // Create a LocalTime instance from hours and minutes
 //        if (hours.inWholeSeconds >= 30) {
         var hour = hours.inWholeHours
@@ -132,11 +133,48 @@ object FetchListener {
             minutes = 0
         }
         val time = LocalTime.of(hour.toInt(), minutes.toInt())
+        val isRTL = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            val layoutDirection = context.resources.configuration.layoutDirection
+            layoutDirection == View.LAYOUT_DIRECTION_RTL
+        }
+        else {
+            false
+        }
         val formatter = DateTimeFormatter.ofPattern("h:mm a")
-        return time.format(formatter)
+
+        if (isRTL) {
+
+            val formattedTime = time.format(formatter)
+
+            // Return the formatted time with Arabic numerals
+            return convertToArabicNumerals(formattedTime)
+        } else {
+            // The layout direction is LTR
+            // Add your LTR-specific logic here
+            return time.format(formatter)
+        }
+
+
     }
 
+    fun convertToArabicNumerals(input: String): String {
+        // Mapping of Arabic numerals
+        val arabicNumerals = mapOf(
+            '0' to '٠',
+            '1' to '١',
+            '2' to '٢',
+            '3' to '٣',
+            '4' to '٤',
+            '5' to '٥',
+            '6' to '٦',
+            '7' to '٧',
+            '8' to '٨',
+            '9' to '٩'
+        )
 
+        // Convert each character in the input string to the corresponding Arabic numeral
+        return input.map { char -> arabicNumerals[char] ?: char }.joinToString("")
+    }
     @SuppressLint("ScheduleExactAlarm")
     fun scheduleNotification(
         context: Context,
@@ -153,10 +191,16 @@ object FetchListener {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(context, AlarmReceivers::class.java).apply {
                 action = when (notificationId) {
-                    0 -> AlarmReceivers.ACTION_FAJR_ALARM
-                    in 1..5 -> AlarmReceivers.ACTION_All_ALARM
+                    0 ->{
+                        AlarmReceivers.ACTION_FAJR_ALARM
+
+                    }
+                    in 1..5 -> {
+                        AlarmReceivers.ACTION_All_ALARM
+                    }
                     else -> ""
                 }
+
                 putExtra("notificationId", notificationId)
                 putExtra("title", title)
                 putExtra("message", message)
@@ -191,27 +235,23 @@ object FetchListener {
     }
 
     fun getElapsedTimeUntilTargetTime(time: String, targetTimeZoneId: String): Long {
-        val dateFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
-        dateFormat.timeZone = TimeZone.getTimeZone(targetTimeZoneId)
+        val dateFormat = SimpleDateFormat("h:mm a", Locale.getDefault()).apply {
+            timeZone = TimeZone.getTimeZone(targetTimeZoneId)
+        }
+        val parsedDate = dateFormat.parse(time) ?: throw IllegalArgumentException("Invalid Time format")
 
-        val parsedDate =
-            dateFormat.parse(time) ?: throw IllegalArgumentException("Invalid time format")
         val now = Calendar.getInstance()
         val targetCalendar = Calendar.getInstance(TimeZone.getTimeZone(targetTimeZoneId)).apply {
             set(Calendar.HOUR_OF_DAY, parsedDate.hours)
             set(Calendar.MINUTE, parsedDate.minutes)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
-            // If the target time is before the current time, schedule it for the next day
             if (timeInMillis < now.timeInMillis) {
                 add(Calendar.DAY_OF_YEAR, 1)
             }
         }
-        Log.d("getElapsedTimeUntilTargetTime", "Current time: ${now.timeInMillis}")
-        Log.d("getElapsedTimeUntilTargetTime", "Target time: ${targetCalendar.timeInMillis}")
         return targetCalendar.timeInMillis
     }
-
 
     fun getLocationFromPrefs(context: Context): Pair<Double, Double>? {
         val sharedPreferences =

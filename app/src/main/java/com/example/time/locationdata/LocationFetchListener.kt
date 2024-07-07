@@ -1,8 +1,8 @@
 package com.example.time.locationdata
 
-import com.example.time.data.time
+import com.example.time.data.Time
 
 interface LocationFetchListener {
 
-    fun onPrayerTimesCalculated(prayerTimes: time)
+    fun onPrayerTimesCalculated(prayerTimes: Time)
 }

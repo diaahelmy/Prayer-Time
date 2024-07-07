@@ -34,24 +34,6 @@ class SettingFragment : Fragment() {
 
     private lateinit var soundSelectionHandler: SoundSelectionHandler
 
-
-    private val soundUris = arrayOf(
-        "android.resource://com.example.time/raw/alarm",
-        "android.resource://com.example.time/raw/nasserfajr",
-        "android.resource://com.example.time/raw/alibinahmedmullafajr",
-        "android.resource://com.example.time/raw/makkahfakr",
-        "android.resource://com.example.time/raw/alibinahmedmullafajr"
-    )
-
-
-    private val actionChoices = arrayOf(
-        "Abdel Basset Abdel Samad",
-        "Nasser Al-Qatami",
-        "Mishary Rashid",
-        "Makkah",
-        "Ali bin Ahmed Mulla [Makkah]"
-    )
-
     private var _binding: FragmentSettingBinding? = null
     private val binding get() = _binding!!
     private lateinit var languageSpinner: Spinner
@@ -90,36 +72,171 @@ class SettingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val displayTextView = binding.calculationFajrandIsha
         saveTextCalculationMethodFajrandIsha()
-        soundSelectionHandler = SoundSelectionHandler(requireContext())
-        val savedSoundFajr = getSavedSoundTextFajr(requireContext())
-        binding.soundAzanFajrText.text = savedSoundFajr ?: getString(R.string.sound_abdel_basset)
-
-        // Apply saved sound text for Azan All
-        val savedSoundAll = getSavedSoundTextAll(requireContext())
-        binding.tvsoundAzanall.text = savedSoundAll ?: getString(R.string.sound_abdel_basset)
-
+        saveTextSoundFajr()
+        saveTextSoundAll()
         languageManager = LanguageManager(requireContext())
         saveTextCalculationMethodAsr()        // Apply saved language settings
         languageManager.applySelectedLanguage()
 
+        languageManager = LanguageManager(requireContext())
+        saveTextCalculationMethodAsr()        // Apply saved language settings
+        languageManager.applySelectedLanguage()
+        binding.soundAzanFajrText.text = saveTextSoundFajr()
+        binding.tvsoundAzanall.text = saveTextSoundAll()
+
         binding.soundAzanFajr.setOnClickListener {
-            soundSelectionHandler.showSoundSelectionDialog(
-                "Select Azan Fajr",
-                actionChoices
-            ) { which ->
-                updateSoundForFajr(which)
-                binding.soundAzanFajrText.text = actionChoices[which]
+            val actionChoices = arrayOf(
+                getString(R.string.sound_abdel_basset),
+                getString(R.string.sound_nasser_al_qatami),
+                getString(R.string.sound_mishary_rashid),
+                getString(R.string.sound_makkah),
+                getString(R.string.sound_ali_bin_ahmed_mulla)
+            )
+            val builder = AlertDialog.Builder(requireContext())
+            builder.setTitle("Select Azan Fajr")
+                .setItems(actionChoices) { dialog, which ->
+                    when (which) {
+                        0 -> {
+                            // Update action constants in AlarmReceivers for FAJR_ALARM
+                            val alarmReceiver = AlarmReceivers()
+                            val newUriForFajr =
+                                Uri.parse("android.resource://com.example.time/raw/alarm")
+                            alarmReceiver.updateSoundUriForFajr(requireContext(), newUriForFajr)
+                            binding.soundAzanFajrText.text = getString(R.string.sound_abdel_basset)
 
+                            dialog.dismiss()
 
-            }
+                        }
+
+                        1 -> {
+                            // Update action constants in AlarmReceivers for All_ALARM
+                            val alarmReceiver = AlarmReceivers()
+                            val newUriForFajr =
+                                Uri.parse("android.resource://com.example.time/raw/nasserfajr")
+                            alarmReceiver.updateSoundUriForFajr(requireContext(), newUriForFajr)
+                            binding.soundAzanFajrText.text =
+                                getString(R.string.sound_nasser_al_qatami)
+                            dialog.dismiss()
+
+                        }
+
+                        2 -> {
+                            // Cancel the dialog
+                            val alarmReceiver = AlarmReceivers()
+                            val newUriForFajr =
+                                Uri.parse("android.resource://com.example.time/raw/misharyrashidfajr")
+                            alarmReceiver.updateSoundUriForFajr(requireContext(), newUriForFajr)
+                            binding.soundAzanFajrText.text =
+                                getString(R.string.sound_mishary_rashid)
+                            dialog.dismiss()
+                        }
+
+                        3 -> {
+                            // Exit the app
+                            val alarmReceiver = AlarmReceivers()
+                            val newUriForFajr =
+                                Uri.parse("android.resource://com.example.time/raw/makkahfakr")
+
+                            alarmReceiver.updateSoundUriForFajr(requireContext(), newUriForFajr)
+                            binding.soundAzanFajrText.text = getString(R.string.sound_makkah)
+                            dialog.dismiss()
+
+                        }
+
+                        4 -> {
+                            val alarmReceiver = AlarmReceivers()
+                            val newUriForFajr =
+                                Uri.parse("android.resource://com.example.time/raw/alibinahmedmullafajr")
+                            alarmReceiver.updateSoundUriForFajr(requireContext(), newUriForFajr)
+                            binding.soundAzanFajrText.text =
+                                getString(R.string.sound_ali_bin_ahmed_mulla)
+                            dialog.dismiss()
+                        }
+                    }
+                    saveSoundtextFajr(requireContext(), actionChoices[which])
+
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
         }
 
         binding.soundAzanAll.setOnClickListener {
-            soundSelectionHandler.showSoundSelectionDialog("Select Azan", actionChoices) { which ->
-                updateSoundForAll(which)
-                binding.tvsoundAzanall.text = actionChoices[which]
+            val actionChoices = arrayOf(
+                getString(R.string.sound_abdel_basset),
+                getString(R.string.sound_nasser_al_qatami),
+                getString(R.string.sound_mishary_rashid),
+                getString(R.string.sound_makkah),
+                getString(R.string.sound_ali_bin_ahmed_mulla)
+            )
 
-            }
+            val builder = AlertDialog.Builder(requireContext())
+            builder.setTitle("Select Azan")
+                .setItems(actionChoices) { dialog, which ->
+                    when (which) {
+                        0 -> {
+                            // Update action constants in AlarmReceivers for FAJR_ALARM
+                            val alarmReceiver = AlarmReceivers()
+                            val newUriForFajr =
+                                Uri.parse("android.resource://com.example.time/raw/abdelbasset")
+                            alarmReceiver.updateSoundUriForAll(requireContext(), newUriForFajr)
+                            binding.tvsoundAzanall.text = getString(R.string.sound_abdel_basset)
+                            dialog.dismiss()
+
+                        }
+
+                        1 -> {
+                            // Update action constants in AlarmReceivers for All_ALARM
+                            val alarmReceiver = AlarmReceivers()
+                            val newUriForFajr =
+                                Uri.parse("android.resource://com.example.time/raw/nasserfajr")
+                            alarmReceiver.updateSoundUriForAll(requireContext(), newUriForFajr)
+                            binding.tvsoundAzanall.text = getString(R.string.sound_nasser_al_qatami)
+                            dialog.dismiss()
+
+                        }
+
+                        2 -> {
+                            // Cancel the dialog
+                            val alarmReceiver = AlarmReceivers()
+                            val newUriForFajr =
+                                Uri.parse("android.resource://com.example.time/raw/misharyrashid")
+                            alarmReceiver.updateSoundUriForAll(requireContext(), newUriForFajr)
+                            binding.tvsoundAzanall.text = getString(R.string.sound_mishary_rashid)
+                            dialog.dismiss()
+                        }
+
+                        3 -> {
+                            // Exit the app
+                            val alarmReceiver = AlarmReceivers()
+                            val newUriForFajr =
+                                Uri.parse("android.resource://com.example.time/raw/Makkah")
+                            alarmReceiver.updateSoundUriForAll(requireContext(), newUriForFajr)
+                            binding.tvsoundAzanall.text = getString(R.string.sound_makkah)
+                            dialog.dismiss()
+
+                        }
+
+                        4 -> {
+                            val alarmReceiver = AlarmReceivers()
+                            val newUriForFajr =
+                                Uri.parse("android.resource://com.example.time/raw/alibinahmedmulla")
+                            alarmReceiver.updateSoundUriForAll(requireContext(), newUriForFajr)
+                            binding.tvsoundAzanall.text =
+                                getString(R.string.sound_ali_bin_ahmed_mulla)
+                            dialog.dismiss()
+                        }
+                    }
+                    saveSoundtextAll(requireContext(), actionChoices[which])
+
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
 
         }
 
@@ -347,21 +464,16 @@ class SettingFragment : Fragment() {
 //    }
 
 
-    private fun updateSoundForFajr(index: Int) {
+    fun saveTextSoundFajr(): String? {
+        val sharedPreferences =
+            requireContext().getSharedPreferences("Sounds", Context.MODE_PRIVATE)
+        val savedMethod =
+            sharedPreferences.getString("SoundsFajr", "Abdel Basset Abdel Samad") // Default value
 
-        val uri = Uri.parse(soundUris[index])
-        val alarmReceiver = AlarmReceivers()
-        alarmReceiver.updateSoundUriForFajr(requireContext(), uri)
-        binding.soundAzanFajrText.text = actionChoices[index]
-        saveSoundtextFajr(requireContext(), actionChoices[index])
-    }
-
-    private fun updateSoundForAll(index: Int) {
-        val uri = Uri.parse(soundUris[index])
-        val alarmReceiver = AlarmReceivers()
-        alarmReceiver.updateSoundUriForAll(requireContext(), uri)
-        binding.tvsoundAzanall.text = actionChoices[index]
-        saveSoundtextAll(requireContext(), actionChoices[index])
+        // Get the shortened display name
+        val displayText = calculationMethodDisplayNames[savedMethod] ?: savedMethod
+        binding.display.text = displayText
+        return displayText
     }
 
     private fun saveSoundtextFajr(context: Context, method: String) {
@@ -372,23 +484,26 @@ class SettingFragment : Fragment() {
         }
     }
 
+    fun saveTextSoundAll(): String? {
+        val sharedPreferences =
+            requireContext().getSharedPreferences("Sound", Context.MODE_PRIVATE)
+        val savedMethod =
+            sharedPreferences.getString("SoundsAll", "Abdel Basset Abdel Samad") // Default value
+
+        // Get the shortened display name
+        val displayText = calculationMethodDisplayNames[savedMethod] ?: savedMethod
+        binding.display.text = displayText
+        return displayText
+    }
+
     private fun saveSoundtextAll(context: Context, method: String) {
-        val sharedPreferences = context.getSharedPreferences("Sounds", Context.MODE_PRIVATE)
+        val sharedPreferences = context.getSharedPreferences("Sound", Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
             putString("SoundsAll", method)
             apply()
         }
     }
-    private fun getSavedSoundTextFajr(context: Context): String? {
-        val sharedPreferences = context.getSharedPreferences("Sounds", Context.MODE_PRIVATE)
-        return sharedPreferences.getString("SoundsFajr", null)
-    }
 
-    // Function to retrieve saved sound text for Azan All
-    private fun getSavedSoundTextAll(context: Context): String? {
-        val sharedPreferences = context.getSharedPreferences("Sounds", Context.MODE_PRIVATE)
-        return sharedPreferences.getString("SoundsAll", null)
-    }
     fun saveTextCalculationMethodAsr(): String? {
         val sharedPreferences =
             requireContext().getSharedPreferences("Setting", Context.MODE_PRIVATE)
