@@ -8,7 +8,10 @@ import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
+import android.net.Uri
 import android.os.Build
+import android.os.PowerManager
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import androidx.annotation.RequiresApi
@@ -111,12 +114,14 @@ object FetchListener {
         }
         start_work(context)
         Log.v(isha, "$messages")
+
+        requestIgnoreBatteryOptimizations(context)
+
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun convertDurationToTimeString(hours: Duration, context: Context): String {
-        // Create a LocalTime instance from hours and minutes
-//        if (hours.inWholeSeconds >= 30) {
+
         var hour = hours.inWholeHours
         var minutes = hours.minus(hour.hours).inWholeMinutes
         val seconds = hours.minus(hour.hours).minus(minutes.minutes).inWholeSeconds
@@ -211,6 +216,8 @@ object FetchListener {
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
+            val wakeLock = acquireWakeLock(context)
+
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 alarmManager.setExactAndAllowWhileIdle(
@@ -229,6 +236,8 @@ object FetchListener {
                 "scheduleNotification",
                 "Notification scheduled for $notificationTime in $targetTimeZoneId"
             )
+            releaseWakeLock(wakeLock)
+            wakeLock?.release()
         } catch (e: Exception) {
             Log.e("scheduleNotification", "Failed to schedule notification", e)
         }
@@ -324,4 +333,40 @@ object FetchListener {
         }
     }
 
+    fun releaseWakeLock(wakeLock: PowerManager.WakeLock?) {
+        wakeLock?.let {
+            if (it.isHeld) {
+                it.release()
+                Log.d("WakeLock", "Wake lock released")
+            }
+        }
+    }
+    fun acquireWakeLock(context: Context): PowerManager.WakeLock? {
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val wakeLock = powerManager.newWakeLock(
+            PowerManager.PARTIAL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
+            "MyApp::AlarmWakeLock"
+        )
+        wakeLock.acquire(2 * 60 * 1000L /*1 minutes*/)
+        Log.d("WakeLock", "Wake lock acquired")
+        return wakeLock
+    }
+    fun isIgnoringBatteryOptimizations(context: Context): Boolean {
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        return powerManager.isIgnoringBatteryOptimizations(context.packageName)
+    }
+    fun requestIgnoreBatteryOptimizations(context: Context) {
+        if (!isIgnoringBatteryOptimizations(context)) {
+            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                data = Uri.parse("package:${context.packageName}")
+            }
+            if (intent.resolveActivity(context.packageManager) != null) {
+                context.startActivity(intent)
+            } else {
+                Log.e("BatteryOptimization", "Cannot resolve activity for ignoring battery optimizations.")
+            }
+        } else {
+            Log.i("BatteryOptimization", "Already ignoring battery optimizations.")
+        }
+    }
 }

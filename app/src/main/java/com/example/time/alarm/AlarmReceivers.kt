@@ -20,8 +20,8 @@ import com.example.time.R
 
 class AlarmReceivers: BroadcastReceiver() {
 
-    private var soundUriForFajr: Uri = Uri.parse("android.resource://com.example.time/raw/alibinahmedmulla") // Default sound URI for FAJR_ALARM
-    private var soundUriForAll: Uri = Uri.parse("android.resource://com.example.time/raw/fajr") // Default sound URI for All_ALARM
+    private var soundUriForFajr: Uri = Uri.parse("android.resource://com.example.time/raw/alarm") // Default sound URI for FAJR_ALARM
+    private var soundUriForAll: Uri = Uri.parse("android.resource://com.example.time/raw/abdelbasset") // Default sound URI for All_ALARM
 // Default sound URI for All_ALARM
 
     override fun onReceive(context: Context?, intent: Intent?) {

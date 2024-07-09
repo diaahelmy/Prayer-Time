@@ -6,28 +6,21 @@ import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Typeface
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.location.LocationManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.PowerManager
 import android.provider.Settings
-import android.text.Spanned
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
@@ -53,9 +46,9 @@ import com.example.time.calculate.sunsetTime
 import com.example.time.locationdata.FetchListener
 import com.example.time.locationdata.FetchListener.scheduleNotification
 import com.example.time.data.Time
+import com.example.time.locationdata.FetchListener.requestIgnoreBatteryOptimizations
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.material.card.MaterialCardView
 import com.google.android.material.snackbar.Snackbar
 import java.util.Locale
 import com.huawei.hms.location.FusedLocationProviderClient as HmsFusedLocationProviderClient
@@ -89,7 +82,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         hmsFusedLocationClient =
             HmsLocationServices.getFusedLocationProviderClient(requireContext())
-        handleBatteryOptimizations(requireContext())
+        requestIgnoreBatteryOptimizations(requireContext())
         scheduleDailyFetchLocation(requireContext())
         checkAndFetchLocation()
         notificationOn()
@@ -174,36 +167,6 @@ class HomeFragment : Fragment(), LocationFetchListener {
     }
 
 
-    fun handleBatteryOptimizations(context: Context) {
-        val packageName = context.packageName
-
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-            if (!pm.isIgnoringBatteryOptimizations(context.packageName)) {
-                val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
-                context.startActivity(intent)
-            }
-        }
-        val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-
-        if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-            // Prompt user to ignore battery optimizations
-            val intent = Intent().apply {
-
-                action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                data = Uri.parse("package:$packageName")
-            }
-            try {
-                context.startActivity(intent)
-
-                Log.e("BatteryOptimizations", "Activity  request battery optimizations")
-            } catch (e: ActivityNotFoundException) {
-                e.printStackTrace()
-                Log.e("BatteryOptimizations", "Activity not found to request battery optimizations")
-            }
-        }
-    }
 
 
     override fun onDestroyView() {
@@ -407,6 +370,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
         cancelScheduledNotification(requireContext(), 1)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun notificationoff() {
         updateNotificationUI()
         binding.notificationfajr.setOnClickListener {
@@ -470,11 +434,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
                 binding.notificationfajr.visibility = View.VISIBLE
                 binding.notificationfajroff.visibility = View.GONE
                 val fajrTime = fajrTime(
-                    timeZoneOffset,
-                    longitude,
-                    latitude,
-                    calculationMethod,
-                    requireContext()
+                    timeZoneOffset, longitude, latitude, calculationMethod, requireContext()
                 )
                 val fajr = convertDurationToTimeString(fajrTime, requireContext())
                 saveNotificationState(requireContext(), "fajr_notification", true)
@@ -488,12 +448,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
                 val sunrise = convertDurationToTimeString(sunriseTime, requireContext())
                 saveNotificationState(requireContext(), "sunrise_notification", true)
                 scheduleNotification(
-                    requireContext(),
-                    sunrise,
-                    1,
-                    titles[1],
-                    messages[1],
-                    timeZone.id
+                    requireContext(), sunrise, 1, titles[1], messages[1], timeZone.id
                 )
             }
             binding.notificationDhuhroff.setOnClickListener {
@@ -544,11 +499,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
                 binding.notificationIsha.visibility = View.VISIBLE
                 binding.notificationIshaoff.visibility = View.GONE
                 val ishaTime = ishaTime(
-                    timeZoneOffset,
-                    longitude,
-                    latitude,
-                    calculationMethod,
-                    requireContext()
+                    timeZoneOffset, longitude, latitude, calculationMethod, requireContext()
                 )
 
                 val isha = convertDurationToTimeString(ishaTime, requireContext())
@@ -628,8 +579,8 @@ class HomeFragment : Fragment(), LocationFetchListener {
         }
     }
 
-    val FETCH_LOCATION_REQUEST_CODE = 1001
-    fun scheduleDailyFetchLocation(context: Context) {
+    private val FETCH_LOCATION_REQUEST_CODE = 1001
+    private fun scheduleDailyFetchLocation(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         // Set the Time to 12:00 AM (midnight)
@@ -657,10 +608,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
 
         // Schedule the alarm to trigger daily at 12:00 AM
         alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
-            AlarmManager.INTERVAL_DAY,
-            pendingIntent
+            AlarmManager.RTC_WAKEUP, calendar.timeInMillis, AlarmManager.INTERVAL_DAY, pendingIntent
         )
 
         Log.d("scheduleDailyFetchLocation", "Scheduled daily fetchLocation() at ${calendar.time}")
@@ -700,7 +648,7 @@ class HomeFragment : Fragment(), LocationFetchListener {
                     useLocationData(latitude, longitude, requireContext(), this)
                 }
             }
-        }.addOnFailureListener { exception ->
+        }.addOnFailureListener {
             hmsFusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
                     // Successfully fetched location
@@ -746,23 +694,20 @@ class HomeFragment : Fragment(), LocationFetchListener {
     }
 
 
-
-    fun areLocationServicesEnabled(context: Context): Boolean {
+    private fun areLocationServicesEnabled(context: Context): Boolean {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+            LocationManager.NETWORK_PROVIDER
+        )
     }
 
     private fun requestLocationPermissions() {
         val permissions = arrayOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
+            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
         )
 
         ActivityCompat.requestPermissions(
-            requireActivity(),
-            permissions,
-            1000
+            requireActivity(), permissions, 1000
         )
     }
 

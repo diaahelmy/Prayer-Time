@@ -10,7 +10,7 @@
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/app_bar_layout"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/scroll_hight"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -23,11 +23,11 @@
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_prayer_time"
                     android:layout_width="wrap_content"
-                    android:layout_height="70dp"
+                    android:layout_height="@dimen/heght_prayer"
                     android:layout_gravity="center"
                     android:gravity="center"
                     android:text="@string/prayer_time"
-                    android:textSize="20sp"
+                    android:textSize="@dimen/sizeprayer"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -37,10 +37,10 @@
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/back"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="@dimen/backhw"
+                    android:layout_height="@dimen/backhw"
                     android:layout_gravity="top|center_horizontal"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="@dimen/back_start"
                     android:src="@drawable/baseline_arrow_back_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -49,24 +49,37 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/materialTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="32dp"
-            android:text="@string/language"
-            android:textSize="20sp"
-            android:textStyle="bold"
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/scroll_hight"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/app_bar_layout" />
+            app:layout_constraintTop_toBottomOf="@+id/app_bar_layout">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/materialTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/tvstartsetting"
+                android:layout_marginTop="@dimen/tvmargetop"
+                android:text="@string/language"
+                android:textSize="@dimen/tvsizesetting"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         <Spinner
             android:id="@+id/language_spinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginStart="@dimen/spinnerstart"
+            android:layout_marginTop="@dimen/spinnertop"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/materialTextView" />
 
@@ -74,9 +87,9 @@
             android:id="@+id/view"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginStart="@dimen/viewend"
+            android:layout_marginTop="@dimen/viewtop"
+            android:layout_marginEnd="@dimen/viewend"
             android:background="@color/md_theme_outline"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -86,10 +99,10 @@
             android:id="@+id/calculation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginStart="@dimen/tvstartsetting"
+            android:layout_marginTop="@dimen/tvstartsetting"
             android:text="@string/fajr_andisha_calculation_method"
-            android:textSize="20sp"
+            android:textSize="@dimen/tvsizesetting"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/view" />
@@ -98,10 +111,8 @@
             android:id="@+id/calculationFajrandIsha"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="8dp"
-            android:textSize="20sp"
-            android:textStyle="bold"
+            android:layout_marginStart="@dimen/spinnerstart"
+            android:layout_marginTop="@dimen/spinnertop"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/calculation">
 
@@ -110,19 +121,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:padding="10dp"
+                android:padding="@dimen/paddingtvdilog"
                 android:text="@string/Egyptian"
-                android:textSize="16sp" />
+                android:textSize="@dimen/tvdilogsize" />
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/calculation_ASR"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginStart="@dimen/tvstartsetting"
+            android:layout_marginTop="@dimen/tvtopsettingdilog"
             android:text="@string/asr_calculation_method"
-            android:textSize="20sp"
+            android:textSize="@dimen/tvsizesetting"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/calculationFajrandIsha" />
@@ -131,11 +142,9 @@
             android:id="@+id/asrCalculation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginStart="@dimen/spinnerstart"
+            android:layout_marginTop="@dimen/spinnertop"
             android:text="@string/fajr_andisha_calculation_method"
-            android:textSize="20sp"
-            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/calculation_ASR">
 
@@ -144,9 +153,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:padding="10dp"
+                android:padding="@dimen/paddingtvdilog"
                 android:text="@string/majority"
-                android:textSize="16sp" />
+                android:textSize="@dimen/tvdilogsize" />
         </com.google.android.material.card.MaterialCardView>
 
         <View
@@ -166,10 +175,10 @@
             android:id="@+id/materialTextView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginStart="@dimen/tvstartsetting"
+            android:layout_marginTop="@dimen/tvstartsetting"
             android:text="@string/sound_azan_el_fajr"
-            android:textSize="20sp"
+            android:textSize="@dimen/tvsizesetting"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/view6" />
@@ -178,9 +187,8 @@
             android:id="@+id/soundAzanFajr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-
-            android:layout_marginTop="8dp"
+            android:layout_marginStart="@dimen/spinnerstart"
+            android:layout_marginTop="@dimen/spinnertop"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/materialTextView2">
 
@@ -189,19 +197,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:padding="10dp"
+                android:padding="@dimen/paddingtvdilog"
                 android:text="@string/sound_abdel_basset"
-                android:textSize="16sp" />
+                android:textSize="@dimen/tvdilogsize" />
 
         </com.google.android.material.card.MaterialCardView>
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_sound_azan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginStart="@dimen/tvstartsetting"
+            android:layout_marginTop="@dimen/tvtopsettingdilog"
             android:text="@string/sound_azan"
-            android:textSize="20sp"
+            android:textSize="@dimen/tvsizesetting"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/soundAzanFajr" />
@@ -209,9 +217,8 @@
             android:id="@+id/soundAzanAll"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-
-            android:layout_marginTop="8dp"
+            android:layout_marginStart="@dimen/spinnerstart"
+            android:layout_marginTop="@dimen/spinnertop"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_sound_azan">
 
@@ -220,12 +227,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:padding="10dp"
+                android:padding="@dimen/paddingtvdilog"
                 android:text="@string/sound_abdel_basset"
-                android:textSize="16sp"
+                android:textSize="@dimen/tvdilogsize"
                 />
 
         </com.google.android.material.card.MaterialCardView>
-
+    </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

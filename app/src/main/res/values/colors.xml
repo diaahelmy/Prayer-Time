@@ -32,7 +32,7 @@
     <color name="md_theme_outline">#85736E</color>
     <color name="md_theme_outlineVariant">#ffffff</color>
     <color name="md_theme_scrim">#000000</color>
-    <color name="md_theme_inverseSurface">#392E2B</color>
+    <color name="md_theme_inverseSurface">#212526</color>
     <color name="md_theme_inverseOnSurface">#FFEDE8</color>
     <color name="md_theme_inversePrimary">#FFB5A0</color>
     <color name="md_theme_primaryFixed">#FFDBD1</color>
@@ -172,7 +172,7 @@
     <color name="md_theme_outlined">#A08C87</color>
     <color name="md_theme_outlineVariantd">#333333</color>
     <color name="md_theme_scrimd">#000000</color>
-    <color name="md_theme_inverseSurfaced">#F1DFDA</color>
+    <color name="md_theme_inverseSurfaced">#c8b882</color>
     <color name="md_theme_inverseOnSurfacd">#392E2B</color>
     <color name="md_theme_inversePrimaryd">#8F4C38</color>
     <color name="md_theme_primaryFixedd">#FFDBD1</color>
