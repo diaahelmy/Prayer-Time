@@ -82,10 +82,9 @@
                     android:id="@+id/logo"
                     android:layout_width="match_parent"
                     android:layout_height="125dp"
-                    android:layout_marginBottom="32dp"
-                    app:layout_constraintBottom_toTopOf="@+id/constraintFajr"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent">
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <com.google.android.material.imageview.ShapeableImageView
                         android:layout_width="match_parent"
