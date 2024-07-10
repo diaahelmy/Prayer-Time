@@ -65,6 +65,7 @@ object FetchListener {
         context: Context,
         callback: LocationFetchListener,
     ) {
+        isSustainedPerformanceModeSupported(context)
         val titles = getTitles(context)
         val messages = getMessages(context)
         val calculationMethod = getCalculationMethod(context)
@@ -124,6 +125,7 @@ object FetchListener {
         var hour = hours.inWholeHours
         var minutes = hours.minus(hour.hours).inWholeMinutes
         val seconds = hours.minus(hour.hours).minus(minutes.minutes).inWholeSeconds
+
         Log.v("diaa", "mintes this number is low $minutes")
         if (seconds >= 30) {
             minutes += 1
@@ -136,7 +138,9 @@ object FetchListener {
         if (minutes < 0) {
             minutes = 0
         }
-        val time = LocalTime.of(hour.toInt(), minutes.toInt())
+
+        Log.v("isha", "mintes this number is $hour")
+        val time = LocalTime.of(hour.toInt() %24 , minutes.toInt())
         val isRTL = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             val layoutDirection = context.resources.configuration.layoutDirection
             layoutDirection == View.LAYOUT_DIRECTION_RTL
@@ -160,7 +164,15 @@ object FetchListener {
 
 
     }
-
+    fun convertTo24HourFormat(hour: Int, isPM: Boolean): Int {
+        return if (isPM && hour < 12) {
+            hour + 12
+        } else if (!isPM && hour == 12) {
+            0
+        } else {
+            hour
+        }
+    }
     fun convertToArabicNumerals(input: String): String {
         // Mapping of Arabic numerals
         val arabicNumerals = mapOf(
@@ -210,11 +222,8 @@ object FetchListener {
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-            isSustainedPerformanceModeSupported(context)
             val wakeLock = acquireWakeLock(context)
-            if (!alarmManager.canScheduleExactAlarms()) {
-                requestExactAlarmPermission(context)
-            }
+
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 alarmManager.setExactAndAllowWhileIdle(
@@ -257,11 +266,6 @@ object FetchListener {
             }
         }
         return targetCalendar.timeInMillis
-    }
-    @RequiresApi(Build.VERSION_CODES.S)
-    private fun requestExactAlarmPermission(context: Context) {
-        val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
-        context.startActivity(intent)
     }
     fun getLocationFromPrefs(context: Context): Pair<Double, Double>? {
         val sharedPreferences =
@@ -348,7 +352,7 @@ object FetchListener {
             PowerManager.PARTIAL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
             "MyApp::AlarmWakeLock"
         )
-        wakeLock.acquire(2 * 60 * 1000L /*1 minutes*/)
+        wakeLock.acquire(10 * 60 * 1000L /*1 minutes*/)
         Log.d("WakeLock", "Wake lock acquired")
         return wakeLock
     }
