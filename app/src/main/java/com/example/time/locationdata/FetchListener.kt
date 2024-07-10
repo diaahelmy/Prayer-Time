@@ -58,8 +58,7 @@ object FetchListener {
             context.getString(R.string.isha_prayer_message)
         )
     }
-
-    @RequiresApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.S)
     fun useLocationData(
         latitude: Double,
         longitude: Double,
@@ -180,6 +179,7 @@ object FetchListener {
         // Convert each character in the input string to the corresponding Arabic numeral
         return input.map { char -> arabicNumerals[char] ?: char }.joinToString("")
     }
+    @RequiresApi(Build.VERSION_CODES.S)
     @SuppressLint("ScheduleExactAlarm")
     fun scheduleNotification(
         context: Context,
@@ -196,16 +196,10 @@ object FetchListener {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(context, AlarmReceivers::class.java).apply {
                 action = when (notificationId) {
-                    0 ->{
-                        AlarmReceivers.ACTION_FAJR_ALARM
-
-                    }
-                    in 1..5 -> {
-                        AlarmReceivers.ACTION_All_ALARM
-                    }
+                    0 -> AlarmReceivers.ACTION_FAJR_ALARM
+                    in 1..5 -> AlarmReceivers.ACTION_All_ALARM
                     else -> ""
                 }
-
                 putExtra("notificationId", notificationId)
                 putExtra("title", title)
                 putExtra("message", message)
@@ -216,8 +210,11 @@ object FetchListener {
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
+            isSustainedPerformanceModeSupported(context)
             val wakeLock = acquireWakeLock(context)
-
+            if (!alarmManager.canScheduleExactAlarms()) {
+                requestExactAlarmPermission(context)
+            }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 alarmManager.setExactAndAllowWhileIdle(
@@ -261,7 +258,11 @@ object FetchListener {
         }
         return targetCalendar.timeInMillis
     }
-
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun requestExactAlarmPermission(context: Context) {
+        val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+        context.startActivity(intent)
+    }
     fun getLocationFromPrefs(context: Context): Pair<Double, Double>? {
         val sharedPreferences =
             context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -351,7 +352,7 @@ object FetchListener {
         Log.d("WakeLock", "Wake lock acquired")
         return wakeLock
     }
-    fun isIgnoringBatteryOptimizations(context: Context): Boolean {
+    private fun isIgnoringBatteryOptimizations(context: Context): Boolean {
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
         return powerManager.isIgnoringBatteryOptimizations(context.packageName)
     }
@@ -368,5 +369,9 @@ object FetchListener {
         } else {
             Log.i("BatteryOptimization", "Already ignoring battery optimizations.")
         }
+    }
+    private fun isSustainedPerformanceModeSupported(context: Context): Boolean {
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        return powerManager.isSustainedPerformanceModeSupported
     }
 }

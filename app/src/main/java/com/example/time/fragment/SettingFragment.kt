@@ -19,7 +19,6 @@ import android.widget.Spinner
 import androidx.annotation.RequiresApi
 import androidx.navigation.Navigation
 import com.example.time.Manager.LanguageManager
-import com.example.time.Manager.SoundSelectionHandler
 import com.example.time.R
 import com.example.time.alarm.AlarmReceivers
 import com.example.time.calculate.getCalculationMethod
@@ -30,9 +29,6 @@ import com.example.time.databinding.FragmentSettingBinding
 
 
 class SettingFragment : Fragment() {
-
-
-    private lateinit var soundSelectionHandler: SoundSelectionHandler
 
     private var _binding: FragmentSettingBinding? = null
     private val binding get() = _binding!!
@@ -326,6 +322,16 @@ class SettingFragment : Fragment() {
                 languageManager.saveSelectedLanguage(selectedLanguageCode)
                 languageManager.setLocale(selectedLanguageCode)
                 languageManager.applyLayoutDirection(selectedLanguageCode)
+
+                // Update the spinner's adapter to reflect the new language
+                val newAdapter = ArrayAdapter(
+                    requireContext(),
+                    android.R.layout.simple_spinner_item,
+                    listOf(getString(R.string.select_language)) + languages
+                )
+                newAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                languageSpinner.adapter = newAdapter
+
                 requireActivity().recreate()
                 languageDialog.dismiss()
             }
@@ -433,8 +439,16 @@ class SettingFragment : Fragment() {
         val savedMethod =
             sharedPreferences.getString("calculationMethod", "Egyptian") // Default value
 
+        val displayTextResId = when (savedMethod) {
+            getString(R.string.calculation_method_mwl) ->  getString(R.string.calculation_method_mwl)
+            getString(R.string.calculation_method_isna) ->   getString(R.string.calculation_method_isna)
+            getString(R.string.calculation_method_egas)->  getString(R.string.calculation_method_egas)
+            getString(R.string.calculation_method_umm_al_qura) ->   getString(R.string.calculation_method_umm_al_qura)
+            getString(R.string.calculation_method_karachi)->  getString(R.string.calculation_method_karachi)
+            else ->  getString(R.string.calculation_method_egas)// Default to majority if not set
+        }
         // Get the shortened display name
-        val displayText = calculationMethodDisplayNames[savedMethod] ?: savedMethod
+        val displayText = displayTextResId
         binding.display.text = displayText
         return displayText
     }
@@ -447,32 +461,22 @@ class SettingFragment : Fragment() {
         }
     }
 
-//    private fun updateSoundForFajr(index: Int) {
-//        val uri = Uri.parse(soundUris[index])
-//        val alarmReceiver = AlarmReceivers()
-//        alarmReceiver.updateSoundUriForFajr(requireContext(), uri)
-//        binding.soundAzanFajrText.text = actionChoices[index]
-//        saveSoundtextFajr(requireContext(), actionChoices[index])
-//    }
-//
-//    private fun updateSoundForAll(index: Int) {
-//        val uri = Uri.parse(soundUris[index])
-//        val alarmReceiver = AlarmReceivers()
-//        alarmReceiver.updateSoundUriForAll(requireContext(), uri)
-//        binding.tvsoundAzanall.text = actionChoices[index]
-//        saveSoundtextAll(requireContext(), actionChoices[index])
-//    }
-
-
     fun saveTextSoundFajr(): String? {
         val sharedPreferences =
             requireContext().getSharedPreferences("Sounds", Context.MODE_PRIVATE)
         val savedMethod =
-            sharedPreferences.getString("SoundsFajr", "Abdel Basset Abdel Samad") // Default value
-
+            sharedPreferences.getString("SoundsFajr", getString(R.string.sound_abdel_basset)) // Default value
+        val displayTextResId = when (savedMethod) {
+            getString(R.string.sound_abdel_basset) -> getString(R.string.sound_abdel_basset)
+            getString(R.string.sound_nasser_al_qatami) -> getString(R.string.sound_nasser_al_qatami)
+            getString(R.string.sound_mishary_rashid) -> getString(R.string.sound_mishary_rashid)
+            getString(R.string.sound_makkah) -> getString(R.string.sound_makkah)
+            getString(R.string.sound_ali_bin_ahmed_mulla) -> getString(R.string.sound_ali_bin_ahmed_mulla)
+            else -> getString(R.string.sound_abdel_basset) // Default to majority if not set
+        }
         // Get the shortened display name
-        val displayText = calculationMethodDisplayNames[savedMethod] ?: savedMethod
-        binding.display.text = displayText
+        val displayText = displayTextResId
+        binding.soundAzanFajrText.text = displayText
         return displayText
     }
 
@@ -482,17 +486,25 @@ class SettingFragment : Fragment() {
             putString("SoundsFajr", method)
             apply()
         }
+
     }
 
-    fun saveTextSoundAll(): String? {
+    fun saveTextSoundAll(): String {
         val sharedPreferences =
             requireContext().getSharedPreferences("Sound", Context.MODE_PRIVATE)
         val savedMethod =
             sharedPreferences.getString("SoundsAll", "Abdel Basset Abdel Samad") // Default value
-
+        val displayTextResId = when (savedMethod) {
+            getString(R.string.sound_abdel_basset) -> getString(R.string.sound_abdel_basset)
+            getString(R.string.sound_nasser_al_qatami) -> getString(R.string.sound_nasser_al_qatami)
+            getString(R.string.sound_mishary_rashid) -> getString(R.string.sound_mishary_rashid)
+            getString(R.string.sound_makkah) -> getString(R.string.sound_makkah)
+            getString(R.string.sound_ali_bin_ahmed_mulla) -> getString(R.string.sound_ali_bin_ahmed_mulla)
+            else -> getString(R.string.sound_abdel_basset) // Default to majority if not set
+        }
         // Get the shortened display name
-        val displayText = calculationMethodDisplayNames[savedMethod] ?: savedMethod
-        binding.display.text = displayText
+        val displayText = displayTextResId
+        binding.tvsoundAzanall.text = displayText
         return displayText
     }
 
@@ -502,6 +514,9 @@ class SettingFragment : Fragment() {
             putString("SoundsAll", method)
             apply()
         }
+        // Update the display text for `hnafi` TextView based on the method
+
+
     }
 
     fun saveTextCalculationMethodAsr(): String? {
@@ -509,11 +524,17 @@ class SettingFragment : Fragment() {
             requireContext().getSharedPreferences("Setting", Context.MODE_PRIVATE)
         val savedMethod =
             sharedPreferences.getString("calculationMethodAsr", "Majority") // Default value
+        val displayTextResId = when (savedMethod) {
+            getString(R.string.majority) -> R.string.majority
+            getString(R.string.hanafi) -> R.string.hanafi
+            else -> R.string.majority // Default to majority if not set
+        }
 
-        // Get the shortened display name
-        val displayText = calculationMethodDisplayNames[savedMethod] ?: savedMethod
+        // Get the display text from the resource ID
+        val displayText = getString(displayTextResId)
         binding.hnafi.text = displayText
         return displayText
+
     }
 
     private fun saveCalculationtextAsr(context: Context, method: String) {
@@ -522,5 +543,6 @@ class SettingFragment : Fragment() {
             putString("calculationMethodAsr", method)
             apply()
         }
+ 
     }
 }
