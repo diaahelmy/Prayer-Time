@@ -11,7 +11,8 @@ import com.example.time.locationdata.LocationFetchListener
 import com.example.time.data.Time
 
 class Receiver : BroadcastReceiver(), LocationFetchListener {
-    @RequiresApi(Build.VERSION_CODES.O)
+
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             "FETCH_LOCATION_ACTION" -> {
@@ -24,8 +25,9 @@ class Receiver : BroadcastReceiver(), LocationFetchListener {
             Log.d("isha", "onReceive diaa diaa diaa : ")
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun fetchLocationAndUse(context: Context) {
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun fetchLocationAndUse(context: Context) {
         val location = FetchListener.getLocationFromPrefs(context)
         if (location != null) {
             val latitude = location.first

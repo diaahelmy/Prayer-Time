@@ -12,18 +12,23 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.time.MainActivity
 import com.example.time.R
+import com.example.time.data.Time
+import com.example.time.locationdata.FetchListener
+import com.example.time.locationdata.LocationFetchListener
 
-class AlarmReceivers: BroadcastReceiver() {
+class AlarmReceivers: BroadcastReceiver() , LocationFetchListener {
 
     private var soundUriForFajr: Uri = Uri.parse("android.resource://com.example.time/raw/alarm") // Default sound URI for FAJR_ALARM
     private var soundUriForAll: Uri = Uri.parse("android.resource://com.example.time/raw/abdelbasset") // Default sound URI for All_ALARM
 // Default sound URI for All_ALARM
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onReceive(context: Context?, intent: Intent?) {
         context?.let {
 
@@ -37,6 +42,7 @@ class AlarmReceivers: BroadcastReceiver() {
             Log.d("AlarmReceiver", "onReceive: $soundUriForFajr $soundUriForAll")
 Log.d("AlarmReceiver", "onReceive: $soundUri")
             AlarmSound.playAlarmSound(context, soundUri)
+            fetchLocationAndUse(context)
             val resultIntent = Intent(it, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
@@ -110,6 +116,22 @@ Log.d("AlarmReceiver", "onReceive: $soundUri")
     fun updateSoundUriForAll(context: Context,uri: Uri) {
         soundUriForAll = uri
         saveSoundUriToPreferences(context, "sound_uri_all", uri.toString())
+
+    }
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun fetchLocationAndUse(context: Context) {
+        val location = FetchListener.getLocationFromPrefs(context)
+        if (location != null) {
+            val latitude = location.first
+            val longitude = location.second
+            FetchListener.useLocationData(latitude, longitude, context, this)
+            Log.d("Receiver", "Location data fetched and used")
+        } else {
+            Log.d("Receiver", "No location data found")
+        }
+    }
+    override fun onPrayerTimesCalculated(prayerTimes: Time) {
+        Log.d("isha", "Prayer times calculated: $prayerTimes")
 
     }
     companion object {
