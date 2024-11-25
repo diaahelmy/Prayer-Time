@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="_13dp">13dp</dimen>
+    <dimen name="card_stroke_width">3dp</dimen>
+    <dimen name="_3dp">3dp</dimen>
+    <dimen name="_8dp">8dp</dimen>
+    <dimen name="paddingconstrian">7dp</dimen>
+    <dimen name="heght_prayer">70dp</dimen>
+    <dimen name="logohw">50dp</dimen>
+    <dimen name="settinghw">30dp</dimen>
+    <dimen name="tvstart">13dp</dimen>
+    <dimen name="tvsize">16sp</dimen>
+    <dimen name="notificationwh">22dp</dimen>
+    <dimen name="notificationend">8dp</dimen>
+    <dimen name="tvstartsize">14sp</dimen>
+    <dimen name="cardviewcons">8dp</dimen>
+    <dimen name="scroll_hight">0dp</dimen>
+    <dimen name="sizeprayer">20sp</dimen>
+    <dimen name="backhw">32dp</dimen>
+    <dimen name="back_start">8dp</dimen>
+    <dimen name="viewtop">16dp</dimen>
+    <dimen name="viewend">10dp</dimen>
+    <dimen name="tvstartsetting">16dp</dimen>
+    <dimen name="tvmargetop">32dp</dimen>
+    <dimen name="tvsizesetting">20sp</dimen>
+    <dimen name="spinnerstart">32dp</dimen>
+    <dimen name="spinnertop">16dp</dimen>
+    <dimen name="tvdilogsize">16sp</dimen>
+    <dimen name="paddingtvdilog">10dp</dimen>
+    <dimen name="tvtopsettingdilog">20dp</dimen>
+
+</resources>
