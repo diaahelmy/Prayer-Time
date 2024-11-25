@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">祈祷时间</string>
+    <string name="hello_blank_fragment">你好，空白片段</string>
+    <string name="language">语言</string>
+    <string name="select_language">选择语言</string>
+    <string name="cancel">取消</string>
+    <string name="prayer_time">祈祷时间</string>
+    <string name="Fajr">黎明</string>
+    <string name="dhuhr">中午</string>
+    <string name="asr">下午</string>
+    <string name="maghrib">黄昏</string>
+    <string name="isha">晚上</string>
+    <string name="_00_00">00:00</string>
+    <string name="calculation">计算祈祷时间</string>
+    <string name="calculation_method_mwl">穆斯林世界联盟</string>
+    <string name="calculation_method_isna">北美伊斯兰协会 (ISNA)</string>
+    <string name="calculation_method_egas">埃及测绘总局</string>
+    <string name="calculation_method_umm_al_qura">麦加乌姆·库拉大学</string>
+    <string name="calculation_method_karachi">卡拉奇伊斯兰科学大学</string>
+    <string name="ISNA">北美洲 (ISNA)</string>
+    <string name="Egyptian">埃及</string>
+    <string name="Makkah">麦加</string>
+    <string name="Karachi">卡拉奇</string>
+    <string name="hanafi">哈纳菲学派</string>
+    <string name="majority">多数派意见</string>
+    <string name="fajr_andisha_calculation_method">法吉尔和伊莎计算方法</string>
+    <string name="asr_calculation_method" >阿斯尔计算方法</string>
+    <!-- Titles -->
+    <string name="fajr_prayer_title">现在法吉尔祈祷</string>
+    <string name="sunrise_prayer_title">现在日出祈祷</string>
+    <string name="dhuhr_prayer_title">现在杜胡尔祈祷</string>
+    <string name="asr_prayer_title">现在阿斯尔祈祷</string>
+    <string name="maghrib_prayer_title">现在马格里布祈祷</string>
+    <string name="isha_prayer_title">现在伊莎祈祷</string>
+
+    <!-- Messages -->
+    <string name="fajr_prayer_message">现在是法吉尔祈祷的时间</string>
+    <string name="sunrise_prayer_message">现在是日出祈祷的时间</string>
+    <string name="dhuhr_prayer_message">现在是杜胡尔祈祷的时间</string>
+    <string name="asr_prayer_message">现在是阿斯尔祈祷的时间</string>
+    <string name="maghrib_prayer_message">现在是马格里布祈祷的时间</string>
+    <string name="isha_prayer_message">现在是伊莎祈祷的时间</string>
+
+    <!-- New addition -->
+    <string name="sunrise">日出</string>
+
+
+    <string name="sound_abdel_basset">阿卜杜勒·巴塞特·阿卜杜勒·萨马德</string>
+    <string name="sound_nasser_al_qatami">纳赛尔·阿勒·卡塔米</string>
+    <string name="sound_mishary_rashid">米沙里·拉希德</string>
+    <string name="sound_makkah">麦加</string>
+    <string name="sound_ali_bin_ahmed_mulla">阿里·本·艾哈迈德·穆拉 [麦加]</string>
+
+    <string name="sound_azan_el_fajr">清晨祷告的呼唤</string>
+    <string name="sound_azan">祷告的呼唤</string>
+</resources>

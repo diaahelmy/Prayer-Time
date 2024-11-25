@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    >
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".fragment.HomeFragment">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            android:layout_width="@dimen/scroll_hight"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_prayer_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/heght_prayer"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="@string/prayer_time"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/settings"
+                    android:layout_width="@dimen/settinghw"
+                    android:layout_height="@dimen/settinghw"
+                    android:layout_gravity="top|center_horizontal"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/icons8_settings"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/shapeableImageView1"
+                    android:layout_width="@dimen/logohw"
+                    android:layout_height="@dimen/logohw"
+                    android:layout_gravity="top|center_horizontal"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/muslim_islam_svgrepo_com"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/scroll_hight"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/app_bar_layout">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/logo"
+                    android:layout_width="match_parent"
+                    android:layout_height="125dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ramadan_1101514329"
+                        app:layout_constraintStart_toStartOf="parent" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/constraintFajr"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/cardviewcons"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginEnd="@dimen/cardviewcons"
+                    android:gravity="center"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/logo">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="@dimen/paddingconstrian">
+
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tvfajr"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/tvstart"
+                            android:gravity="center"
+                            android:text="@string/Fajr"
+                            android:textSize="@dimen/tvstartsize"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tvtimefajr"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="@string/_00_00"
+                            android:textSize="@dimen/tvsize"
+                            app:layout_constraintEnd_toEndOf="@+id/tvfajr"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="@+id/tvfajr"
+                            app:layout_constraintTop_toBottomOf="@+id/tvfajr" />
+
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/notificationfajr"
+                            android:layout_width="@dimen/notificationwh"
+                            android:layout_height="@dimen/notificationwh"
+                            android:layout_marginEnd="@dimen/notificationend"
+                            android:gravity="center"
+                            android:src="@drawable/notification_bell_svgrepo_co"
+                            android:visibility="visible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/notificationfajroff"
+                            android:layout_width="@dimen/notificationwh"
+                            android:layout_height="@dimen/notificationwh"
+                            android:layout_marginEnd="@dimen/notificationend"
+                            android:gravity="center"
+                            android:src="@drawable/baseline_notifications_off_24"
+                            android:visibility="gone"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/constraintSunrise"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/cardviewcons"
+                    android:layout_marginTop="@dimen/cardviewcons"
+                    android:layout_marginEnd="@dimen/cardviewcons"
+                    android:gravity="center"
+                    app:layout_constraintEnd_toEndOf="parent"
+
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/constraintFajr">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="@dimen/paddingconstrian">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tvsunrise"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/tvstart"
+                            android:gravity="center"
+                            android:text="@string/sunrise"
+                            android:textSize="@dimen/tvstartsize"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tvtimeSunrise"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="@string/_00_00"
+                            android:textSize="@dimen/tvsize"
+                            app:layout_constraintEnd_toEndOf="@+id/tvsunrise"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="@+id/tvsunrise"
+                            app:layout_constraintTop_toBottomOf="@+id/tvsunrise" />
+
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/notificationsunrise"
+                            android:layout_width="@dimen/notificationwh"
+                            android:layout_height="@dimen/notificationwh"
+                            android:layout_marginEnd="@dimen/notificationend"
+                            android:gravity="center"
+                            android:src="@drawable/notification_bell_svgrepo_co"
+                            android:visibility="visible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/notificationsunrisoff"
+                            android:layout_width="@dimen/notificationwh"
+                            android:layout_height="@dimen/notificationwh"
+                            android:layout_marginEnd="@dimen/notificationend"
+                            android:gravity="center"
+                            android:src="@drawable/baseline_notifications_off_24"
+                            android:visibility="gone"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/constraintDhur"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/cardviewcons"
+                    android:layout_marginTop="@dimen/cardviewcons"
+                    android:layout_marginEnd="@dimen/cardviewcons"
+                    android:gravity="center"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/constraintSunrise">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="@dimen/paddingconstrian">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tvDhuhr"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/tvstart"
+                            android:gravity="center"
+                            android:text="@string/dhuhr"
+                            android:textSize="@dimen/tvstartsize"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tvTimeDhuhr"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="@string/_00_00"
+                            android:textSize="@dimen/tvsize"
+                            app:layout_constraintEnd_toEndOf="@+id/tvDhuhr"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="@+id/tvDhuhr"
+                            app:layout_constraintTop_toBottomOf="@+id/tvDhuhr" />
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/notificationDhuhr"
+                            android:layout_width="@dimen/notificationwh"
+                            android:layout_height="@dimen/notificationwh"
+                            android:layout_marginEnd="@dimen/notificationend"
+                            android:gravity="center"
+                            android:src="@drawable/notification_bell_svgrepo_co"
+                            android:visibility="visible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/notificationDhuhroff"
+                            android:layout_width="@dimen/notificationwh"
+                            android:layout_height="@dimen/notificationwh"
+                            android:layout_marginEnd="@dimen/notificationend"
+                            android:gravity="center"
+                            android:src="@drawable/baseline_notifications_off_24"
+                            android:visibility="gone"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/constraintAsr"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/cardviewcons"
+                    android:layout_marginTop="@dimen/cardviewcons"
+                    android:layout_marginEnd="@dimen/cardviewcons"
+                    android:gravity="center"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/constraintDhur">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="@dimen/paddingconstrian">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tvAsr"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/tvstart"
+                            android:gravity="center"
+                            android:text="@string/asr"
+                            android:textSize="@dimen/tvstartsize"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tvtimeAsr"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="@string/_00_00"
+                            android:textSize="@dimen/tvsize"
+                            app:layout_constraintEnd_toEndOf="@+id/tvAsr"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="@+id/tvAsr"
+                            app:layout_constraintTop_toBottomOf="@+id/tvAsr" />
+
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/notificationAsr"
+                            android:layout_width="@dimen/notificationwh"
+                            android:layout_height="@dimen/notificationwh"
+                            android:layout_marginEnd="@dimen/notificationend"
+                            android:gravity="center"
+                            android:src="@drawable/notification_bell_svgrepo_co"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/notificationAsroff"
+                            android:layout_width="@dimen/notificationwh"
+                            android:layout_height="@dimen/notificationwh"
+                            android:layout_marginEnd="@dimen/notificationend"
+                            android:gravity="center"
+                            android:src="@drawable/baseline_notifications_off_24"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/constraintMaghrib"
+
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/cardviewcons"
+                    android:layout_marginTop="@dimen/cardviewcons"
+                    android:layout_marginEnd="@dimen/cardviewcons"
+                    android:gravity="center"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/constraintAsr">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="@dimen/paddingconstrian">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tvMaghrib"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/tvstart"
+                            android:gravity="center"
+                            android:text="@string/maghrib"
+                            android:textSize="@dimen/tvstartsize"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tvTimeMaghrib"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="@string/_00_00"
+                            android:textSize="@dimen/tvsize"
+                            app:layout_constraintEnd_toEndOf="@+id/tvMaghrib"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="@+id/tvMaghrib"
+                            app:layout_constraintTop_toBottomOf="@+id/tvMaghrib" />
+
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/notificationMaghrib"
+
+                            android:layout_width="@dimen/notificationwh"
+                            android:layout_height="@dimen/notificationwh"
+                            android:layout_marginEnd="@dimen/notificationend"
+                            android:gravity="center"
+                            android:src="@drawable/notification_bell_svgrepo_co"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/notificationMaghriboff"
+                            android:layout_width="@dimen/notificationwh"
+                            android:layout_height="@dimen/notificationwh"
+                            android:layout_marginEnd="@dimen/notificationend"
+                            android:gravity="center"
+                            android:src="@drawable/baseline_notifications_off_24"
+                            android:visibility="gone"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/constraintIsha"
+
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/cardviewcons"
+                    android:layout_marginTop="@dimen/cardviewcons"
+                    android:layout_marginEnd="@dimen/cardviewcons"
+                    android:gravity="center"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/constraintMaghrib">
+
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="@dimen/paddingconstrian">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tvIsha"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/tvstart"
+                            android:gravity="center"
+                            android:text="@string/isha"
+                            android:textSize="@dimen/tvstartsize"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tvTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="@string/_00_00"
+                            android:textSize="@dimen/tvsize"
+                            app:layout_constraintEnd_toEndOf="@+id/tvIsha"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="@+id/tvIsha"
+                            app:layout_constraintTop_toBottomOf="@+id/tvIsha" />
+
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/notificationIsha"
+                            android:layout_width="@dimen/notificationwh"
+                            android:layout_height="@dimen/notificationwh"
+                            android:layout_marginEnd="@dimen/notificationend"
+                            android:gravity="center"
+                            android:src="@drawable/notification_bell_svgrepo_co"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/notificationIshaoff"
+                            android:layout_width="@dimen/notificationwh"
+                            android:layout_height="@dimen/notificationwh"
+                            android:layout_marginEnd="@dimen/notificationend"
+                            android:gravity="center"
+                            android:src="@drawable/baseline_notifications_off_24"
+                            android:visibility="gone"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

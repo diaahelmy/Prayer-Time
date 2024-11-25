@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">مواقيت الصلاة</string>
+    <string name="language">لغة</string>
+    <string name="select_language">اختر لغة </string>
+    <string name="cancel">إلغاء</string>
+    <string name="prayer_time">مواقيت الصلاة </string>
+    <string name="Fajr">الفجر</string>
+    <string name="sunrise"> الشروق </string>
+    <string name="dhuhr">الظهر</string>
+    <string name="asr">العصر</string>
+    <string name="maghrib">المغرب</string>
+    <string name="isha">العشاء</string>
+    <string name="display">عرض</string>
+    <string name="calculation"> حساب المواقيت </string>
+    <string name="calculation_method_mwl">رابطة العالم الإسلامي</string>
+    <string name="calculation_method_isna">الجمعية الإسلامية لأمريكا الشمالية (ISNA)</string>
+    <string name="calculation_method_egas">الهيئة المصرية العامة للمساحة</string>
+    <string name="calculation_method_umm_al_qura">جامعة أم القرى، مكة</string>
+    <string name="calculation_method_karachi">جامعة العلوم الإسلامية، كراتشي</string>
+    <string name="ISNA">أمريكا الشمالية (ISNA)</string>
+    <string name="Egyptian">مصر</string>
+    <string name="Makkah">مكة</string>
+    <string name="Karachi">كراتشي</string>
+    <string name="hanafi">مذهب أبي حنيفه</string>
+    <string name="majority">مذهب الجمهور</string>
+    <string name="fajr_andisha_calculation_method"> طريقة حساب الفجر والعشاء</string>
+    <string name="asr_calculation_method">طريقة حساب العصر</string>
+    <string name="fajr_prayer_title">صلاه الفجر الان</string>
+    <string name="sunrise_prayer_title">صلاة الشروق الآن</string>
+    <string name="dhuhr_prayer_title">صلاه الظهر الان</string>
+    <string name="asr_prayer_title">صلاه العصر الان</string>
+    <string name="maghrib_prayer_title">صلاه المغرب الان</string>
+    <string name="isha_prayer_title">صلاه العشاء الان</string>
+
+    <string name="fajr_prayer_message">حان موعد اذان الفجر</string>
+    <string name="sunrise_prayer_message">حان موعد اذان الشروق</string>
+    <string name="dhuhr_prayer_message">حان موعد اذان الظهر</string>
+    <string name="asr_prayer_message">حان موعد اذان العصر </string>
+    <string name="maghrib_prayer_message">بتوقيت القاهره</string>
+    <string name="isha_prayer_message">حان موعد اذان العشاء </string>
+
+    <string name="sound_abdel_basset">عبد الباسط عبد الصمد</string>
+    <string name="sound_nasser_al_qatami">ناصر القطامي</string>
+    <string name="sound_mishary_rashid">مشاري راشد</string>
+    <string name="sound_makkah">مكة</string>
+    <string name="sound_ali_bin_ahmed_mulla">علي بن أحمد ملا [مكة]</string>
+
+    <string name="sound_azan_el_fajr">صوت أذان الفجر</string>
+    <string name="sound_azan">صوت الأذان</string>
+</resources>

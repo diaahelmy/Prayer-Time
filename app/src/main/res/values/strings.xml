@@ -1,0 +1,54 @@
+<resources>
+    <string name="app_name">Prayer Time</string>
+    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
+    <string name="language">Language</string>
+    <string name="select_language">Select Language</string>
+    <string name="cancel">Cancel</string>
+    <string name="prayer_time">Prayer Time</string>
+    <string name="Fajr">Fajr</string>
+    <string name="dhuhr">Dhuhr</string>
+    <string name="asr">Asr</string>
+    <string name="maghrib">Maghrib</string>
+    <string name="isha">Isha</string>
+    <string name="_00_00" translatable="false">00:00</string>
+    <string name="display" translatable="false">Display</string>
+    <string name="calculation">Calculation</string>
+    <string name="calculation_method_mwl">Muslim World League</string>
+    <string name="calculation_method_isna">Islamic Society of North America (ISNA)</string>
+    <string name="calculation_method_egas">Egyptian General Authority of Survey</string>
+    <string name="calculation_method_umm_al_qura">Umm al-Qura University, Makkah</string>
+    <string name="calculation_method_karachi">University of Islamic Sciences, Karachi</string>
+    <string name="ISNA">North America (ISNA)</string>
+    <string name="Egyptian">Egyptian</string>
+    <string name="Makkah">Makkah</string>
+    <string name="Karachi">Karachi</string>
+    <string name="hanafi">Hanafi School</string>
+    <string name="majority">Majority Opinion</string>
+    <string name="fajr_andisha_calculation_method">Fajr And Isha Calculation Method</string>
+    <string name="asr_calculation_method">ASR Calculation Method</string>
+    <!-- Titles -->
+    <string name="fajr_prayer_title">Fajr Prayer Now</string>
+    <string name="sunrise_prayer_title">Sunrise Prayer Now</string> <!-- New addition -->
+    <string name="dhuhr_prayer_title">Dhuhr Prayer Now</string>
+    <string name="asr_prayer_title">Asr Prayer Now</string>
+    <string name="maghrib_prayer_title">Maghrib Prayer Now</string>
+    <string name="isha_prayer_title">Isha Prayer Now</string>
+
+    <!-- Messages -->
+    <string name="fajr_prayer_message">It\'s time for Fajr prayer</string>
+    <string name="sunrise_prayer_message">It\'s time for Sunrise prayer</string> <!-- New addition -->
+    <string name="dhuhr_prayer_message">It\'s time for Dhuhr prayer</string>
+    <string name="asr_prayer_message">It\'s time for Asr prayer</string>
+    <string name="maghrib_prayer_message">It\'s time for Maghrib prayer</string>
+    <string name="isha_prayer_message">It\'s time for Isha prayer</string>
+    <string name="sunrise"> Sunrise </string>
+
+    <string name="sound_abdel_basset">Abdel Basset Abdel Samad</string>
+    <string name="sound_nasser_al_qatami">Nasser Al-Qatami</string>
+    <string name="sound_mishary_rashid">Mishary Rashid</string>
+    <string name="sound_makkah">Makkah</string>
+    <string name="sound_ali_bin_ahmed_mulla">Ali bin Ahmed Mulla [Makkah]</string>
+
+    <string name="sound_azan_el_fajr">Sound Azan EL Fajr</string>
+    <string name="sound_azan">Sound Azan</string>
+</resources>

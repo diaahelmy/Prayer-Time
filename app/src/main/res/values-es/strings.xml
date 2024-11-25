@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Hora de Oración</string>
+    <string name="hello_blank_fragment">Hola fragmento en blanco</string>
+    <string name="language">Idioma</string>
+    <string name="select_language">Seleccionar idioma</string>
+    <string name="cancel">Cancelar</string>
+    <string name="prayer_time">Hora de Oración</string>
+    <string name="Fajr">Fajr</string>
+    <string name="dhuhr">Dhuhr</string>
+    <string name="asr">Asr</string>
+    <string name="maghrib">Maghrib</string>
+    <string name="isha">Isha</string>
+    <string name="display">Mostrar</string>
+    <string name="calculation">Cálculo</string>
+    <string name="calculation_method_mwl">Liga Mundial Musulmana</string>
+    <string name="calculation_method_isna">Sociedad Islámica de América del Norte (ISNA)</string>
+    <string name="calculation_method_egas">Autoridad General Egipcia de Encuestas</string>
+    <string name="calculation_method_umm_al_qura">Universidad Umm al-Qura, La Meca</string>
+    <string name="calculation_method_karachi">Universidad de Ciencias Islámicas, Karachi</string>
+    <string name="ISNA">América del Norte (ISNA)</string>
+    <string name="Egyptian">Egipcio</string>
+    <string name="Makkah">La Meca</string>
+    <string name="Karachi">Karachi</string>
+    <string name="hanafi">Escuela Hanafí</string>
+    <string name="majority">Opinión Mayoritaria</string>
+    <string name="fajr_andisha_calculation_method">Método de cálculo de Fajr e Isha</string>
+    <string name="asr_calculation_method">Método de cálculo de Asr</string>
+    <!-- Titles -->
+    <string name="fajr_prayer_title">Oración Fajr Ahora</string>
+    <string name="sunrise_prayer_title">Oración de la Amanecer Ahora</string>
+    <string name="dhuhr_prayer_title">Oración Dhuhr Ahora</string>
+    <string name="asr_prayer_title">Oración Asr Ahora</string>
+    <string name="maghrib_prayer_title">Oración Maghrib Ahora</string>
+    <string name="isha_prayer_title">Oración Isha Ahora</string>
+
+    <!-- Messages -->
+    <string name="fajr_prayer_message">Es hora de la oración Fajr</string>
+    <string name="sunrise_prayer_message">Es hora de la oración de la Amanecer</string>
+    <string name="dhuhr_prayer_message">Es hora de la oración Dhuhr</string>
+    <string name="asr_prayer_message">Es hora de la oración Asr</string>
+    <string name="maghrib_prayer_message">Es hora de la oración Maghrib</string>
+    <string name="isha_prayer_message">Es hora de la oración Isha</string>
+
+    <!-- New addition -->
+    <string name="sunrise">Amanecer</string>
+
+    <string name="sound_abdel_basset">Abdel Basset Abdel Samad</string>
+    <string name="sound_nasser_al_qatami">Nasser Al-Qatami</string>
+    <string name="sound_mishary_rashid">Mishary Rashid</string>
+    <string name="sound_makkah">La Meca</string>
+    <string name="sound_ali_bin_ahmed_mulla">Ali bin Ahmed Mulla [La Meca]</string>
+
+    <string name="sound_azan_el_fajr">Sonido de Azan El Fajr</string>
+    <string name="sound_azan">Sonido de Azan</string>
+</resources>
