@@ -58,6 +58,7 @@ class AlarmReceivers : BroadcastReceiver(), LocationFetchListener {
                     showCurrentPrayerNotification(context, intent)
 
                     // عرض/تحديث الإشعار الثابت
+                    showPersistentNextPrayerNotification(context)
                 }
                 "UPDATE_PERSISTENT_NOTIFICATION" -> {
                     // تحديث الإشعار الثابت فقط
@@ -68,10 +69,39 @@ class AlarmReceivers : BroadcastReceiver(), LocationFetchListener {
                 Intent.ACTION_BOOT_COMPLETED -> {
                 // بدء التحديث عند إقلاع الجهاز
                 schedulePersistentNotificationUpdate(context)
-            }
+                    rescheduleAllPrayerAlarms(context)
+
+                }
             }
         }
     }
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun rescheduleAllPrayerAlarms(context: Context) {
+        val prayerTimes = getPrayerTimesFromPrefs(context)
+        val titles = FetchListener.getTitles(context)
+        val messages = FetchListener.getMessages(context)
+        val timeZone = TimeZone.getDefault().id
+
+        listOf(
+            prayerTimes.fajr to 0,
+            prayerTimes.sunrise to 1,
+            prayerTimes.dhuhr to 2,
+            prayerTimes.asr to 3,
+            prayerTimes.maghrib to 4,
+            prayerTimes.isha to 5
+        ).forEach { (time, id) ->
+            FetchListener.scheduleNotification(
+                context,
+                time,
+                id,
+                titles[id],
+                messages[id],
+                timeZone
+            )
+        }
+
+    }
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     private fun updatePersistentNotification(context: Context) {
         showPersistentNextPrayerNotification(context)
         schedulePersistentNotificationUpdate(context) // جدولة التحديث التالي

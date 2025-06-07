@@ -5,7 +5,8 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
-
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <uses-permission android:name="com.huawei.hms.permission.ACTIVITY_RECOGNITION" />
 
@@ -42,15 +43,28 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="ACTION_FAJR_ALARM" />
                 <action android:name="ACTION_All_ALARM" />
                 <action android:name="UPDATE_PERSISTENT_NOTIFICATION" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".alarm.StopAlarmReceiver"
-            android:exported="true"
-/>
+        <receiver
+            android:name=".alarm.StopAlarmReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.example.Time.ACTION_STOP_ALARM" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".alarm.BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
 
         <receiver
             android:name=".alarm.Receiver"
@@ -58,8 +72,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="FETCH_LOCATION_ACTION" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
     </application>

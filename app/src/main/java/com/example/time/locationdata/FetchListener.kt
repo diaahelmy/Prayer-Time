@@ -30,6 +30,7 @@ import com.example.time.calculate.sunsetTime
 import com.example.time.data.Time
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.util.Date
 import java.util.Locale
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
@@ -216,13 +217,15 @@ object FetchListener {
                 putExtra("title", title)
                 putExtra("message", message)
             }
+            val uniqueId = (notificationId + SimpleDateFormat("ddD", Locale.getDefault())
+                .format(Date()).hashCode())
+
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
                 notificationId,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-            val wakeLock = acquireWakeLock(context)
 
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -242,8 +245,6 @@ object FetchListener {
                 "scheduleNotification",
                 "Notification scheduled for $notificationTime in $targetTimeZoneId"
             )
-            releaseWakeLock(wakeLock)
-            wakeLock?.release()
         } catch (e: Exception) {
             Log.e("scheduleNotification", "Failed to schedule notification", e)
         }
