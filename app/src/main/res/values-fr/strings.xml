@@ -11,6 +11,9 @@
     <string name="asr">Asr</string>
     <string name="maghrib">Maghrib</string>
     <string name="isha">Isha</string>
+    <string name="stop_notification">Arrêter l\'alarme</string>
+    <string name="press_to_stop">Appuyez pour arrêter</string>
+
     <string name="_00_00">00:00</string>
     <string name="calculation">Calcul des heures de prière</string>
     <string name="calculation_method_mwl">Ligue Islamique Mondiale</string>
@@ -35,7 +38,7 @@
     <string name="isha_prayer_title">Prière de Isha Maintenant</string>
 
     <!-- Messages -->
-    <string name="fajr_prayer_message">Il est temps pour la prière de Fajr</string>
+    <string name="fajr_prayer_message">Il est temps pour la prière de </string>
     <string name="sunrise_prayer_message">Il est temps pour la prière du Lever du Soleil</string>
     <string name="dhuhr_prayer_message">Il est temps pour la prière de Dhuhr</string>
     <string name="asr_prayer_message">Il est temps pour la prière de Asr</string>

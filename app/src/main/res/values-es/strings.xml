@@ -12,6 +12,9 @@
     <string name="maghrib">Maghrib</string>
     <string name="isha">Isha</string>
     <string name="display">Mostrar</string>
+    <string name="stop_notification">Detener alarma</string>
+    <string name="press_to_stop">Presione para detener</string>
+
     <string name="calculation">Cálculo</string>
     <string name="calculation_method_mwl">Liga Mundial Musulmana</string>
     <string name="calculation_method_isna">Sociedad Islámica de América del Norte (ISNA)</string>
@@ -35,7 +38,7 @@
     <string name="isha_prayer_title">Oración Isha Ahora</string>
 
     <!-- Messages -->
-    <string name="fajr_prayer_message">Es hora de la oración Fajr</string>
+    <string name="fajr_prayer_message">Es hora de la oración </string>
     <string name="sunrise_prayer_message">Es hora de la oración de la Amanecer</string>
     <string name="dhuhr_prayer_message">Es hora de la oración Dhuhr</string>
     <string name="asr_prayer_message">Es hora de la oración Asr</string>

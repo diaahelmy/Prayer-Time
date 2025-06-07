@@ -10,6 +10,8 @@
     <string name="dhuhr">الظهر</string>
     <string name="asr">العصر</string>
     <string name="maghrib">المغرب</string>
+    <string name="stop_notification">إيقاف التنبيه</string>
+    <string name="press_to_stop">اضغط لإيقاف التنبيه</string>
     <string name="isha">العشاء</string>
     <string name="display">عرض</string>
     <string name="calculation"> حساب المواقيت </string>
@@ -32,6 +34,7 @@
     <string name="asr_prayer_title">صلاه العصر الان</string>
     <string name="maghrib_prayer_title">صلاه المغرب الان</string>
     <string name="isha_prayer_title">صلاه العشاء الان</string>
+
 
     <string name="fajr_prayer_message">حان موعد اذان الفجر</string>
     <string name="sunrise_prayer_message">حان موعد اذان الشروق</string>

@@ -4,7 +4,6 @@ package com.example.time.fragment
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -17,15 +16,16 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Spinner
 import androidx.annotation.RequiresApi
-import androidx.navigation.Navigation
 import com.example.time.Manager.LanguageManager
 import com.example.time.R
-import com.example.time.alarm.AlarmReceivers
 import com.example.time.calculate.getCalculationMethod
 import com.example.time.calculate.getCalculationMethodAsr
 import com.example.time.calculate.saveCalculationMethod
 import com.example.time.calculate.saveCalculationMethodAsr
 import com.example.time.databinding.FragmentSettingBinding
+import com.example.time.service.AzanSoundManager
+import androidx.core.net.toUri
+import androidx.navigation.findNavController
 
 
 class SettingFragment : Fragment() {
@@ -88,74 +88,23 @@ class SettingFragment : Fragment() {
                 getString(R.string.sound_makkah),
                 getString(R.string.sound_ali_bin_ahmed_mulla)
             )
-            val builder = AlertDialog.Builder(requireContext())
-            builder.setTitle("Select Azan Fajr")
+            val uris = arrayOf(
+                "android.resource://com.example.time/raw/alarm",
+                "android.resource://com.example.time/raw/nasserfajr",
+                "android.resource://com.example.time/raw/misharyrashidfajr",
+                "android.resource://com.example.time/raw/makkahfakr",
+                "android.resource://com.example.time/raw/alibinahmedmullafajr"
+            )
+
+            AlertDialog.Builder(requireContext())
+                .setTitle("Select Azan Fajr")
                 .setItems(actionChoices) { dialog, which ->
-                    when (which) {
-                        0 -> {
-                            // Update action constants in AlarmReceivers for FAJR_ALARM
-                            val alarmReceiver = AlarmReceivers()
-                            val newUriForFajr =
-                                Uri.parse("android.resource://com.example.time/raw/alarm")
-                            alarmReceiver.updateSoundUriForFajr(requireContext(), newUriForFajr)
-                            binding.soundAzanFajrText.text = getString(R.string.sound_abdel_basset)
-
-                            dialog.dismiss()
-
-                        }
-
-                        1 -> {
-                            // Update action constants in AlarmReceivers for All_ALARM
-                            val alarmReceiver = AlarmReceivers()
-                            val newUriForFajr =
-                                Uri.parse("android.resource://com.example.time/raw/nasserfajr")
-                            alarmReceiver.updateSoundUriForFajr(requireContext(), newUriForFajr)
-                            binding.soundAzanFajrText.text =
-                                getString(R.string.sound_nasser_al_qatami)
-                            dialog.dismiss()
-
-                        }
-
-                        2 -> {
-                            // Cancel the dialog
-                            val alarmReceiver = AlarmReceivers()
-                            val newUriForFajr =
-                                Uri.parse("android.resource://com.example.time/raw/misharyrashidfajr")
-                            alarmReceiver.updateSoundUriForFajr(requireContext(), newUriForFajr)
-                            binding.soundAzanFajrText.text =
-                                getString(R.string.sound_mishary_rashid)
-                            dialog.dismiss()
-                        }
-
-                        3 -> {
-                            // Exit the app
-                            val alarmReceiver = AlarmReceivers()
-                            val newUriForFajr =
-                                Uri.parse("android.resource://com.example.time/raw/makkahfakr")
-
-                            alarmReceiver.updateSoundUriForFajr(requireContext(), newUriForFajr)
-                            binding.soundAzanFajrText.text = getString(R.string.sound_makkah)
-                            dialog.dismiss()
-
-                        }
-
-                        4 -> {
-                            val alarmReceiver = AlarmReceivers()
-                            val newUriForFajr =
-                                Uri.parse("android.resource://com.example.time/raw/alibinahmedmullafajr")
-                            alarmReceiver.updateSoundUriForFajr(requireContext(), newUriForFajr)
-                            binding.soundAzanFajrText.text =
-                                getString(R.string.sound_ali_bin_ahmed_mulla)
-                            dialog.dismiss()
-                        }
-                    }
+                    val selectedUri = uris[which].toUri()
+                    AzanSoundManager.updateSoundUriForFajr(requireContext(), selectedUri)
+                    binding.soundAzanFajrText.text = actionChoices[which]
                     saveSoundtextFajr(requireContext(), actionChoices[which])
-
-                    dialog.dismiss()
                 }
-                .setNegativeButton("Cancel") { dialog, _ ->
-                    dialog.dismiss()
-                }
+                .setNegativeButton("Cancel", null)
                 .show()
         }
 
@@ -167,73 +116,24 @@ class SettingFragment : Fragment() {
                 getString(R.string.sound_makkah),
                 getString(R.string.sound_ali_bin_ahmed_mulla)
             )
+            val uris = arrayOf(
+                "android.resource://com.example.time/raw/abdelbasset",
+                "android.resource://com.example.time/raw/nasserfajr",
+                "android.resource://com.example.time/raw/misharyrashid",
+                "android.resource://com.example.time/raw/makkah",
+                "android.resource://com.example.time/raw/alibinahmedmulla"
+            )
 
-            val builder = AlertDialog.Builder(requireContext())
-            builder.setTitle("Select Azan")
+            AlertDialog.Builder(requireContext())
+                .setTitle("Select Azan")
                 .setItems(actionChoices) { dialog, which ->
-                    when (which) {
-                        0 -> {
-                            // Update action constants in AlarmReceivers for FAJR_ALARM
-                            val alarmReceiver = AlarmReceivers()
-                            val newUriForFajr =
-                                Uri.parse("android.resource://com.example.time/raw/abdelbasset")
-                            alarmReceiver.updateSoundUriForAll(requireContext(), newUriForFajr)
-                            binding.tvsoundAzanall.text = getString(R.string.sound_abdel_basset)
-                            dialog.dismiss()
-
-                        }
-
-                        1 -> {
-                            // Update action constants in AlarmReceivers for All_ALARM
-                            val alarmReceiver = AlarmReceivers()
-                            val newUriForFajr =
-                                Uri.parse("android.resource://com.example.time/raw/nasserfajr")
-                            alarmReceiver.updateSoundUriForAll(requireContext(), newUriForFajr)
-                            binding.tvsoundAzanall.text = getString(R.string.sound_nasser_al_qatami)
-                            dialog.dismiss()
-
-                        }
-
-                        2 -> {
-                            // Cancel the dialog
-                            val alarmReceiver = AlarmReceivers()
-                            val newUriForFajr =
-                                Uri.parse("android.resource://com.example.time/raw/misharyrashid")
-                            alarmReceiver.updateSoundUriForAll(requireContext(), newUriForFajr)
-                            binding.tvsoundAzanall.text = getString(R.string.sound_mishary_rashid)
-                            dialog.dismiss()
-                        }
-
-                        3 -> {
-                            // Exit the app
-                            val alarmReceiver = AlarmReceivers()
-                            val newUriForFajr =
-                                Uri.parse("android.resource://com.example.time/raw/Makkah")
-                            alarmReceiver.updateSoundUriForAll(requireContext(), newUriForFajr)
-                            binding.tvsoundAzanall.text = getString(R.string.sound_makkah)
-                            dialog.dismiss()
-
-                        }
-
-                        4 -> {
-                            val alarmReceiver = AlarmReceivers()
-                            val newUriForFajr =
-                                Uri.parse("android.resource://com.example.time/raw/alibinahmedmulla")
-                            alarmReceiver.updateSoundUriForAll(requireContext(), newUriForFajr)
-                            binding.tvsoundAzanall.text =
-                                getString(R.string.sound_ali_bin_ahmed_mulla)
-                            dialog.dismiss()
-                        }
-                    }
+                    val selectedUri = uris[which].toUri()
+                    AzanSoundManager.updateSoundUriForAll(requireContext(), selectedUri)
+                    binding.tvsoundAzanall.text = actionChoices[which]
                     saveSoundtextAll(requireContext(), actionChoices[which])
-
-                    dialog.dismiss()
                 }
-                .setNegativeButton("Cancel") { dialog, _ ->
-                    dialog.dismiss()
-                }
+                .setNegativeButton("Cancel", null)
                 .show()
-
         }
 
 
@@ -250,7 +150,7 @@ class SettingFragment : Fragment() {
         }
 
         binding.back.setOnClickListener {
-            Navigation.findNavController(view).navigateUp()
+            view.findNavController().navigateUp()
         }
 
         // Initialize the Spinner
@@ -453,6 +353,7 @@ class SettingFragment : Fragment() {
         return displayText
     }
 
+    @SuppressLint("UseKtx")
     private fun saveCalculationtext(context: Context, method: String) {
         val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
@@ -480,6 +381,7 @@ class SettingFragment : Fragment() {
         return displayText
     }
 
+    @SuppressLint("UseKtx")
     private fun saveSoundtextFajr(context: Context, method: String) {
         val sharedPreferences = context.getSharedPreferences("Sounds", Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
@@ -508,6 +410,7 @@ class SettingFragment : Fragment() {
         return displayText
     }
 
+    @SuppressLint("UseKtx")
     private fun saveSoundtextAll(context: Context, method: String) {
         val sharedPreferences = context.getSharedPreferences("Sound", Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
@@ -537,6 +440,7 @@ class SettingFragment : Fragment() {
 
     }
 
+    @SuppressLint("UseKtx")
     private fun saveCalculationtextAsr(context: Context, method: String) {
         val sharedPreferences = context.getSharedPreferences("Setting", Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
@@ -545,4 +449,5 @@ class SettingFragment : Fragment() {
         }
  
     }
+
 }

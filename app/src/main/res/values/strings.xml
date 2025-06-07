@@ -27,15 +27,16 @@
     <string name="fajr_andisha_calculation_method">Fajr And Isha Calculation Method</string>
     <string name="asr_calculation_method">ASR Calculation Method</string>
     <!-- Titles -->
-    <string name="fajr_prayer_title">Fajr Prayer Now</string>
-    <string name="sunrise_prayer_title">Sunrise Prayer Now</string> <!-- New addition -->
+    <string name="fajr_prayer_title">Fajr Prayer Time  </string>
+    <string name="sunrise_prayer_title">It\'s time for prayer</string> <!-- New addition -->
     <string name="dhuhr_prayer_title">Dhuhr Prayer Now</string>
     <string name="asr_prayer_title">Asr Prayer Now</string>
     <string name="maghrib_prayer_title">Maghrib Prayer Now</string>
     <string name="isha_prayer_title">Isha Prayer Now</string>
-
+    <string name="stop_notification">Stop Alarm</string>
+    <string name="press_to_stop">Press to stop</string>
     <!-- Messages -->
-    <string name="fajr_prayer_message">It\'s time for Fajr prayer</string>
+    <string name="fajr_prayer_message">It\'s time for prayer</string>
     <string name="sunrise_prayer_message">It\'s time for Sunrise prayer</string> <!-- New addition -->
     <string name="dhuhr_prayer_message">It\'s time for Dhuhr prayer</string>
     <string name="asr_prayer_message">It\'s time for Asr prayer</string>

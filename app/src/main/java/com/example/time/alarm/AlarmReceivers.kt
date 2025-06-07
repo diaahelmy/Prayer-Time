@@ -8,7 +8,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
-import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -24,12 +23,10 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
-import androidx.core.net.toUri
+import com.example.time.service.AzanSoundManager
 
 class AlarmReceivers : BroadcastReceiver(), LocationFetchListener {
 
-    private var soundUriForFajr: Uri = "android.resource://com.example.time/raw/alarm".toUri() // Default sound URI for FAJR_ALARM
-    private var soundUriForAll: Uri = "android.resource://com.example.time/raw/abdelbasset".toUri() // Default sound URI for All_ALARM
 // Default sound URI for All_ALARM
 
     @SuppressLint("MissingPermission")
@@ -41,8 +38,8 @@ class AlarmReceivers : BroadcastReceiver(), LocationFetchListener {
                 ACTION_FAJR_ALARM, ACTION_All_ALARM -> {
                     // تشغيل صوت التنبيه
                     val soundUri = when (intent.action) {
-                        ACTION_FAJR_ALARM -> soundUriForFajr
-                        ACTION_All_ALARM -> soundUriForAll
+                        ACTION_FAJR_ALARM ->  AzanSoundManager.getSoundUriForFajr(it)
+                        ACTION_All_ALARM -> AzanSoundManager.getSoundUriForAll(it)
                         else -> RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
                     }
                     AlarmSound.playAlarmSound(context, soundUri)
@@ -137,7 +134,7 @@ class AlarmReceivers : BroadcastReceiver(), LocationFetchListener {
 
         val builder = NotificationCompat.Builder(context, PERSISTENT_CHANNEL_ID)
             .setSmallIcon(R.drawable.mosque)
-            .setContentTitle("🕌 الصلاة القادمة: ${nextPrayer.first}")
+            .setContentTitle("🕌 الصلاة القادمة: ${nextPrayer.first} ")
             .setContentText("⏳ متبقي: $timeUntilNext")
             .setStyle(NotificationCompat.BigTextStyle()
                 .bigText("""
@@ -166,9 +163,9 @@ class AlarmReceivers : BroadcastReceiver(), LocationFetchListener {
     }
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     private fun showCurrentPrayerNotification(context: Context, intent: Intent) {
-        val title = "🕌 حان الآن وقت الصلاة"
-        val message = intent.getStringExtra("title") ?: "موعد الصلاة"
-        val time = intent.getStringExtra("message") ?: "حان الآن وقت الصلاة"
+        val title = " 🕌${intent.getStringExtra("title")} "
+        val message = intent.getStringExtra("title") ?: context.getString(R.string.fajr_prayer_title)
+        val time = intent.getStringExtra("message") ?: context.getString(R.string.sunrise_prayer_title)
 
         val formattedTime = formatPrayerTime(time)
 
@@ -184,10 +181,10 @@ class AlarmReceivers : BroadcastReceiver(), LocationFetchListener {
             .setContentTitle(title)
             .setContentText("🔔 $message ($formattedTime)")
             .setStyle(NotificationCompat.BigTextStyle()
-                .bigText("🔔 $message ($formattedTime)\n\nاضغط لإيقاف التنبيه"))
+                .bigText("🔔 $title ($formattedTime)\n\n${context.getString(R.string.press_to_stop)}"))
             .addAction(
                 R.drawable.ic_stop,
-                "🛑 إيقاف التنبيه",
+                "🛑 ${context.getString(R.string.stop_notification)}", // النص المترجم هنا
                 stopAlarmPendingIntent
             )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -197,28 +194,8 @@ class AlarmReceivers : BroadcastReceiver(), LocationFetchListener {
         NotificationManagerCompat.from(context).notify(CURRENT_PRAYER_NOTIFICATION_ID, builder.build())
     }
 
-    private fun saveSoundUriToPreferences(context: Context, key: String, uri: String) {
-        val sharedPreferences =
-            context.getSharedPreferences("alarm_preferences", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putString(key, uri)
-        editor.apply()
-    }
 
 
-
-    fun updateSoundUriForFajr(context: Context, uri: Uri) {
-        soundUriForFajr = uri
-        saveSoundUriToPreferences(context, "sound_uri_fajr", uri.toString())
-
-    }
-
-    // Function to update sound URI for All_ALARM
-    fun updateSoundUriForAll(context: Context, uri: Uri) {
-        soundUriForAll = uri
-        saveSoundUriToPreferences(context, "sound_uri_all", uri.toString())
-
-    }
 
     @RequiresApi(Build.VERSION_CODES.S)
     fun fetchLocationAndUse(context: Context) {
@@ -356,6 +333,7 @@ class AlarmReceivers : BroadcastReceiver(), LocationFetchListener {
             formatter.timeZone = TimeZone.getDefault()
             formatter.format(date)
         } catch (e: Exception) {
+            Log.e("TimeCalc", "Error formatPrayerTime time", e)
             time
         }
     }

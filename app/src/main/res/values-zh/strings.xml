@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources >
     <string name="app_name">祈祷时间</string>
     <string name="hello_blank_fragment">你好，空白片段</string>
     <string name="language">语言</string>
@@ -26,6 +26,9 @@
     <string name="majority">多数派意见</string>
     <string name="fajr_andisha_calculation_method">法吉尔和伊莎计算方法</string>
     <string name="asr_calculation_method" >阿斯尔计算方法</string>
+    <string name="stop_notification">停止闹钟</string>
+    <string name="press_to_stop">按下停止</string>
+
     <!-- Titles -->
     <string name="fajr_prayer_title">现在法吉尔祈祷</string>
     <string name="sunrise_prayer_title">现在日出祈祷</string>
@@ -35,7 +38,7 @@
     <string name="isha_prayer_title">现在伊莎祈祷</string>
 
     <!-- Messages -->
-    <string name="fajr_prayer_message">现在是法吉尔祈祷的时间</string>
+    <string name="fajr_prayer_message">祈祷的时间到了</string>
     <string name="sunrise_prayer_message">现在是日出祈祷的时间</string>
     <string name="dhuhr_prayer_message">现在是杜胡尔祈祷的时间</string>
     <string name="asr_prayer_message">现在是阿斯尔祈祷的时间</string>

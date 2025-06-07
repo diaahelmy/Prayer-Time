@@ -11,6 +11,9 @@
     <string name="dhuhr">Dhuhr</string>
     <string name="asr">Asr</string>
     <string name="maghrib">Maghrib</string>
+    <string name="stop_notification">Alarm stoppen</string>
+    <string name="press_to_stop">Zum Stoppen drücken</string>
+
     <string name="isha">Isha</string>
     <string name="calculation">Gebetszeiten berechnen</string>
     <string name="calculation_method_mwl">Muslimische Weltliga</string>
@@ -37,7 +40,7 @@
 
     <!-- Messages -->
 
-    <string name="fajr_prayer_message">Es ist Zeit für das Fajr Gebet</string>
+    <string name="fajr_prayer_message">Es ist Zeit für das  Gebet</string>
     <string name="sunrise_prayer_message">Es ist Zeit für das Sonnenaufgangsgebet</string>
     <string name="dhuhr_prayer_message">Es ist Zeit für das Dhuhr Gebet</string>
     <string name="asr_prayer_message">Es ist Zeit für das Asr Gebet</string>
