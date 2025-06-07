@@ -3,40 +3,33 @@ package com.example.time.alarm
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlarmManager
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import com.example.time.MainActivity
 import com.example.time.R
 import com.example.time.data.Time
 import com.example.time.locationdata.FetchListener
-import com.example.time.locationdata.FetchListener.getNextPrayerTime
 import com.example.time.locationdata.LocationFetchListener
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
+import androidx.core.net.toUri
 
 class AlarmReceivers : BroadcastReceiver(), LocationFetchListener {
 
-    private var soundUriForFajr: Uri =
-        Uri.parse("android.resource://com.example.time/raw/alarm") // Default sound URI for FAJR_ALARM
-    private var soundUriForAll: Uri =
-        Uri.parse("android.resource://com.example.time/raw/abdelbasset") // Default sound URI for All_ALARM
+    private var soundUriForFajr: Uri = "android.resource://com.example.time/raw/alarm".toUri() // Default sound URI for FAJR_ALARM
+    private var soundUriForAll: Uri = "android.resource://com.example.time/raw/abdelbasset".toUri() // Default sound URI for All_ALARM
 // Default sound URI for All_ALARM
 
     @SuppressLint("MissingPermission")
@@ -350,7 +343,6 @@ class AlarmReceivers : BroadcastReceiver(), LocationFetchListener {
         const val PERSISTENT_NOTIFICATION_ID = 999
         const val CURRENT_PRAYER_NOTIFICATION_ID = 1000
         const val CHANNEL_ID = "alarm_channel"
-        const val NOTIFICATION_ID = 1
         const val ACTION_STOP_ALARM = "com.example.Time.ACTION_STOP_ALARM"
         var ACTION_FAJR_ALARM = "ACTION_FAJR_ALARM"
         var ACTION_All_ALARM = "ACTION_All_ALARM"
