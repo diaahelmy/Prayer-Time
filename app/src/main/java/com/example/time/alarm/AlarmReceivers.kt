@@ -212,15 +212,7 @@ class AlarmReceivers : BroadcastReceiver(), LocationFetchListener {
         editor.apply()
     }
 
-    // Function to load sound URIs from SharedPreferences
-    private fun loadSoundUrisFromPreferences(context: Context) {
-        val sharedPreferences =
-            context.getSharedPreferences("alarm_preferences", Context.MODE_PRIVATE)
-        soundUriForFajr = sharedPreferences.getString("sound_uri_fajr", soundUriForFajr.toString())
-            ?.let { Uri.parse(it) } ?: soundUriForFajr
-        soundUriForAll = sharedPreferences.getString("sound_uri_all", soundUriForAll.toString())
-            ?.let { Uri.parse(it) } ?: soundUriForAll
-    }
+
 
     fun updateSoundUriForFajr(context: Context, uri: Uri) {
         soundUriForFajr = uri
@@ -376,8 +368,4 @@ class AlarmReceivers : BroadcastReceiver(), LocationFetchListener {
         }
     }
 
-    // دالة مساعدة لتنسيق الوقت المتبقي
-    private fun formatRemainingTime(remaining: String): String {
-        return remaining.replace("ساعة", "س").replace("دقيقة", "د")
-    }
 }

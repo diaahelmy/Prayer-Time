@@ -1,23 +1,21 @@
 package com.example.time.alarm
 
-import android.annotation.SuppressLint
-import android.app.AlarmManager
-import android.app.PendingIntent
+
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
 import com.example.time.alarm.AlarmReceivers.Companion.ACTION_All_ALARM
 import com.example.time.alarm.AlarmReceivers.Companion.ACTION_FAJR_ALARM
-import com.example.time.locationdata.FetchListener
-import com.example.time.locationdata.LocationFetchListener
-import com.example.time.data.Time
-import com.example.time.locationdata.FetchListener.getNextPrayerTime
+
 
 class Receiver : BroadcastReceiver() {
 
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onReceive(context: Context, intent: Intent) {
         val alarmReceiver = AlarmReceivers()

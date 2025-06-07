@@ -340,25 +340,8 @@ object FetchListener {
         }
     }
 
-    fun releaseWakeLock(wakeLock: PowerManager.WakeLock?) {
-        wakeLock?.let {
-            if (it.isHeld) {
-                it.release()
-                Log.d("WakeLock", "Wake lock released")
-            }
-        }
-    }
-    fun acquireWakeLock(context: Context): PowerManager.WakeLock? {
-        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-        return powerManager.newWakeLock(
-            PowerManager.PARTIAL_WAKE_LOCK,
 
-            "MyApp::AlarmWakeLock"
-        )
-            .apply {
-                acquire(10 * 60 * 1000L /* 10 minutes */)
-            }
-    }
+
     private fun isIgnoringBatteryOptimizations(context: Context): Boolean {
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
         return powerManager.isIgnoringBatteryOptimizations(context.packageName)
@@ -381,42 +364,7 @@ object FetchListener {
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
         return powerManager.isSustainedPerformanceModeSupported
     }
-    fun getNextPrayerTime(prayerTimes: Time): Pair<String, String> {
-        val now = Calendar.getInstance()
-        val formatter = SimpleDateFormat("h:mm a", Locale.getDefault())
 
-        val prayers = listOf(
-            Pair("Fajr", prayerTimes.fajr),
-            Pair("Sunrise", prayerTimes.sunrise),
-            Pair("Dhuhr", prayerTimes.dhuhr),
-            Pair("Asr", prayerTimes.asr),
-            Pair("Maghrib", prayerTimes.maghrib),
-            Pair("Isha", prayerTimes.isha)
-        )
-
-        for ((name, timeStr) in prayers) {
-            try {
-                val prayerTime = formatter.parse(timeStr) ?: continue
-                val prayerCal = Calendar.getInstance().apply {
-                    time = prayerTime
-                    // Set the date part to today
-                    set(Calendar.YEAR, now.get(Calendar.YEAR))
-                    set(Calendar.MONTH, now.get(Calendar.MONTH))
-                    set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH))
-                }
-
-                if (prayerCal.after(now)) {
-                    return Pair(name, timeStr)
-                }
-            } catch (e: Exception) {
-                Log.e("PrayerTime", "Error parsing time: $timeStr", e)
-                continue
-            }
-        }
-
-        // If all prayers passed today, return first prayer tomorrow
-        return Pair("Fajr", prayerTimes.fajr)
-    }
     private fun createNotificationChannels(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // قناة الإشعارات الثابتة
