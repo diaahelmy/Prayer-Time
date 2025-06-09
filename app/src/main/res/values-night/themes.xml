@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Theme.Time" parent="Theme.Material3.Dark.NoActionBar">
-        <item name="colorPrimary">@color/md_theme_primaryd</item>
+        <item name="colorPrimary">@color/md_theme_inverseSurfaced</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimaryd</item>
         <item name="vectorColor">#ffffff</item>
         <item name="linecolor">@color/md_theme_backgroundd</item>
@@ -18,6 +18,8 @@
         <item name="colorError">@color/md_theme_errord</item>
         <item name="colorOnError">@color/md_theme_onErrord</item>
         <item name="colorErrorContainer">@color/md_theme_errorContainerd</item>
+        <item name="android:forceDarkAllowed" tools:ignore="NewApi">true</item>
+
         <item name="colorOnErrorContainer">@color/md_theme_onErrorContainerd</item>
         <item name="android:colorBackground">@color/md_theme_backgroundd</item>
         <item name="colorOnBackground">@color/md_theme_onBackgroundd</item>

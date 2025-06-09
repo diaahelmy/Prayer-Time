@@ -98,7 +98,7 @@ class SettingFragment : Fragment() {
 
             AlertDialog.Builder(requireContext())
                 .setTitle("Select Azan Fajr")
-                .setItems(actionChoices) { dialog, which ->
+                .setItems(actionChoices) { _, which ->
                     val selectedUri = uris[which].toUri()
                     AzanSoundManager.updateSoundUriForFajr(requireContext(), selectedUri)
                     binding.soundAzanFajrText.text = actionChoices[which]
@@ -126,7 +126,7 @@ class SettingFragment : Fragment() {
 
             AlertDialog.Builder(requireContext())
                 .setTitle("Select Azan")
-                .setItems(actionChoices) { dialog, which ->
+                .setItems(actionChoices) { _, which ->
                     val selectedUri = uris[which].toUri()
                     AzanSoundManager.updateSoundUriForAll(requireContext(), selectedUri)
                     binding.tvsoundAzanall.text = actionChoices[which]

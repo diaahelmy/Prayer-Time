@@ -30,7 +30,6 @@ import com.example.time.calculate.sunsetTime
 import com.example.time.data.Time
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.util.Date
 import java.util.Locale
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
@@ -192,8 +191,7 @@ object FetchListener {
         // Convert each character in the input string to the corresponding Arabic numeral
         return input.map { char -> arabicNumerals[char] ?: char }.joinToString("")
     }
-    @RequiresApi(Build.VERSION_CODES.S)
-    @SuppressLint("ScheduleExactAlarm")
+    @SuppressLint("ScheduleExactAlarm", "ObsoleteSdkInt")
     fun scheduleNotification(
         context: Context,
         notificationTime: String,
@@ -217,30 +215,27 @@ object FetchListener {
                 putExtra("title", title)
                 putExtra("message", message)
             }
-            val uniqueId = (notificationId + SimpleDateFormat("ddD", Locale.getDefault())
-                .format(Date()).hashCode())
+
+
+            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
 
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
                 notificationId,
                 intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+               flags
             )
 
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    triggerTimeMillis,
-                    pendingIntent
-                )
-            } else {
-                alarmManager.setExact(
-                    AlarmManager.RTC_WAKEUP,
-                    triggerTimeMillis,
-                    pendingIntent
-                )
-            }
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                triggerTimeMillis,
+                pendingIntent
+            )
             Log.d(
                 "scheduleNotification",
                 "Notification scheduled for $notificationTime in $targetTimeZoneId"
