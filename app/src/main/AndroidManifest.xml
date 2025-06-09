@@ -55,7 +55,16 @@
                 <action android:name="com.example.Time.ACTION_STOP_ALARM" />
             </intent-filter>
         </receiver>
-
+        <receiver
+            android:name=".alarm.TimeChangedReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+            </intent-filter>
+        </receiver>
         <receiver
             android:name=".alarm.BootReceiver"
             android:enabled="true"
